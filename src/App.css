@@ -1,0 +1,565 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+/* Chat UI Enhancements */
+
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bounce-gentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(var(--primary), 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(var(--primary), 0.5);
+  }
+}
+
+.animate-slide-in-up {
+  animation: slide-in-up 0.5s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.4s ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.3s ease-out;
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 2s infinite;
+}
+
+/* Auto-scrolling carousel animation */
+@keyframes carousel-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-carousel {
+  animation: carousel-scroll 30s linear infinite;
+  will-change: transform;
+}
+
+/* Pause carousel on hover */
+.animate-carousel:hover {
+  animation-play-state: paused;
+}
+
+/* Hide scrollbar for carousel */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Suggestion Button Enhancements */
+@keyframes suggestion-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes suggestion-glow {
+  0%, 100% {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 0 10px rgba(var(--primary), 0.2);
+  }
+  50% {
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15), 0 0 20px rgba(var(--primary), 0.4);
+  }
+}
+
+.suggestion-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.suggestion-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.suggestion-button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.suggestion-button:hover {
+  animation: suggestion-glow 1s ease-in-out;
+}
+
+/* Gradient backgrounds */
+.bg-gradient-primary {
+  @apply bg-gradient-to-br from-primary to-blue-600;
+}
+
+.bg-gradient-accent {
+  @apply bg-gradient-to-br from-primary/5 to-blue-500/5;
+}
+
+/* Smooth transitions */
+* {
+  @apply transition-colors duration-200;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.3);
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.5);
+}
+
+/* Text selection */
+::selection {
+  background: hsl(var(--primary) / 0.3);
+  color: hsl(var(--foreground));
+}
+
+/* Input focus states */
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+
+/* Button hover effects */
+button {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Message bubble animations */
+.message-bubble {
+  animation: fade-up 0.4s ease-out;
+}
+
+.message-bubble.user {
+  animation: slide-in-right 0.4s ease-out;
+}
+
+.message-bubble.bot,
+.message-bubble.admin {
+  animation: slide-in-left 0.4s ease-out;
+}
+
+/* Chat sidebar animations */
+.chat-item {
+  animation: fade-up 0.3s ease-out;
+}
+
+.chat-item:hover {
+  transform: translateX(4px);
+  transition: transform 0.2s ease-out;
+}
+
+/* Suggested questions animation */
+.suggested-questions {
+  animation: fade-up 0.5s ease-out;
+}
+
+.suggested-questions button {
+  animation: fade-up 0.4s ease-out;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Reaction picker animation */
+.reaction-picker {
+  animation: slide-in-right 0.2s ease-out;
+}
+
+/* Admin indicator pulse */
+.admin-indicator {
+  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Smooth backdrop blur */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Glass morphism effect */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Dark mode glass morphism */
+.dark .glass-effect {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Subtle glow effect for buttons */
+button:focus-visible {
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.2);
+}
+
+/* Smooth color transitions */
+.transition-colors {
+  transition-property: background-color, border-color, color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 768px) {
+  /* Prevent double tap zoom */
+  input,
+  button,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  /* Better touch targets */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Smoother scrolling on mobile */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Prevent hover states on mobile */
+  *:hover {
+    @apply md:hover:shadow-md md:hover:border-primary md:hover:bg-primary/20;
+  }
+
+  /* Better keyboard visibility */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.2);
+  }
+
+  /* Mobile sidebar animation */
+  .sidebar-overlay {
+    animation: fade-in 0.2s ease-out;
+  }
+
+  /* Prevent text selection on buttons */
+  button {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+  }
+
+  /* Better scrollbar for mobile */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+  }
+}
+
+/* Active state animations for touch devices */
+@media (hover: none) and (pointer: coarse) {
+  button {
+    @apply active:scale-95 transition-transform duration-100;
+  }
+
+  /* Better touch feedback */
+  .message-bubble {
+    @apply active:opacity-80 transition-opacity duration-100;
+  }
+
+  .chat-item {
+    @apply active:scale-95 transition-transform duration-100;
+  }
+
+  /* Disable hover effects on touch devices */
+  button:hover {
+    @apply md:hover:scale-100;
+  }
+}
+
+/* Animation for mobile sidebar entrance */
+@keyframes slide-in-sidebar {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out-sidebar {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+.sidebar-enter {
+  animation: slide-in-sidebar 0.3s ease-out;
+}
+
+.sidebar-exit {
+  animation: slide-out-sidebar 0.3s ease-out;
+}
+
+/* Better backdrop blur for mobile */
+@supports (backdrop-filter: blur(10px)) {
+  .backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+}
+
+/* iOS specific improvements */
+@supports (-webkit-touch-callout: none) {
+  /* iOS specific */
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  /* Prevent zoom on input focus */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Better text rendering */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Safe area padding for notch devices */
+  @supports (padding: max(0px)) {
+    body {
+      padding-left: max(0px, env(safe-area-inset-left));
+      padding-right: max(0px, env(safe-area-inset-right));
+    }
+  }
+}
+
+/* Landscape mode optimizations */
+@media (max-height: 500px) and (orientation: landscape) {
+  .chat-header {
+    padding: 0.5rem;
+  }
+
+  .chat-messages {
+    max-height: 60vh;
+  }
+
+  .chat-input {
+    padding: 0.5rem;
+  }
+
+  button {
+    padding: 0.5rem;
+    height: 36px;
+  }
+}
+
+/* Light touch feedback for mobile */
+@media (hover: none) {
+  button:active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: hsl(var(--primary) / 0.1);
+    border-radius: inherit;
+  }
+}
+
+/* Optimize scrolling performance */
+.scroll-area {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Better text selection */
+::selection {
+  background: hsl(var(--primary) / 0.4);
+  color: hsl(var(--foreground));
+}
+
+::-webkit-selection {
+  background: hsl(var(--primary) / 0.4);
+  color: hsl(var(--foreground));
+}
+
+/* Smooth page transitions */
+@media (prefers-reduced-motion: no-preference) {
+  .chat-message-enter {
+    animation: fade-up 0.4s ease-out;
+  }
+
+  .chat-message-exit {
+    animation: fade-up 0.2s ease-in reverse;
+  }
+}
+
+/* Prevent layout shift */
+* {
+  scrollbar-gutter: stable;
+}
+
+/* Better focus states for accessibility */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
