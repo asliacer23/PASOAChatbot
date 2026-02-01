@@ -323,7 +323,7 @@ export function AuthPage() {
         </div>
         <div className="space-y-1">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent animate-text-shimmer">
-            Pasoa Student Hub
+            PASOA Student Hub
           </h1>
           <p className="text-xs text-muted-foreground animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
             Your one-stop student assistant
@@ -344,7 +344,7 @@ export function AuthPage() {
               {activeTab === "signin" ? (
                 <div className="space-y-3 animate-fade-in-down">
                   <h2 className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent leading-tight animate-text-shimmer">
-                    Sign in to<br />Pasoa Student Hub
+                    Sign in to<br />PASOA Student Hub
                   </h2>
                   <p className="text-lg text-muted-foreground animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
                     Your one-stop student assistant
