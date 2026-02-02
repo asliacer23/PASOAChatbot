@@ -14,6 +14,8 @@ import {
   GraduationCap,
   X,
   MessageCircle,
+  Users,
+  TrendingUp,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -296,173 +298,321 @@ export function UserManagement() {
   };
 
   return (
-    <div className="space-y-4 md:space-y-6">
-      <div>
-        <h2 className="text-lg md:text-xl font-semibold">User Management</h2>
-        <p className="text-xs md:text-sm text-muted-foreground">
+    <div className="space-y-6 md:space-y-8 animate-fade-up">
+      {/* Header Section */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Users className="h-5 w-5 text-primary" />
+          <h2 className="text-2xl md:text-3xl font-bold">User Management</h2>
+        </div>
+        <p className="text-sm md:text-base text-muted-foreground">
           Manage student accounts and permissions
         </p>
       </div>
 
-      {/* Search */}
+      {/* Search Section */}
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search users..."
-          className="pl-10 rounded-xl bg-secondary/50"
+          className="pl-10 rounded-lg bg-secondary/50 border-border/50 focus:border-primary/50 transition-colors"
         />
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card className="border-border/50">
-          <CardContent className="p-3 md:p-4">
-            <p className="text-xs text-muted-foreground">Total Users</p>
-            <p className="text-xl md:text-2xl font-bold">{users.length}</p>
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="border-border/50 bg-gradient-to-br from-blue-500/20 to-blue-600/20 hover:shadow-lg transition-all duration-300">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Total Users</p>
+                <p className="text-2xl sm:text-3xl font-bold">{users.length}</p>
+              </div>
+              <div className="p-2 bg-blue-500/20 rounded-lg">
+                <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-3 md:p-4">
-            <p className="text-xs text-muted-foreground">Active</p>
-            <p className="text-xl md:text-2xl font-bold text-green-500">
-              {users.filter((u) => u.status === "active").length}
-            </p>
+
+        <Card className="border-border/50 bg-gradient-to-br from-green-500/20 to-green-600/20 hover:shadow-lg transition-all duration-300">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Active</p>
+                <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">
+                  {users.filter((u) => u.status === "active").length}
+                </p>
+              </div>
+              <div className="p-2 bg-green-500/20 rounded-lg">
+                <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+              </div>
+            </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-3 md:p-4">
-            <p className="text-xs text-muted-foreground">Suspended</p>
-            <p className="text-xl md:text-2xl font-bold text-destructive">
-              {users.filter((u) => u.status === "suspended").length}
-            </p>
+
+        <Card className="border-border/50 bg-gradient-to-br from-red-500/20 to-red-600/20 hover:shadow-lg transition-all duration-300">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Suspended</p>
+                <p className="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400">
+                  {users.filter((u) => u.status === "suspended").length}
+                </p>
+              </div>
+              <div className="p-2 bg-red-500/20 rounded-lg">
+                <Ban className="h-4 w-4 text-red-600 dark:text-red-400" />
+              </div>
+            </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-3 md:p-4">
-            <p className="text-xs text-muted-foreground">Admins</p>
-            <p className="text-xl md:text-2xl font-bold text-primary">
-              {Object.values(userRoles).filter((roles) => roles.includes("admin") || roles.includes("super_admin")).length}
-            </p>
+
+        <Card className="border-border/50 bg-gradient-to-br from-purple-500/20 to-purple-600/20 hover:shadow-lg transition-all duration-300">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Admins</p>
+                <p className="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400">
+                  {Object.values(userRoles).filter((roles) => roles.includes("admin") || roles.includes("super_admin")).length}
+                </p>
+              </div>
+              <div className="p-2 bg-purple-500/20 rounded-lg">
+                <Shield className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Users Table */}
-      <Card className="border-border/50">
+      <Card className="border-border/50 hover:shadow-lg transition-all duration-300">
+        <CardHeader className="pb-4 sm:pb-6 border-b border-border/50">
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <UserIcon className="h-5 w-5 text-primary" />
+            Users List
+          </CardTitle>
+        </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <div className="flex flex-col items-center justify-center py-12 md:py-16">
+              <Loader2 className="h-8 w-8 md:h-10 md:w-10 animate-spin text-primary mb-3" />
+              <p className="text-sm text-muted-foreground">Loading users...</p>
             </div>
           ) : (
-            <ScrollArea className="w-full">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className="text-xs">User</TableHead>
-                    <TableHead className="text-xs hidden md:table-cell">Student ID</TableHead>
-                    <TableHead className="text-xs">Role</TableHead>
-                    <TableHead className="text-xs">Status</TableHead>
-                    <TableHead className="text-xs hidden lg:table-cell">Program</TableHead>
-                    <TableHead className="w-12"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredUsers.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">
-                        No users found
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredUsers.map((user) => (
-                      <TableRow key={user.id} className="hover:bg-accent/50">
-                        <TableCell>
-                          <div className="flex items-center gap-2 md:gap-3">
-                            <Avatar className="h-8 w-8 md:h-9 md:w-9">
-                              <AvatarImage src={user.avatar_url || undefined} />
-                              <AvatarFallback className="bg-gradient-primary text-primary-foreground text-xs">
-                                {user.first_name[0]}{user.last_name[0]}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="min-w-0">
-                              <p className="font-medium text-xs md:text-sm truncate max-w-[120px] md:max-w-none">
-                                {user.first_name} {user.last_name}
-                              </p>
-                              <p className="text-[10px] md:text-xs text-muted-foreground truncate max-w-[120px] md:max-w-none">
-                                {user.email}
-                              </p>
+            <>
+              {filteredUsers.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 md:py-16 text-center">
+                  <UserIcon className="h-8 w-8 text-muted-foreground/50 mb-2" />
+                  <p className="text-sm text-muted-foreground">No users found</p>
+                </div>
+              ) : (
+                <>
+                  {/* Mobile Card View */}
+                  <div className="md:hidden space-y-3 p-4">
+                    {filteredUsers.map((user) => (
+                      <Card key={user.id} className="border-border/50 bg-secondary/20 hover:bg-secondary/40 transition-colors">
+                        <CardContent className="p-4 space-y-3">
+                          {/* User Header */}
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-center gap-3 flex-1">
+                              <Avatar className="h-12 w-12 shrink-0">
+                                <AvatarImage src={user.avatar_url || undefined} />
+                                <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-sm font-semibold">
+                                  {user.first_name[0]}{user.last_name[0]}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="min-w-0 flex-1">
+                                <p className="font-semibold text-sm">
+                                  {user.first_name} {user.last_name}
+                                </p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                  {user.email}
+                                </p>
+                              </div>
+                            </div>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent shrink-0">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuItem onClick={() => handleViewUser(user)} className="cursor-pointer">
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  View Details
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => {
+                                  setSelectedUser(user);
+                                  setShowRoleDialog(true);
+                                }} className="cursor-pointer">
+                                  <Shield className="h-4 w-4 mr-2" />
+                                  Manage Roles
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                {user.status === "suspended" ? (
+                                  <DropdownMenuItem onClick={() => handleActivateUser(user.id)} className="cursor-pointer text-green-600 dark:text-green-400">
+                                    <CheckCircle className="h-4 w-4 mr-2" />
+                                    Activate User
+                                  </DropdownMenuItem>
+                                ) : (
+                                  <DropdownMenuItem
+                                    onClick={() => {
+                                      setSelectedUser(user);
+                                      setShowSuspendDialog(true);
+                                    }} 
+                                    className="cursor-pointer text-red-600 dark:text-red-400"
+                                  >
+                                    <Ban className="h-4 w-4 mr-2" />
+                                    Suspend User
+                                  </DropdownMenuItem>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+
+                          <Separator className="my-2" />
+
+                          {/* User Info Grid */}
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <p className="text-xs text-muted-foreground font-medium">Student ID</p>
+                              <p className="text-sm font-semibold">{user.student_id || "—"}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-xs text-muted-foreground font-medium">Status</p>
+                              <div>{getStatusBadge(user)}</div>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-xs text-muted-foreground font-medium">Role</p>
+                              <div className="flex flex-wrap gap-1">
+                                {(userRoles[user.id] || ["student"]).map((role) => (
+                                  <Badge key={role} variant={getRoleBadgeVariant(role)} className="text-[9px]">
+                                    {role === "super_admin" ? "S.Admin" : role.charAt(0).toUpperCase() + role.slice(1)}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-xs text-muted-foreground font-medium">Program</p>
+                              <p className="text-sm">{user.program ? user.program.split(" - ")[0] : "—"}</p>
                             </div>
                           </div>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground text-xs hidden md:table-cell">
-                          {user.student_id || "—"}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {(userRoles[user.id] || ["student"]).map((role) => (
-                              <Badge key={role} variant={getRoleBadgeVariant(role)} className="text-[10px] md:text-xs">
-                                {role === "super_admin" ? "S.Admin" : role.charAt(0).toUpperCase() + role.slice(1)}
-                              </Badge>
-                            ))}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            {getStatusBadge(user)}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-muted-foreground text-xs hidden lg:table-cell">
-                          {user.program ? user.program.split(" - ")[0] : "—"}
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleViewUser(user)}>
-                                <Eye className="h-4 w-4 mr-2" />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => {
-                                setSelectedUser(user);
-                                setShowRoleDialog(true);
-                              }}>
-                                <Shield className="h-4 w-4 mr-2" />
-                                Manage Roles
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              {user.status === "suspended" ? (
-                                <DropdownMenuItem onClick={() => handleActivateUser(user.id)}>
-                                  <CheckCircle className="h-4 w-4 mr-2" />
-                                  Activate User
-                                </DropdownMenuItem>
-                              ) : (
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    setSelectedUser(user);
-                                    setShowSuspendDialog(true);
-                                  }}
-                                  className="text-destructive"
-                                >
-                                  <Ban className="h-4 w-4 mr-2" />
-                                  Suspend User
-                                </DropdownMenuItem>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </ScrollArea>
+
+                          {/* Additional Info */}
+                          {user.last_login_at && (
+                            <div className="space-y-1 text-xs border-t border-border/30 pt-3">
+                              <p className="text-muted-foreground">Last Login: {format(new Date(user.last_login_at), "MMM d, yyyy")}</p>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+
+                  {/* Desktop Table View */}
+                  <div className="hidden md:block">
+                    <ScrollArea className="w-full">
+                      <Table>
+                        <TableHeader className="bg-secondary/30 hover:bg-secondary/30">
+                          <TableRow className="hover:bg-transparent border-b border-border/50">
+                            <TableHead className="text-xs sm:text-sm font-semibold text-foreground">User</TableHead>
+                            <TableHead className="text-xs sm:text-sm font-semibold text-foreground">Student ID</TableHead>
+                            <TableHead className="text-xs sm:text-sm font-semibold text-foreground">Role</TableHead>
+                            <TableHead className="text-xs sm:text-sm font-semibold text-foreground">Status</TableHead>
+                            <TableHead className="text-xs sm:text-sm font-semibold text-foreground hidden lg:table-cell">Program</TableHead>
+                            <TableHead className="w-12 text-center"></TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredUsers.map((user) => (
+                            <TableRow key={user.id} className="hover:bg-accent/40 border-b border-border/30 transition-colors">
+                              <TableCell className="py-3 sm:py-4">
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                  <Avatar className="h-8 w-8 sm:h-10 sm:w-10 shrink-0">
+                                    <AvatarImage src={user.avatar_url || undefined} />
+                                    <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-xs font-semibold">
+                                      {user.first_name[0]}{user.last_name[0]}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="min-w-0">
+                                    <p className="font-semibold text-xs sm:text-sm truncate">
+                                      {user.first_name} {user.last_name}
+                                    </p>
+                                    <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
+                                      {user.email}
+                                    </p>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-muted-foreground text-xs sm:text-sm py-3 sm:py-4">
+                                {user.student_id || "—"}
+                              </TableCell>
+                              <TableCell className="py-3 sm:py-4">
+                                <div className="flex flex-wrap gap-1">
+                                  {(userRoles[user.id] || ["student"]).map((role) => (
+                                    <Badge key={role} variant={getRoleBadgeVariant(role)} className="text-[9px] sm:text-xs">
+                                      {role === "super_admin" ? "S.Admin" : role.charAt(0).toUpperCase() + role.slice(1)}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-3 sm:py-4">
+                                {getStatusBadge(user)}
+                              </TableCell>
+                              <TableCell className="text-muted-foreground text-xs sm:text-sm hidden lg:table-cell py-3 sm:py-4">
+                                {user.program ? user.program.split(" - ")[0] : "—"}
+                              </TableCell>
+                              <TableCell className="text-center py-3 sm:py-4">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent">
+                                      <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => handleViewUser(user)} className="cursor-pointer">
+                                      <Eye className="h-4 w-4 mr-2" />
+                                      View Details
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => {
+                                      setSelectedUser(user);
+                                      setShowRoleDialog(true);
+                                    }} className="cursor-pointer">
+                                      <Shield className="h-4 w-4 mr-2" />
+                                      Manage Roles
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    {user.status === "suspended" ? (
+                                      <DropdownMenuItem onClick={() => handleActivateUser(user.id)} className="cursor-pointer text-green-600 dark:text-green-400">
+                                        <CheckCircle className="h-4 w-4 mr-2" />
+                                        Activate User
+                                      </DropdownMenuItem>
+                                    ) : (
+                                      <DropdownMenuItem
+                                        onClick={() => {
+                                          setSelectedUser(user);
+                                          setShowSuspendDialog(true);
+                                        }} 
+                                        className="cursor-pointer text-red-600 dark:text-red-400"
+                                      >
+                                        <Ban className="h-4 w-4 mr-2" />
+                                        Suspend User
+                                      </DropdownMenuItem>
+                                    )}
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </ScrollArea>
+                  </div>
+                </>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
