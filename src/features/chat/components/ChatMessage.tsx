@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/features/auth";
 import { toast } from "sonner";
+import pasoapLogo from "@/assets/pasoa-logo.png";
 
 interface ChatMessageProps {
   messageId: string;
@@ -14,6 +15,7 @@ interface ChatMessageProps {
   senderType: string;
   createdAt: string;
   imageUrl?: string | null;
+  userAvatarUrl?: string | null;
 }
 
 type ReactionType = "happy" | "sad" | "angry" | "heart" | "thumbsup" | "thumbsdown";
@@ -34,7 +36,7 @@ const reactionIcons: Record<ReactionType, { icon: React.ElementType; color: stri
   thumbsdown: { icon: ThumbsDown, color: "text-orange-500", label: "Dislike" },
 };
 
-export function ChatMessage({ messageId, content, senderType, createdAt, imageUrl }: ChatMessageProps) {
+export function ChatMessage({ messageId, content, senderType, createdAt, imageUrl, userAvatarUrl }: ChatMessageProps) {
   const { user } = useAuth();
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -145,13 +147,13 @@ export function ChatMessage({ messageId, content, senderType, createdAt, imageUr
   return (
     <div
       className={cn(
-        "flex gap-2 md:gap-3 animate-fade-up group px-2 sm:px-3 md:px-0",
+        "flex gap-1 sm:gap-2 md:gap-3 animate-fade-up group px-1 sm:px-2 md:px-3 lg:px-0",
         senderType === "user" ? "flex-row-reverse justify-start" : "justify-start"
       )}
     >
       <div
         className={cn(
-          "h-8 md:h-9 w-8 md:w-9 rounded-full flex items-center justify-center shrink-0 shadow-lg transition-all duration-200 ring-2 ring-background",
+          "h-7 sm:h-8 md:h-9 w-7 sm:w-8 md:w-9 rounded-full flex items-center justify-center shrink-0 shadow-lg transition-all duration-200 ring-2 ring-background overflow-hidden",
           senderType === "bot"
             ? "bg-gradient-to-br from-primary to-blue-500"
             : senderType === "admin"
@@ -160,17 +162,19 @@ export function ChatMessage({ messageId, content, senderType, createdAt, imageUr
         )}
       >
         {senderType === "bot" ? (
-          <Bot className="h-4 md:h-5 w-4 md:w-5 text-primary-foreground" />
+          <img src={pasoapLogo} alt="Pasoa Chatbot" className="h-3 sm:h-4 md:h-5 w-3 sm:w-4 md:w-5 object-contain" />
         ) : senderType === "admin" ? (
-          <UserCheck className="h-4 md:h-5 w-4 md:w-5 text-white" />
+          <UserCheck className="h-3 sm:h-4 md:h-5 w-3 sm:w-4 md:w-5 text-white" />
+        ) : userAvatarUrl ? (
+          <img src={userAvatarUrl} alt="User avatar" className="h-full w-full object-cover" />
         ) : (
-          <User className="h-4 md:h-5 w-4 md:w-5 text-secondary-foreground" />
+          <User className="h-3 sm:h-4 md:h-5 w-3 sm:w-4 md:w-5 text-secondary-foreground" />
         )}
       </div>
-      <div className="flex flex-col gap-1 md:gap-1.5 max-w-xs md:max-w-sm lg:max-w-md">
+      <div className="flex flex-col gap-0.5 sm:gap-1 md:gap-1.5 max-w-[75%] sm:max-w-[70%] md:max-w-[60%] lg:max-w-[50%] min-w-0">
         <Card
           className={cn(
-            "px-3.5 md:px-4 py-2.5 md:py-3 border rounded-3xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-[1.02] transform",
+            "px-3 sm:px-3.5 md:px-4 py-2 sm:py-2.5 md:py-3 border rounded-3xl transition-shadow duration-200 shadow-md hover:shadow-lg",
             senderType === "user"
               ? "bg-gradient-to-br from-primary via-primary to-blue-600 text-primary-foreground border-primary/60 rounded-br-lg ml-auto"
               : senderType === "admin"
@@ -182,17 +186,17 @@ export function ChatMessage({ messageId, content, senderType, createdAt, imageUr
             <img 
               src={imageUrl} 
               alt="Uploaded image" 
-              className="max-w-full h-auto rounded-2xl mb-2 md:mb-2.5 max-h-52 object-contain shadow-md hover:shadow-lg transition-all duration-200 border border-border/30"
+              className="max-w-full h-auto rounded-2xl mb-1 sm:mb-2 md:mb-2.5 max-h-40 sm:max-h-48 md:max-h-52 object-contain shadow-md hover:shadow-lg transition-all duration-200 border border-border/30"
             />
           )}
           <p className={cn(
-            "text-xs md:text-sm leading-relaxed whitespace-pre-wrap break-words",
+            "text-[11px] sm:text-xs md:text-sm leading-relaxed whitespace-pre-wrap break-words overflow-hidden",
             senderType === "user" ? "text-primary-foreground font-medium" : "text-foreground font-normal"
           )}>
             {content}
           </p>
           <p className={cn(
-            "text-[8px] md:text-xs opacity-70 mt-1 md:mt-1.5 transition-opacity duration-200",
+            "text-[8px] sm:text-[9px] md:text-xs opacity-70 mt-0.5 sm:mt-1 md:mt-1.5 transition-opacity duration-200",
             senderType === "user" ? "text-primary-foreground/70" : "text-muted-foreground/80"
           )}>
             {formatTime(createdAt)}
@@ -200,7 +204,7 @@ export function ChatMessage({ messageId, content, senderType, createdAt, imageUr
         </Card>
         
         {/* Reactions display and picker - Hidden on mobile, shown on hover on desktop */}
-        <div className="flex items-center gap-1 ml-1 flex-wrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className="flex items-center gap-0.5 sm:gap-1 ml-0.5 sm:ml-1 flex-wrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           {/* Show existing reactions */}
           {Object.entries(reactionCounts).map(([reaction, count]) => {
             const reactionInfo = reactionIcons[reaction as ReactionType];
@@ -212,7 +216,7 @@ export function ChatMessage({ messageId, content, senderType, createdAt, imageUr
                 variant="ghost"
                 size="sm"
                 className={cn(
-                  "h-6 md:h-7 px-1.5 md:px-2 gap-1 text-[10px] md:text-xs rounded-full border border-border/50 transition-all duration-200",
+                  "h-5 sm:h-6 md:h-7 px-1 sm:px-1.5 md:px-2 gap-0.5 sm:gap-1 text-[8px] sm:text-[9px] md:text-xs rounded-full border border-border/50 transition-all duration-200",
                   userReaction === reaction 
                     ? "bg-accent border-accent text-accent-foreground scale-105" 
                     : "hover:bg-accent/50"
@@ -220,7 +224,7 @@ export function ChatMessage({ messageId, content, senderType, createdAt, imageUr
                 onClick={() => handleReaction(reaction as ReactionType)}
                 disabled={isLoading}
               >
-                <Icon className={cn("h-3 md:h-3.5 w-3 md:w-3.5", reactionInfo.color)} />
+                <Icon className={cn("h-2.5 sm:h-3 md:h-3.5 w-2.5 sm:w-3 md:w-3.5", reactionInfo.color)} />
                 <span className="font-medium">{count}</span>
               </Button>
             );
@@ -232,27 +236,27 @@ export function ChatMessage({ messageId, content, senderType, createdAt, imageUr
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-6 md:h-7 w-6 md:w-7 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 border border-border/50"
+                className="h-5 sm:h-6 md:h-7 w-5 sm:w-6 md:w-7 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 border border-border/50"
               >
-                <Smile className="h-3 md:h-3.5 w-3 md:w-3.5" />
+                <Smile className="h-2.5 sm:h-3 md:h-3.5 w-2.5 sm:w-3 md:w-3.5" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-2 md:p-3" align="start">
-              <div className="flex gap-1 md:gap-2">
+            <PopoverContent className="w-auto p-1.5 sm:p-2 md:p-3" align="start">
+              <div className="flex gap-0.5 sm:gap-1 md:gap-2">
                 {Object.entries(reactionIcons).map(([key, { icon: Icon, color, label }]) => (
                   <Button
                     key={key}
                     variant="ghost"
                     size="icon"
                     className={cn(
-                      "h-8 md:h-9 w-8 md:w-9 hover:scale-125 transition-all duration-200 rounded-lg hover:bg-accent active:scale-95 md:active:scale-100",
+                      "h-7 sm:h-8 md:h-9 w-7 sm:w-8 md:w-9 hover:scale-125 transition-all duration-200 rounded-lg hover:bg-accent active:scale-95 md:active:scale-100",
                       userReaction === key && "bg-accent scale-110"
                     )}
                     onClick={() => handleReaction(key as ReactionType)}
                     disabled={isLoading}
                     title={label}
                   >
-                    <Icon className={cn("h-4 md:h-5 w-4 md:w-5", color)} />
+                    <Icon className={cn("h-3 sm:h-4 md:h-5 w-3 sm:w-4 md:w-5", color)} />
                   </Button>
                 ))}
               </div>

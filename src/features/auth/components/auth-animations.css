@@ -177,13 +177,15 @@ input:focus {
   animation: fadeIn 0.3s ease-out;
 }
 
-/* Button Hover Ripple Effect */
-button:not(:disabled):not([class*="absolute"]) {
+/* Button Hover Ripple Effect - Only for auth buttons */
+.auth-button,
+button[class*="auth"] {
   position: relative;
   overflow: hidden;
 }
 
-button:not(:disabled):not([class*="absolute"])::after {
+.auth-button::after,
+button[class*="auth"]::after {
   content: '';
   position: absolute;
   top: 50%;
@@ -196,7 +198,8 @@ button:not(:disabled):not([class*="absolute"])::after {
   pointer-events: none;
 }
 
-button:not(:disabled):not([class*="absolute"]):active::after {
+.auth-button:active::after,
+button[class*="auth"]:active::after {
   animation: ripple 0.6s ease-out;
 }
 
@@ -215,9 +218,12 @@ button:not(:disabled):not([class*="absolute"]):active::after {
 
 /* Smooth transitions for all interactive elements */
 input,
-button,
 a {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:not([class*="transition"]) {
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
 /* Loading State */
