@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Plus, Edit2, Trash2, Loader2, Save, X } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, Loader2, Save, X, HelpCircle, Eye, MessageCircle, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -244,117 +244,210 @@ export function FAQManagement() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 md:space-y-8 animate-fade-up">
+      {/* Header Section */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold">FAQ Management</h2>
-          <p className="text-sm text-muted-foreground">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <HelpCircle className="h-5 w-5 text-primary" />
+            <h2 className="text-2xl md:text-3xl font-bold">FAQ Management</h2>
+          </div>
+          <p className="text-sm md:text-base text-muted-foreground">
             Create and manage frequently asked questions
           </p>
         </div>
-        <Button className="bg-gradient-primary rounded-xl" onClick={() => handleOpenEdit()}>
+        <Button className="bg-gradient-to-r from-primary to-primary/80 hover:shadow-lg transition-all rounded-lg h-10 whitespace-nowrap" onClick={() => handleOpenEdit()}>
           <Plus className="h-4 w-4 mr-2" />
           Add FAQ
         </Button>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search FAQs..."
-            className="pl-10 rounded-xl bg-secondary/50"
-          />
-        </div>
-        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-full sm:w-48 rounded-xl">
-            <SelectValue placeholder="All Categories" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            {categories.map((cat) => (
-              <SelectItem key={cat.id} value={cat.id}>
-                {cat.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Stats Cards */}
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <Card className="border-border/50 bg-gradient-to-br from-blue-500/20 to-blue-600/20 hover:shadow-lg transition-all duration-300">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Total FAQs</p>
+                <p className="text-2xl sm:text-3xl font-bold">{faqs.length}</p>
+              </div>
+              <div className="p-2 bg-blue-500/20 rounded-lg">
+                <HelpCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50 bg-gradient-to-br from-green-500/20 to-green-600/20 hover:shadow-lg transition-all duration-300">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Total Views</p>
+                <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">
+                  {faqs.reduce((sum, f) => sum + f.view_count, 0).toLocaleString()}
+                </p>
+              </div>
+              <div className="p-2 bg-green-500/20 rounded-lg">
+                <Eye className="h-4 w-4 text-green-600 dark:text-green-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50 bg-gradient-to-br from-purple-500/20 to-purple-600/20 hover:shadow-lg transition-all duration-300">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Total Matches</p>
+                <p className="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400">
+                  {faqs.reduce((sum, f) => sum + f.match_count, 0).toLocaleString()}
+                </p>
+              </div>
+              <div className="p-2 bg-purple-500/20 rounded-lg">
+                <MessageCircle className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Filters Section */}
+      <Card className="border-border/50 p-4 sm:p-6">
+        <div className="space-y-4">
+          <h3 className="font-semibold text-sm md:text-base">Filters</h3>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search FAQs by question or answer..."
+                className="pl-10 rounded-lg bg-secondary/50 border-border/50 focus:border-primary/50 transition-colors"
+              />
+            </div>
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-full sm:w-48 rounded-lg">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </Card>
 
       {/* FAQ List */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center justify-center py-16">
+          <Loader2 className="h-8 w-8 md:h-10 md:w-10 animate-spin text-primary mb-3" />
+          <p className="text-sm text-muted-foreground">Loading FAQs...</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div>
           {filteredFaqs.length === 0 ? (
             <Card className="border-border/50">
-              <CardContent className="py-12 text-center text-muted-foreground">
-                No FAQs found. Create your first FAQ!
+              <CardContent className="py-12 sm:py-16 text-center">
+                <div className="flex flex-col items-center gap-3">
+                  <HelpCircle className="h-8 w-8 text-muted-foreground/50" />
+                  <div>
+                    <p className="font-medium text-muted-foreground">No FAQs found</p>
+                    <p className="text-sm text-muted-foreground mt-1">Create your first FAQ to get started</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           ) : (
-            filteredFaqs.map((faq) => (
-              <Card key={faq.id} className="border-border/50 hover:shadow-soft transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <Badge variant="secondary" className="text-xs">
-                          {getCategoryName(faq.category_id)}
-                        </Badge>
-                        {!faq.is_active && (
-                          <Badge variant="outline" className="text-xs text-muted-foreground">
-                            Inactive
+            <div className="space-y-3 sm:space-y-4">
+              {filteredFaqs.map((faq) => (
+                <Card key={faq.id} className="border-border/50 hover:shadow-lg transition-all duration-300 group">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="space-y-3">
+                      {/* Header with badges */}
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge className="bg-primary/20 text-primary text-xs sm:text-xs">
+                            {getCategoryName(faq.category_id)}
                           </Badge>
-                        )}
-                        <span className="text-xs text-muted-foreground">
-                          {faq.view_count} views • {faq.match_count} matches
-                        </span>
+                          {!faq.is_active && (
+                            <Badge variant="outline" className="text-xs text-muted-foreground">
+                              Inactive
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 hover:bg-accent"
+                            onClick={() => handleOpenEdit(faq)}
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                            onClick={() => {
+                              setEditingFaq(faq);
+                              setShowDeleteDialog(true);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                      <h3 className="font-medium">{faq.question}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
+
+                      {/* Question */}
+                      <div>
+                        <h3 className="font-semibold text-sm sm:text-base leading-tight group-hover:text-primary transition-colors">
+                          {faq.question}
+                        </h3>
+                      </div>
+
+                      {/* Answer Preview */}
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
                         {faq.answer}
                       </p>
+
+                      {/* Keywords */}
                       {faq.keywords && faq.keywords.length > 0 && (
-                        <div className="flex gap-1 flex-wrap">
-                          {faq.keywords.slice(0, 5).map((keyword) => (
-                            <Badge key={keyword} variant="outline" className="text-xs">
+                        <div className="flex gap-2 flex-wrap pt-2">
+                          {faq.keywords.slice(0, 4).map((keyword) => (
+                            <Badge key={keyword} variant="outline" className="text-[10px] sm:text-xs">
                               {keyword}
                             </Badge>
                           ))}
+                          {faq.keywords.length > 4 && (
+                            <Badge variant="outline" className="text-[10px] sm:text-xs">
+                              +{faq.keywords.length - 4} more
+                            </Badge>
+                          )}
                         </div>
                       )}
+
+                      {/* Stats Footer */}
+                      <div className="flex gap-4 text-xs text-muted-foreground border-t border-border/30 pt-3 mt-3">
+                        <div className="flex items-center gap-1">
+                          <Eye className="h-3 w-3" />
+                          <span>{faq.view_count.toLocaleString()} views</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <MessageCircle className="h-3 w-3" />
+                          <span>{faq.match_count.toLocaleString()} matches</span>
+                        </div>
+                        <span>{new Date(faq.created_at).toLocaleDateString()}</span>
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => handleOpenEdit(faq)}
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive"
-                        onClick={() => {
-                          setEditingFaq(faq);
-                          setShowDeleteDialog(true);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
         </div>
       )}

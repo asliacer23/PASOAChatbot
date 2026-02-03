@@ -242,37 +242,28 @@ export function EventsManagement() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-primary" />
-            Events Management
-          </h2>
-          <p className="text-sm text-muted-foreground">
+    <div className="space-y-6 md:space-y-8">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 md:gap-6">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+            <h2 className="text-2xl md:text-3xl font-bold">Events Management</h2>
+          </div>
+          <p className="text-sm md:text-base text-muted-foreground">
             Create and manage campus events
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1 sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search events..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
-            if (!open) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button className="bg-gradient-primary">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Event
-              </Button>
-            </DialogTrigger>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) resetForm();
+        }}>
+          <DialogTrigger asChild>
+            <Button className="bg-gradient-to-r from-primary to-primary/80 hover:shadow-lg transition-all rounded-lg h-10 whitespace-nowrap">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Event
+            </Button>
+          </DialogTrigger>
             <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
@@ -393,151 +384,223 @@ export function EventsManagement() {
               </form>
             </DialogContent>
           </Dialog>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="border-border/50 bg-gradient-to-br from-blue-500/20 to-blue-600/20 hover:shadow-lg transition-all duration-300">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Total Events</p>
+                <p className="text-2xl sm:text-3xl font-bold">{events.length}</p>
+              </div>
+              <div className="p-2 bg-blue-500/20 rounded-lg">
+                <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50 bg-gradient-to-br from-green-500/20 to-green-600/20 hover:shadow-lg transition-all duration-300">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Upcoming</p>
+                <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">{upcomingEvents.length}</p>
+              </div>
+              <div className="p-2 bg-green-500/20 rounded-lg">
+                <Clock className="h-4 w-4 text-green-600 dark:text-green-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50 bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 hover:shadow-lg transition-all duration-300">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Featured</p>
+                <p className="text-2xl sm:text-3xl font-bold text-yellow-600 dark:text-yellow-400">{events.filter(e => e.is_featured).length}</p>
+              </div>
+              <div className="p-2 bg-yellow-500/20 rounded-lg">
+                <Star className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50 bg-gradient-to-br from-purple-500/20 to-purple-600/20 hover:shadow-lg transition-all duration-300">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Published</p>
+                <p className="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400">{events.filter(e => e.is_published).length}</p>
+              </div>
+              <div className="p-2 bg-purple-500/20 rounded-lg">
+                <Eye className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters Section */}
+      <Card className="border-border/50 p-4 sm:p-6">
+        <div className="space-y-4">
+          <h3 className="font-semibold text-sm md:text-base">Filters</h3>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search events by title or description..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 rounded-lg bg-secondary/50 border-border/50 focus:border-primary/50 transition-colors"
+              />
+            </div>
+          </div>
         </div>
-      </div>
+      </Card>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-border/50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Calendar className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{events.length}</p>
-                <p className="text-xs text-muted-foreground">Total Events</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-green-500/10">
-                <Clock className="h-5 w-5 text-green-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{upcomingEvents.length}</p>
-                <p className="text-xs text-muted-foreground">Upcoming</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-yellow-500/10">
-                <Star className="h-5 w-5 text-yellow-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{events.filter(e => e.is_featured).length}</p>
-                <p className="text-xs text-muted-foreground">Featured</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-500/10">
-                <Eye className="h-5 w-5 text-blue-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{events.filter(e => e.is_published).length}</p>
-                <p className="text-xs text-muted-foreground">Published</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Events Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredEvents.length === 0 ? (
-          <Card className="col-span-full border-border/50">
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Calendar className="h-12 w-12 text-muted-foreground/50 mb-4" />
-              <p className="text-muted-foreground">No events found</p>
-            </CardContent>
-          </Card>
-        ) : (
-          filteredEvents.map((event) => (
-            <Card key={event.id} className={cn(
-              "border-border/50 overflow-hidden",
-              event.is_featured && "ring-2 ring-yellow-500/50"
-            )}>
-              <div className="h-32 bg-gradient-to-r from-primary/20 to-primary/10 flex items-center justify-center">
-                {event.image_url ? (
-                  <img src={event.image_url} alt={event.title} className="w-full h-full object-cover" />
-                ) : (
-                  <Calendar className="h-12 w-12 text-primary/40" />
-                )}
-              </div>
-              <CardContent className="p-4 space-y-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold truncate">{event.title}</h3>
-                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
-                      {event.description || "No description"}
-                    </p>
+      {/* Events List */}
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-16">
+          <Loader2 className="h-8 w-8 md:h-10 md:w-10 animate-spin text-primary mb-3" />
+          <p className="text-sm text-muted-foreground">Loading events...</p>
+        </div>
+      ) : (
+        <div>
+          {filteredEvents.length === 0 ? (
+            <Card className="border-border/50">
+              <CardContent className="py-12 sm:py-16 text-center">
+                <div className="flex flex-col items-center gap-3">
+                  <Calendar className="h-8 w-8 text-muted-foreground/50" />
+                  <div>
+                    <p className="font-medium text-muted-foreground">No events found</p>
+                    <p className="text-sm text-muted-foreground mt-1">Create your first event to get started</p>
                   </div>
-                  <div className="flex gap-1 shrink-0">
-                    {event.is_featured && <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />}
-                    <Badge variant={event.is_published ? "default" : "secondary"} className="text-xs">
-                      {event.is_published ? "Live" : "Draft"}
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    {new Date(event.event_date).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                      hour: "numeric",
-                      minute: "2-digit",
-                    })}
-                  </div>
-                  {event.location && (
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      {event.location}
-                    </div>
-                  )}
-                  {event.max_attendees && (
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4" />
-                      Max {event.max_attendees} attendees
-                    </div>
-                  )}
-                </div>
-
-                <Badge variant="outline" className="text-xs capitalize">
-                  {event.category}
-                </Badge>
-
-                <div className="flex items-center gap-1 pt-2 border-t border-border/50">
-                  <Button variant="ghost" size="icon" onClick={() => togglePublish(event)} title={event.is_published ? "Unpublish" : "Publish"}>
-                    {event.is_published ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => toggleFeatured(event)} title={event.is_featured ? "Unfeature" : "Feature"}>
-                    <Star className={cn("h-4 w-4", event.is_featured && "fill-yellow-500 text-yellow-500")} />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleEdit(event)}>
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDelete(event.id)} className="hover:text-destructive">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
                 </div>
               </CardContent>
             </Card>
-          ))
-        )}
-      </div>
+          ) : (
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              {filteredEvents.map((event) => (
+                <Card key={event.id} className={cn(
+                  "border-border/50 overflow-hidden hover:shadow-lg transition-all duration-300 group",
+                  event.is_featured && "ring-2 ring-yellow-500/50"
+                )}>
+                  {/* Event Image */}
+                  <div className="h-32 sm:h-40 bg-gradient-to-r from-primary/20 to-primary/10 flex items-center justify-center overflow-hidden">
+                    {event.image_url ? (
+                      <img src={event.image_url} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    ) : (
+                      <Calendar className="h-12 w-12 text-primary/40" />
+                    )}
+                  </div>
+
+                  {/* Card Content */}
+                  <CardContent className="p-4 sm:p-6 space-y-4">
+                    {/* Header with Title and Badges */}
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-sm sm:text-base line-clamp-2">{event.title}</h3>
+                          <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                            {event.description || "No description"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center flex-wrap gap-2">
+                        <Badge className="bg-primary/20 text-primary text-xs sm:text-xs capitalize">
+                          {event.category}
+                        </Badge>
+                        {event.is_featured && (
+                          <Badge variant="outline" className="text-xs text-yellow-600 border-yellow-200 bg-yellow-50 dark:border-yellow-900 dark:bg-yellow-950">
+                            Featured
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Event Details */}
+                    <div className="space-y-2 text-xs sm:text-sm text-muted-foreground border-t border-border/50 pt-4">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                        <span className="line-clamp-1">
+                          {new Date(event.event_date).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })} at {new Date(event.event_date).toLocaleTimeString("en-US", {
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </div>
+                      {event.location && (
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                          <span className="line-clamp-1">{event.location}</span>
+                        </div>
+                      )}
+                      {event.max_attendees && (
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+                          <span>Max {event.max_attendees} attendees</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Status Badge and Actions */}
+                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                      <Badge variant={event.is_published ? "default" : "secondary"} className="text-xs">
+                        {event.is_published ? "Published" : "Draft"}
+                      </Badge>
+                      <div className="flex items-center gap-1">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => togglePublish(event)}
+                          className="h-8 w-8 hover:bg-accent"
+                          title={event.is_published ? "Unpublish" : "Publish"}
+                        >
+                          {event.is_published ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => toggleFeatured(event)}
+                          className="h-8 w-8 hover:bg-accent"
+                          title={event.is_featured ? "Unfeature" : "Feature"}
+                        >
+                          <Star className={cn("h-4 w-4", event.is_featured && "fill-yellow-500 text-yellow-500")} />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleEdit(event)}
+                          className="h-8 w-8 hover:bg-accent"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleDelete(event.id)}
+                          className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

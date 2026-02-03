@@ -11,6 +11,8 @@ import {
   Loader2,
   Calendar,
   Search,
+  CheckCircle,
+  Clock,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/features/auth";
@@ -35,14 +37,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -279,40 +273,36 @@ export function AnnouncementsManagement() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex flex-col items-center justify-center py-16">
+        <Loader2 className="h-8 w-8 md:h-10 md:w-10 animate-spin text-primary mb-3" />
+        <p className="text-sm text-muted-foreground">Loading announcements...</p>
       </div>
     );
   }
 
   return (
-    <Card className="border-border/50">
-      <CardHeader>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Bell className="h-5 w-5" />
-            Announcements
-          </CardTitle>
+    <div className="space-y-6 md:space-y-8">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 md:gap-6">
+        <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 w-full sm:w-64"
-              />
-            </div>
-            <Dialog open={isDialogOpen} onOpenChange={(open) => {
-              setIsDialogOpen(open);
-              if (!open) resetForm();
-            }}>
-              <DialogTrigger asChild>
-                <Button size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add
-                </Button>
-              </DialogTrigger>
+            <Bell className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+            <h2 className="text-2xl md:text-3xl font-bold">Announcements</h2>
+          </div>
+          <p className="text-sm md:text-base text-muted-foreground">
+            Create and manage announcements for the campus
+          </p>
+        </div>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) resetForm();
+        }}>
+          <DialogTrigger asChild>
+            <Button className="bg-gradient-to-r from-primary to-primary/80 hover:shadow-lg transition-all rounded-lg h-10 whitespace-nowrap">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Announcement
+            </Button>
+          </DialogTrigger>
               <DialogContent className="max-w-lg">
                 <DialogHeader>
                   <DialogTitle>
@@ -414,98 +404,172 @@ export function AnnouncementsManagement() {
                 </form>
               </DialogContent>
             </Dialog>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className="border-border/50 bg-gradient-to-br from-blue-500/20 to-blue-600/20 hover:shadow-lg transition-all duration-300">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Total Announcements</p>
+                <p className="text-2xl sm:text-3xl font-bold">{announcements.length}</p>
+              </div>
+              <div className="p-2 bg-blue-500/20 rounded-lg">
+                <Bell className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50 bg-gradient-to-br from-green-500/20 to-green-600/20 hover:shadow-lg transition-all duration-300">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Published</p>
+                <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">{announcements.filter(a => a.is_published).length}</p>
+              </div>
+              <div className="p-2 bg-green-500/20 rounded-lg">
+                <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50 bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 hover:shadow-lg transition-all duration-300">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Pinned</p>
+                <p className="text-2xl sm:text-3xl font-bold text-yellow-600 dark:text-yellow-400">{announcements.filter(a => a.is_pinned).length}</p>
+              </div>
+              <div className="p-2 bg-yellow-500/20 rounded-lg">
+                <Pin className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50 bg-gradient-to-br from-red-500/20 to-red-600/20 hover:shadow-lg transition-all duration-300">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Urgent</p>
+                <p className="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400">{announcements.filter(a => a.is_urgent).length}</p>
+              </div>
+              <div className="p-2 bg-red-500/20 rounded-lg">
+                <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters Section */}
+      <Card className="border-border/50 p-4 sm:p-6">
+        <div className="space-y-4">
+          <h3 className="font-semibold text-sm md:text-base">Filters</h3>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search announcements by title or content..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 rounded-lg bg-secondary/50 border-border/50 focus:border-primary/50 transition-colors"
+              />
+            </div>
           </div>
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredAnnouncements.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                    No announcements found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredAnnouncements.map((announcement) => (
-                  <TableRow key={announcement.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
+      </Card>
+
+      {/* Announcements List */}
+      {filteredAnnouncements.length === 0 ? (
+        <Card className="border-border/50">
+          <CardContent className="py-12 sm:py-16 text-center">
+            <div className="flex flex-col items-center gap-3">
+              <Bell className="h-8 w-8 text-muted-foreground/50" />
+              <div>
+                <p className="font-medium text-muted-foreground">No announcements found</p>
+                <p className="text-sm text-muted-foreground mt-1">Create your first announcement to get started</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3 sm:space-y-4">
+          {filteredAnnouncements.map((announcement) => (
+            <Card key={announcement.id} className="border-border/50 hover:shadow-lg transition-all duration-300 group">
+              <CardContent className="p-4 sm:p-6 space-y-4">
+                {/* Header with Title and Badges */}
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
                         {announcement.is_pinned && (
-                          <Pin className="h-3 w-3 text-primary" />
+                          <Pin className="h-4 w-4 text-yellow-500 flex-shrink-0" />
                         )}
                         {announcement.is_urgent && (
-                          <AlertTriangle className="h-3 w-3 text-destructive" />
+                          <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0" />
                         )}
-                        <span className="font-medium">{announcement.title}</span>
+                        <h3 className="font-semibold text-sm sm:text-base line-clamp-2">{announcement.title}</h3>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      {announcement.category && (
-                        <Badge variant="secondary">{announcement.category.name}</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={announcement.is_published ? "default" : "secondary"}
-                        className={cn(
-                          announcement.is_published && "bg-green-500/20 text-green-500"
-                        )}
-                      >
-                        {announcement.is_published ? "Published" : "Draft"}
+                      <p className="text-xs text-muted-foreground line-clamp-3">
+                        {announcement.content || "No content"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center flex-wrap gap-2">
+                    {announcement.category && (
+                      <Badge className="bg-primary/20 text-primary text-xs">
+                        {announcement.category.name}
                       </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {new Date(announcement.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => togglePublish(announcement)}
-                          title={announcement.is_published ? "Unpublish" : "Publish"}
-                        >
-                          {announcement.is_published ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(announcement)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(announcement.id)}
-                          className="hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                    )}
+                    <Badge variant={announcement.is_published ? "default" : "secondary"} className="text-xs">
+                      {announcement.is_published ? "Published" : "Draft"}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Details and Actions */}
+                <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Calendar className="h-3 w-3" />
+                    <span>{new Date(announcement.created_at).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => togglePublish(announcement)}
+                      className="h-8 w-8 hover:bg-accent"
+                      title={announcement.is_published ? "Unpublish" : "Publish"}
+                    >
+                      {announcement.is_published ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => handleEdit(announcement)}
+                      className="h-8 w-8 hover:bg-accent"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => handleDelete(announcement.id)}
+                      className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      </CardContent>
-    </Card>
+      )}
+    </div>
   );
 }
