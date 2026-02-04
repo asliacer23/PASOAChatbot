@@ -415,18 +415,22 @@ export function useChatMessages(userId: string | undefined) {
       
       // Only auto-select if there are conversations with messages
       if (data && data.length > 0) {
-        // Find the most recent conversation that has messages
-        const { data: recentConv } = await supabase
-          .from("messages")
-          .select("conversation_id")
-          .in("conversation_id", data.map(c => c.id))
-          .order("created_at", { ascending: false })
-          .limit(1);
+        // Find the most recent ACTIVE conversation that has messages
+        const activeConversations = data.filter(c => c.status !== "closed");
         
-        if (recentConv && recentConv.length > 0) {
-          const conv = data.find(c => c.id === recentConv[0].conversation_id);
-          if (conv) {
-            setCurrentConversation(conv);
+        if (activeConversations.length > 0) {
+          const { data: recentConv } = await supabase
+            .from("messages")
+            .select("conversation_id")
+            .in("conversation_id", activeConversations.map(c => c.id))
+            .order("created_at", { ascending: false })
+            .limit(1);
+          
+          if (recentConv && recentConv.length > 0) {
+            const conv = activeConversations.find(c => c.id === recentConv[0].conversation_id);
+            if (conv) {
+              setCurrentConversation(conv);
+            }
           }
         }
       }

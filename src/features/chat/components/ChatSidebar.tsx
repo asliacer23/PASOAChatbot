@@ -1,4 +1,4 @@
-import { Plus, MessageCircle, Clock, UserCheck, Loader2 } from "lucide-react";
+import { Plus, MessageCircle, Clock, UserCheck, Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -115,6 +115,12 @@ export function ChatSidebar({
                           <span className="hidden sm:inline">P</span>
                         </>
                       )}
+                    </div>
+                  )}
+                  {conv.status === "closed" && (
+                    <div className="flex-shrink-0 h-5 sm:h-5 md:h-6 px-1 sm:px-1.5 md:px-2 rounded-full text-[8px] sm:text-[9px] md:text-xs font-medium flex items-center gap-1 bg-slate-500/20 text-slate-700 dark:text-slate-400">
+                      <Lock className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                      <span className="hidden sm:inline">Closed</span>
                     </div>
                   )}
                 </div>

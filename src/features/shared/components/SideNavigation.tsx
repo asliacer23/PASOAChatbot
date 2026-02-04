@@ -105,7 +105,7 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-3 lg:py-4 scrollbar-styled">
+      <nav className="flex-1 py-3 lg:py-4 overflow-hidden">
         <ul className="space-y-0.5 lg:space-y-1 px-2">
           {navItems.map((item) => (
             <li key={item.to}>
@@ -113,11 +113,11 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
                 to={item.to}
                 end={item.to === "/" || item.to === "/admin"}
                 className={cn(
-                  "flex items-center gap-2 lg:gap-3 px-2.5 lg:px-3 py-2 lg:py-2.5 rounded-xl text-sidebar-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-xs lg:text-sm"
+                  "flex items-center gap-2 lg:gap-3 px-2.5 lg:px-3 py-2 lg:py-2.5 rounded-xl text-sidebar-foreground transition-all duration-300 ease-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:scale-105 hover:shadow-md hover:font-bold text-xs lg:text-sm active:scale-95"
                 )}
                 activeClassName="bg-sidebar-accent text-sidebar-primary font-medium shadow-soft"
               >
-                <item.icon className="h-4 w-4 lg:h-5 lg:w-5 shrink-0" />
+                <item.icon className="h-4 w-4 lg:h-5 lg:w-5 shrink-0 transition-transform duration-300 group-hover:scale-110" />
                 <span>{item.label}</span>
               </NavLink>
             </li>
@@ -132,18 +132,18 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
               <NavLink
                 to={isAdminRoute ? "/" : "/admin"}
                 className={cn(
-                  "flex items-center gap-2 lg:gap-3 px-2.5 lg:px-3 py-2 lg:py-2.5 rounded-xl text-muted-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-xs lg:text-sm"
+                  "flex items-center gap-2 lg:gap-3 px-2.5 lg:px-3 py-2 lg:py-2.5 rounded-xl text-muted-foreground transition-all duration-300 ease-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:scale-105 hover:shadow-md hover:font-bold text-xs lg:text-sm active:scale-95"
                 )}
                 activeClassName=""
               >
                 {isAdminRoute ? (
                   <>
-                    <Home className="h-4 w-4 lg:h-5 lg:w-5" />
+                    <Home className="h-4 w-4 lg:h-5 lg:w-5 transition-transform duration-300" />
                     <span>Student View</span>
                   </>
                 ) : (
                   <>
-                    <LayoutDashboard className="h-4 w-4 lg:h-5 lg:w-5" />
+                    <LayoutDashboard className="h-4 w-4 lg:h-5 lg:w-5 transition-transform duration-300" />
                     <span>Admin Panel</span>
                   </>
                 )}
@@ -161,10 +161,10 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
           size="default"
           onClick={handleSignOut}
           className={cn(
-            "w-full rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 text-xs lg:text-sm justify-start h-8 lg:h-9"
+            "w-full rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 text-xs lg:text-sm justify-start h-8 lg:h-9 transition-all duration-300 ease-out hover:scale-105 hover:shadow-md hover:font-bold active:scale-95"
           )}
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-4 w-4 transition-transform duration-300" />
           <span className="ml-2">Sign Out</span>
         </Button>
       </div>
