@@ -38,7 +38,7 @@ export function PasoaMascot({
       >
         <img 
           src={pasoaLogo} 
-          alt="Pasoa Mascot" 
+          alt="PASOA Mascot" 
           className="w-full h-full object-contain drop-shadow-lg"
         />
         {/* Thinking bubble for thinking mood */}

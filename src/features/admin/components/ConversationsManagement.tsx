@@ -21,6 +21,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/features/auth";
 import { useTypingIndicator } from "@/features/chat/hooks/useTypingIndicator";
+import { ReactionPicker } from "@/features/chat/components/ReactionPicker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -100,6 +101,8 @@ export function ConversationsManagement() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageReactions, setMessageReactions] = useState<Record<string, MessageReaction[]>>({});
+  const [userReactions, setUserReactions] = useState<Record<string, string | null>>({});
+  const [showReactionPicker, setShowReactionPicker] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | "active" | "closed">("all");
@@ -240,14 +243,22 @@ export function ConversationsManagement() {
       if (error && error.code !== "PGRST116") throw error;
 
       const reactionsMap: Record<string, MessageReaction[]> = {};
+      const userReactionsMap: Record<string, string | null> = {};
+      
       (data || []).forEach((reaction: any) => {
         if (!reactionsMap[reaction.message_id]) {
           reactionsMap[reaction.message_id] = [];
         }
         reactionsMap[reaction.message_id].push(reaction);
+        
+        // Track current user's reaction
+        if (user && reaction.user_id === user.id) {
+          userReactionsMap[reaction.message_id] = reaction.reaction;
+        }
       });
 
       setMessageReactions(reactionsMap);
+      setUserReactions(userReactionsMap);
     } catch (error) {
       console.error("Error fetching reactions:", error);
     }
@@ -378,36 +389,61 @@ export function ConversationsManagement() {
     }
   };
 
-  const handleAddReaction = async (messageId: string, emoji: string) => {
+  const handleAddReaction = async (messageId: string, reaction: string) => {
     if (!user) return;
 
     try {
-      // Check if user already has a reaction on this message
-      const { data: existing } = await supabase
-        .from("message_reactions")
-        .select("id")
-        .eq("message_id", messageId)
-        .eq("user_id", user.id)
-        .single();
+      const userCurrentReaction = userReactions[messageId];
 
-      if (existing) {
-        // Remove existing reaction
+      if (reaction === "") {
+        // Remove all user reactions from this message
         await supabase
           .from("message_reactions")
           .delete()
-          .eq("id", existing.id);
+          .eq("message_id", messageId)
+          .eq("user_id", user.id);
+
+        setUserReactions((prev) => ({
+          ...prev,
+          [messageId]: null,
+        }));
+      } else if (userCurrentReaction === reaction) {
+        // Toggle off - same reaction clicked again
+        await supabase
+          .from("message_reactions")
+          .delete()
+          .eq("message_id", messageId)
+          .eq("user_id", user.id)
+          .eq("reaction", reaction);
+
+        setUserReactions((prev) => ({
+          ...prev,
+          [messageId]: null,
+        }));
       } else {
-        // Add new reaction
-        await supabase.from("message_reactions").insert({
-          message_id: messageId,
-          user_id: user.id,
-          reaction: emoji,
-        });
+        // Different reaction or no reaction - upsert
+        await supabase
+          .from("message_reactions")
+          .upsert(
+            {
+              message_id: messageId,
+              user_id: user.id,
+              reaction: reaction,
+            },
+            { onConflict: "message_id,user_id" }
+          );
+
+        setUserReactions((prev) => ({
+          ...prev,
+          [messageId]: reaction,
+        }));
       }
 
+      setShowReactionPicker(null);
       await fetchMessageReactions(selectedConversation?.id || "");
     } catch (error) {
       console.error("Error adding reaction:", error);
+      toast.error("Failed to add reaction");
     }
   };
 
@@ -796,49 +832,49 @@ export function ConversationsManagement() {
                               </p>
                             </div>
 
-                            {/* Reactions */}
-                            {hasReactions && (
-                              <div className="flex flex-wrap gap-1 px-3">
-                                {Object.entries(reactions).map(([emoji, count]) => (
+                            {/* Reactions Display */}
+                            {Object.keys(groupedReactions(message.id)).length > 0 && (
+                              <div className="flex flex-wrap gap-0.5 px-3">
+                                {Object.entries(groupedReactions(message.id)).map(([emoji, count]) => (
                                   <button
                                     key={emoji}
-                                    title={getReactionTooltip(message.id, emoji)}
                                     onClick={() => handleAddReaction(message.id, emoji)}
-                                    className="text-xs bg-secondary/50 hover:bg-secondary rounded-full px-2 py-1 flex items-center gap-1 transition-colors"
+                                    title={getReactionTooltip(message.id, emoji)}
+                                    className={cn(
+                                      "text-xs sm:text-sm px-2 py-1 rounded-full transition-all",
+                                      "hover:scale-110 active:scale-95",
+                                      userReactions[message.id] === emoji
+                                        ? "bg-primary/15 ring-1 ring-primary/30"
+                                        : "hover:bg-secondary/50 bg-secondary/30"
+                                    )}
                                   >
-                                    <span>{emoji}</span>
-                                    {count > 1 && <span className="text-muted-foreground">{count}</span>}
+                                    {emoji}
+                                    {count > 1 && <span className="ml-0.5 text-[9px] font-medium">{count}</span>}
                                   </button>
                                 ))}
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-auto p-1"
-                                  onClick={() => {
-                                    // Emoji picker would go here
-                                  }}
-                                >
-                                  <Smile className="h-3 w-3" />
-                                </Button>
                               </div>
                             )}
 
-                            {/* Add reaction button on hover */}
-                            {!hasReactions && (
-                              <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-auto p-1"
-                                  onClick={() => {
-                                    // Simple emoji quick add - could be extended with picker
-                                    handleAddReaction(message.id, "👍");
-                                  }}
+                            {/* Add Reaction Picker Button */}
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                              {showReactionPicker === message.id ? (
+                                <div className="mt-2">
+                                  <ReactionPicker
+                                    onReactionSelect={(reaction) => handleAddReaction(message.id, reaction)}
+                                    currentReaction={userReactions[message.id] || undefined}
+                                  />
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => setShowReactionPicker(message.id)}
+                                  className="text-xs sm:text-sm bg-secondary/50 hover:bg-primary/10 rounded-full px-2 py-1 transition-colors border border-border/30 hover:border-primary/30 flex items-center gap-1"
+                                  title="Add reaction"
                                 >
                                   <Smile className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            )}
+                                  React
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>

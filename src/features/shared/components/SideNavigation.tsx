@@ -68,7 +68,7 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
       <div className="flex items-center justify-between h-14 lg:h-16 px-3 lg:px-4 border-b border-sidebar-border">
         <div className="flex items-center gap-2">
           <PasoaMascot size="xs" mood="happy" animate={false} />
-          <span className="font-semibold text-sidebar-foreground text-sm lg:text-base">Pasoa Hub</span>
+          <span className="font-semibold text-sidebar-foreground text-sm lg:text-base">PASOA Hub</span>
         </div>
         {isMobile && (
           <Button

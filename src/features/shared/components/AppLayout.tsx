@@ -29,7 +29,7 @@ export function AppLayout() {
   }, []);
 
   return (
-    <div className="flex min-h-screen w-full bg-background overflow-hidden">
+    <div className="flex h-screen w-full bg-background overflow-hidden">
       {/* Mobile Sidebar Overlay Backdrop - Only show when sidebar is open on mobile */}
       {isMobile && navbarVisible && (
         <div
@@ -38,49 +38,42 @@ export function AppLayout() {
         />
       )}
 
-      {/* Sidebar - Desktop Only with Collapse Animation (Fixed Position) */}
-      {!isMobile && (
-        <div
-          className={cn(
-            "fixed left-0 top-0 h-screen flex flex-col z-20 transition-all duration-300 ease-in-out overflow-hidden",
-            "bg-background border-r border-border/50",
-            navbarVisible ? "md:w-56 lg:w-64" : "md:w-0 lg:w-0"
-          )}
-        >
-          {navbarVisible && <SideNavigation />}
-        </div>
-      )}
+      {/* Sidebar - Desktop Only with Smooth Animation */}
+      <div
+        className={cn(
+          "hidden md:flex md:flex-col md:fixed md:left-0 md:top-0 md:bottom-0 md:z-40 transition-all duration-300 ease-in-out overflow-hidden",
+          "md:bg-background md:border-r md:border-border/50 md:h-screen",
+          navbarVisible ? "md:w-56 lg:w-64" : "md:w-0"
+        )}
+      >
+        <SideNavigation />
+      </div>
 
       {/* Mobile Sidebar Drawer - Fixed Overlay */}
       {isMobile && (
         <div
           className={cn(
-            "fixed top-0 left-0 w-56 h-screen bg-background z-40 transition-transform duration-300 ease-in-out overflow-y-auto",
+            "fixed top-0 left-0 w-56 h-screen bg-background z-40 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg",
             navbarVisible ? "translate-x-0" : "-translate-x-full"
           )}
         >
-          <SideNavigation onCloseSidebar={() => setNavbarVisible(false)} />
+          <SideNavigation />
         </div>
       )}
 
-      {/* Main Content Area with margin for fixed sidebar and padding for fixed header */}
-      <div className={cn(
-        "flex-1 flex flex-col min-h-screen w-full overflow-hidden transition-all duration-300 ease-in-out",
-        !isMobile && navbarVisible ? "md:ml-56 lg:ml-64" : ""
-      )}>
-        {!isMobile && (
-          <WebHeader navbarVisible={navbarVisible} onToggleNavbar={() => setNavbarVisible(!navbarVisible)} />
-        )}
-        {isMobile && (
-          <MobileHeader navbarVisible={navbarVisible} onToggleNavbar={() => setNavbarVisible(!navbarVisible)} />
-        )}
-        <main className={cn(
-          "flex-1 overflow-y-auto pb-20 md:pb-0 transition-all duration-300 ease-in-out",
-          isMobile ? "mt-14" : "pt-14 lg:pt-16"
-        )}>
+      {/* Main Content Container */}
+      <div className={cn("flex-1 flex flex-col w-full transition-all duration-300 ease-in-out", navbarVisible ? "md:ml-56 lg:ml-64" : "md:ml-0")}>
+        {/* Headers */}
+        <MobileHeader />
+        <WebHeader navbarVisible={navbarVisible} onToggleNavbar={() => setNavbarVisible(!navbarVisible)} />
+        
+        {/* Main Content - Scrollable Area */}
+        <main className="flex-1 overflow-y-auto pt-14 md:pt-16 pb-16 md:pb-0">
           <Outlet />
         </main>
-        {isMobile && <BottomNavigation />}
+        
+        {/* Bottom Navigation */}
+        <BottomNavigation />
       </div>
     </div>
   );

@@ -1,268 +1,295 @@
 import { useState, useEffect } from "react";
-import { Bot, User, UserCheck, Smile, Heart, Frown, Angry, ThumbsUp, ThumbsDown } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { ReactionPicker } from "./ReactionPicker";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/features/auth";
-import { toast } from "sonner";
-import pasoapLogo from "@/assets/pasoa-logo.png";
+import logo from "@/assets/pasoa-logo.png";
 
 interface ChatMessageProps {
-  messageId: string;
-  content: string;
-  senderType: string;
-  createdAt: string;
-  imageUrl?: string | null;
-  userAvatarUrl?: string | null;
+  message: {
+    id: string;
+    content: string;
+    sender_type: string;
+    image_url?: string | null;
+    created_at: string;
+    sender_profile?: {
+      id: string;
+      first_name: string;
+      last_name: string;
+      avatar_url: string | null;
+    } | null;
+  };
+  isOwn: boolean;
+  senderName: string;
+  userAvatar?: string | null;
+  onReactionAdd?: (messageId: string, reaction: string) => void;
+  isBot?: boolean;
 }
 
-type ReactionType = "happy" | "sad" | "angry" | "heart" | "thumbsup" | "thumbsdown";
-
-interface Reaction {
-  id: string;
-  message_id: string;
-  user_id: string;
-  reaction: ReactionType;
-}
-
-const reactionIcons: Record<ReactionType, { icon: React.ElementType; color: string; label: string }> = {
-  happy: { icon: Smile, color: "text-yellow-500", label: "Happy" },
-  sad: { icon: Frown, color: "text-blue-500", label: "Sad" },
-  angry: { icon: Angry, color: "text-red-500", label: "Angry" },
-  heart: { icon: Heart, color: "text-pink-500", label: "Love" },
-  thumbsup: { icon: ThumbsUp, color: "text-green-500", label: "Like" },
-  thumbsdown: { icon: ThumbsDown, color: "text-orange-500", label: "Dislike" },
-};
-
-export function ChatMessage({ messageId, content, senderType, createdAt, imageUrl, userAvatarUrl }: ChatMessageProps) {
+export function ChatMessage({
+  message,
+  isOwn,
+  senderName,
+  userAvatar,
+  onReactionAdd,
+  isBot: isBotProp,
+}: ChatMessageProps) {
   const { user } = useAuth();
-  const [reactions, setReactions] = useState<Reaction[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [showReactions, setShowReactions] = useState(false);
+  const [reactions, setReactions] = useState<Map<string, { count: number; users: string[] }>>(new Map());
+  const [userReaction, setUserReaction] = useState<string | null>(null);
+  const [isLoadingReactions, setIsLoadingReactions] = useState(false);
 
+  const isBot = isBotProp || message.sender_type === "bot";
+  const isAdmin = message.sender_type === "admin";
+  const totalReactions = Array.from(reactions.values()).reduce((a, b) => a + b.count, 0);
+  
+  // Restriction: Self messages cannot be reacted to
+  const canReact = !isOwn;
+
+  // Fetch reactions from database
   useEffect(() => {
+    const fetchReactions = async () => {
+      try {
+        setIsLoadingReactions(true);
+        const { data, error } = await supabase
+          .from("message_reactions")
+          .select("reaction, user_id")
+          .eq("message_id", message.id);
+
+        if (error) throw error;
+
+        if (data) {
+          const reactionMap = new Map<string, { count: number; users: string[] }>();
+          
+          data.forEach((reaction) => {
+            const existing = reactionMap.get(reaction.reaction) || { count: 0, users: [] };
+            existing.count += 1;
+            existing.users.push(reaction.user_id);
+            reactionMap.set(reaction.reaction, existing);
+          });
+
+          setReactions(reactionMap);
+
+          // Check if current user has reacted
+          if (user) {
+            const userReacted = data.find((r) => r.user_id === user.id);
+            setUserReaction(userReacted?.reaction ?? null);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching reactions:", error);
+      } finally {
+        setIsLoadingReactions(false);
+      }
+    };
+
     fetchReactions();
-    
-    // Subscribe to reaction changes
+
+    // Subscribe to real-time reaction updates
     const channel = supabase
-      .channel(`reactions-${messageId}`)
+      .channel(`reactions:${message.id}`)
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "message_reactions",
-          filter: `message_id=eq.${messageId}`,
+          filter: `message_id=eq.${message.id}`,
         },
-        () => fetchReactions()
+        (payload) => {
+          if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
+            const reaction = payload.new.reaction;
+            const userId = payload.new.user_id;
+            
+            setReactions((prev) => {
+              const newReactions = new Map(prev);
+              const existing = newReactions.get(reaction) || { count: 0, users: [] };
+              
+              if (!existing.users.includes(userId)) {
+                existing.count += 1;
+                existing.users.push(userId);
+                newReactions.set(reaction, existing);
+              }
+              
+              return newReactions;
+            });
+
+            if (user?.id === userId) {
+              setUserReaction(reaction);
+            }
+          } else if (payload.eventType === "DELETE") {
+            const reaction = payload.old.reaction;
+            const userId = payload.old.user_id;
+
+            setReactions((prev) => {
+              const newReactions = new Map(prev);
+              const existing = newReactions.get(reaction);
+              
+              if (existing) {
+                existing.count = Math.max(0, existing.count - 1);
+                existing.users = existing.users.filter((id) => id !== userId);
+                
+                if (existing.count === 0) {
+                  newReactions.delete(reaction);
+                } else {
+                  newReactions.set(reaction, existing);
+                }
+              }
+              
+              return newReactions;
+            });
+
+            if (user?.id === userId) {
+              setUserReaction(null);
+            }
+          }
+        }
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [messageId]);
+  }, [message.id, user]);
 
-  const fetchReactions = async () => {
-    try {
-      // Direct query to the new table - cast as any to bypass type checking
-      // until types are regenerated
-      const { data, error } = await (supabase as any)
-        .from("message_reactions")
-        .select("id, message_id, user_id, reaction, created_at")
-        .eq("message_id", messageId);
-      
-      if (error) {
-        // Table might not exist yet, silently fail
-        return;
-      }
-      setReactions((data || []) as Reaction[]);
-    } catch (error) {
-      // Silently fail if table doesn't exist
-      console.log("Reactions not available yet");
-    }
+  const getSenderColor = () => {
+    if (isOwn) return "bg-primary/10 border-primary/30";
+    if (isAdmin) return "bg-green-500/15 border-green-500/40 shadow-sm";
+    return "bg-muted/50 border-border/30";
   };
 
-  const handleReaction = async (reactionType: ReactionType) => {
-    if (!user) {
-      toast.error("Please log in to react");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // Check if user already has this reaction
-      const existingReaction = reactions.find(
-        (r) => r.user_id === user.id && r.reaction === reactionType
-      );
-
-      if (existingReaction) {
-        // Remove reaction
-        await (supabase as any)
-          .from("message_reactions")
-          .delete()
-          .eq("id", existingReaction.id);
-      } else {
-        // Add reaction (remove any existing reaction first)
-        const userExistingReaction = reactions.find((r) => r.user_id === user.id);
-        if (userExistingReaction) {
-          await (supabase as any)
-            .from("message_reactions")
-            .delete()
-            .eq("id", userExistingReaction.id);
-        }
-
-        await (supabase as any).from("message_reactions").insert({
-          message_id: messageId,
-          user_id: user.id,
-          reaction: reactionType,
-        });
-      }
-
-      // Refresh reactions
-      await fetchReactions();
-      setIsOpen(false);
-    } catch (error) {
-      console.error("Error handling reaction:", error);
-      toast.error("Failed to add reaction");
-    } finally {
-      setIsLoading(false);
-    }
+  const getSenderBadge = () => {
+    if (isBot) return "PASOA Bot";
+    if (isAdmin) return `Support Team • ${senderName}`;
+    return "You";
   };
 
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const getBadgeColor = () => {
+    if (isBot) return "bg-blue-500/20 text-blue-700 dark:text-blue-300";
+    if (isAdmin) return "bg-green-500/25 text-green-700 dark:text-green-400 font-semibold";
+    return "bg-primary/20 text-primary";
   };
-
-  const userReaction = user ? reactions.find((r) => r.user_id === user.id)?.reaction : null;
-
-  // Group reactions by type
-  const reactionCounts = reactions.reduce((acc, r) => {
-    acc[r.reaction] = (acc[r.reaction] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
 
   return (
-    <div
-      className={cn(
-        "flex gap-1 sm:gap-2 md:gap-3 animate-fade-up group px-1 sm:px-2 md:px-3 lg:px-0",
-        senderType === "user" ? "flex-row-reverse justify-start" : "justify-start"
-      )}
-    >
-      <div
-        className={cn(
-          "h-7 sm:h-8 md:h-9 w-7 sm:w-8 md:w-9 rounded-full flex items-center justify-center shrink-0 shadow-lg transition-all duration-200 ring-2 ring-background overflow-hidden",
-          senderType === "bot"
-            ? "bg-gradient-to-br from-primary to-blue-500"
-            : senderType === "admin"
-            ? "bg-gradient-to-br from-green-500 to-emerald-600"
-            : "bg-gradient-to-br from-secondary to-secondary/80"
-        )}
-      >
-        {senderType === "bot" ? (
-          <img src={pasoapLogo} alt="Pasoa Chatbot" className="h-3 sm:h-4 md:h-5 w-3 sm:w-4 md:w-5 object-contain" />
-        ) : senderType === "admin" ? (
-          <UserCheck className="h-3 sm:h-4 md:h-5 w-3 sm:w-4 md:w-5 text-white" />
-        ) : userAvatarUrl ? (
-          <img src={userAvatarUrl} alt="User avatar" className="h-full w-full object-cover" />
+    <div className={cn("flex gap-1.5 sm:gap-3 group", isOwn ? "flex-row-reverse" : "flex-row")}>
+      {/* Avatar */}
+      <div className="flex-shrink-0 w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold bg-gradient-to-br">
+        {isBot ? (
+          <img
+            src={logo}
+            alt="PASOA Bot"
+            className="w-full h-full rounded-full object-cover"
+          />
+        ) : userAvatar ? (
+          <img
+            src={userAvatar}
+            alt={senderName}
+            className="w-full h-full rounded-full object-cover"
+          />
         ) : (
-          <User className="h-3 sm:h-4 md:h-5 w-3 sm:w-4 md:w-5 text-secondary-foreground" />
+          <div className={cn(
+            "w-full h-full rounded-full flex items-center justify-center",
+            isAdmin ? "bg-green-500" : "bg-primary"
+          )}>
+            <span className="text-white text-xs">
+              {senderName.charAt(0).toUpperCase()}
+            </span>
+          </div>
         )}
       </div>
-      <div className="flex flex-col gap-0.5 sm:gap-1 md:gap-1.5 max-w-[75%] sm:max-w-[70%] md:max-w-[60%] lg:max-w-[50%] min-w-0">
-        <Card
-          className={cn(
-            "px-3 sm:px-3.5 md:px-4 py-2 sm:py-2.5 md:py-3 border rounded-3xl transition-shadow duration-200 shadow-md hover:shadow-lg",
-            senderType === "user"
-              ? "bg-gradient-to-br from-primary via-primary to-blue-600 text-primary-foreground border-primary/60 rounded-br-lg ml-auto"
-              : senderType === "admin"
-              ? "bg-gradient-to-br from-green-500/15 to-emerald-500/15 border-green-500/50 rounded-bl-lg"
-              : "bg-gradient-to-br from-card to-card/80 border-border/60 rounded-bl-lg backdrop-blur-sm"
-          )}
-        >
-          {imageUrl && (
-            <img 
-              src={imageUrl} 
-              alt="Uploaded image" 
-              className="max-w-full h-auto rounded-2xl mb-1 sm:mb-2 md:mb-2.5 max-h-40 sm:max-h-48 md:max-h-52 object-contain shadow-md hover:shadow-lg transition-all duration-200 border border-border/30"
-            />
-          )}
-          <p className={cn(
-            "text-[11px] sm:text-xs md:text-sm leading-relaxed whitespace-pre-wrap break-words overflow-hidden",
-            senderType === "user" ? "text-primary-foreground font-medium" : "text-foreground font-normal"
-          )}>
-            {content}
-          </p>
-          <p className={cn(
-            "text-[8px] sm:text-[9px] md:text-xs opacity-70 mt-0.5 sm:mt-1 md:mt-1.5 transition-opacity duration-200",
-            senderType === "user" ? "text-primary-foreground/70" : "text-muted-foreground/80"
-          )}>
-            {formatTime(createdAt)}
-          </p>
-        </Card>
-        
-        {/* Reactions display and picker - Hidden on mobile, shown on hover on desktop */}
-        <div className="flex items-center gap-0.5 sm:gap-1 ml-0.5 sm:ml-1 flex-wrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          {/* Show existing reactions */}
-          {Object.entries(reactionCounts).map(([reaction, count]) => {
-            const reactionInfo = reactionIcons[reaction as ReactionType];
-            if (!reactionInfo) return null;
-            const Icon = reactionInfo.icon;
-            return (
-              <Button
-                key={reaction}
-                variant="ghost"
-                size="sm"
-                className={cn(
-                  "h-5 sm:h-6 md:h-7 px-1 sm:px-1.5 md:px-2 gap-0.5 sm:gap-1 text-[8px] sm:text-[9px] md:text-xs rounded-full border border-border/50 transition-all duration-200",
-                  userReaction === reaction 
-                    ? "bg-accent border-accent text-accent-foreground scale-105" 
-                    : "hover:bg-accent/50"
-                )}
-                onClick={() => handleReaction(reaction as ReactionType)}
-                disabled={isLoading}
-              >
-                <Icon className={cn("h-2.5 sm:h-3 md:h-3.5 w-2.5 sm:w-3 md:w-3.5", reactionInfo.color)} />
-                <span className="font-medium">{count}</span>
-              </Button>
-            );
-          })}
 
-          {/* Add reaction button */}
-          <Popover open={isOpen} onOpenChange={setIsOpen}>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-5 sm:h-6 md:h-7 w-5 sm:w-6 md:w-7 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 border border-border/50"
-              >
-                <Smile className="h-2.5 sm:h-3 md:h-3.5 w-2.5 sm:w-3 md:w-3.5" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-1.5 sm:p-2 md:p-3" align="start">
-              <div className="flex gap-0.5 sm:gap-1 md:gap-2">
-                {Object.entries(reactionIcons).map(([key, { icon: Icon, color, label }]) => (
-                  <Button
-                    key={key}
-                    variant="ghost"
-                    size="icon"
-                    className={cn(
-                      "h-7 sm:h-8 md:h-9 w-7 sm:w-8 md:w-9 hover:scale-125 transition-all duration-200 rounded-lg hover:bg-accent active:scale-95 md:active:scale-100",
-                      userReaction === key && "bg-accent scale-110"
-                    )}
-                    onClick={() => handleReaction(key as ReactionType)}
-                    disabled={isLoading}
-                    title={label}
-                  >
-                    <Icon className={cn("h-3 sm:h-4 md:h-5 w-3 sm:w-4 md:w-5", color)} />
-                  </Button>
-                ))}
-              </div>
-            </PopoverContent>
-          </Popover>
+      {/* Message Content */}
+      <div className={cn("flex flex-col gap-0.5 sm:gap-1 max-w-xs sm:max-w-xl", isOwn ? "items-end" : "items-start")}>
+        {/* Sender Badge */}
+        <div className={cn(
+          "text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium",
+          getBadgeColor()
+        )}>
+          {getSenderBadge()}
         </div>
+
+        {/* Message with reactions container */}
+        <div className="flex flex-col gap-0">
+          {/* Message Bubble */}
+          <div
+            className={cn(
+              "rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 border transition-all text-sm sm:text-base leading-relaxed",
+              getSenderColor(),
+              "hover:shadow-md"
+            )}
+          >
+            {/* Image if exists */}
+            {message.image_url && (
+              <img
+                src={message.image_url}
+                alt="message image"
+                className="max-w-[150px] sm:max-w-[250px] rounded-lg mb-2"
+              />
+            )}
+
+            {/* Text Content */}
+            <p className="text-foreground break-words">
+              {message.content}
+            </p>
+
+            {/* Timestamp */}
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1 text-right">
+              {new Date(message.created_at).toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+          </div>
+
+          {/* Reactions Display */}
+          {totalReactions > 0 && (
+            <div className={cn("flex flex-wrap gap-0.5 mt-1.5", isOwn ? "justify-end" : "justify-start")}>
+              {Array.from(reactions.entries()).map(([emoji, { count, users }]) => (
+                <button
+                  key={emoji}
+                  onClick={() => setShowReactions(!showReactions)}
+                  className={cn(
+                    "text-xs px-1.5 py-0.5 rounded-full transition-all",
+                    "hover:scale-110 active:scale-95",
+                    userReaction === emoji 
+                      ? "bg-primary/15 ring-1 ring-primary/30" 
+                      : "hover:bg-secondary/50"
+                  )}
+                  title={`${users.length} reaction${count > 1 ? "s" : ""}`}
+                >
+                  {emoji}
+                  {count > 1 && <span className="ml-0.5 text-[9px] font-medium">{count}</span>}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Minimalist add reaction button - show on hover if can react */}
+          {canReact && !showReactions && (
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity mt-1">
+              <button
+                onClick={() => setShowReactions(true)}
+                className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                title="Add reaction"
+              >
+                + react
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Reaction Picker */}
+        {showReactions && canReact && (
+          <ReactionPicker
+            onReactionSelect={(reaction) => {
+              onReactionAdd?.(message.id, reaction);
+              setShowReactions(false);
+            }}
+            currentReaction={userReaction || undefined}
+          />
+        )}
       </div>
     </div>
   );

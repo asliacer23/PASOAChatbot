@@ -1,1 +1,1 @@
-export { ChatInterface } from "./components/ChatInterface";
+export { ChatPage as ChatInterface } from "./components/ChatPage";
