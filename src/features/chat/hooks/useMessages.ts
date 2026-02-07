@@ -416,7 +416,8 @@ export function useMessages(userId: string | undefined) {
    */
   const requestAdminSupport = useCallback(async (conversationId: string) => {
     try {
-      const { error } = await supabase
+      // Update conversation to mark it as requiring admin
+      const { error: updateError } = await supabase
         .from("conversations")
         .update({ 
           requires_admin: true,
@@ -424,7 +425,20 @@ export function useMessages(userId: string | undefined) {
         })
         .eq("id", conversationId);
 
-      if (error) throw error;
+      if (updateError) throw updateError;
+
+      // Add a bot message to the conversation
+      const { error: messageError } = await supabase
+        .from("messages")
+        .insert({
+          conversation_id: conversationId,
+          content: "I've connected you with a human support representative. They will assist you shortly.",
+          sender_type: "bot",
+          sender_id: null,
+          created_at: new Date().toISOString(),
+        });
+
+      if (messageError) throw messageError;
 
       setConversations((prev) =>
         prev.map((conv) =>

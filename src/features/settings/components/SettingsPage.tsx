@@ -17,13 +17,7 @@ interface UserPreferences {
   notifications_chat_replies: boolean;
 }
 
-const accentColors = [
-  { id: "purple", color: "hsl(262, 83%, 58%)", label: "Purple" },
-  { id: "violet", color: "hsl(270, 70%, 50%)", label: "Violet" },
-  { id: "indigo", color: "hsl(245, 75%, 55%)", label: "Indigo" },
-  { id: "blue", color: "hsl(217, 91%, 60%)", label: "Blue" },
-  { id: "rose", color: "hsl(350, 89%, 60%)", label: "Rose" },
-];
+
 
 export function SettingsPage() {
   const { theme, setTheme } = useTheme();
@@ -167,26 +161,7 @@ export function SettingsPage() {
             </div>
           </div>
 
-          {/* Accent Color */}
-          <div className="space-y-3">
-            <Label className="font-medium">Accent Color</Label>
-            <div className="flex gap-3">
-              {accentColors.map((color) => (
-                <button
-                  key={color.id}
-                  onClick={() => handleAccentChange(color.id)}
-                  className={cn(
-                    "h-10 w-10 rounded-full transition-all",
-                    preferences.accent_color === color.id
-                      ? "ring-2 ring-offset-2 ring-offset-background ring-primary scale-110"
-                      : "hover:scale-105"
-                  )}
-                  style={{ backgroundColor: color.color }}
-                  title={color.label}
-                />
-              ))}
-            </div>
-          </div>
+          
         </CardContent>
       </Card>
 

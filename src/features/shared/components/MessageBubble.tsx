@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ReactionPicker } from "./ReactionPicker";
+import { ReactionPicker } from "@/features/chat/components/ReactionPicker";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/features/auth";
 import logo from "@/assets/pasoa-logo.png";
+import { format } from "date-fns";
 
-interface ChatMessageProps {
+interface MessageBubbleProps {
   message: {
     id: string;
     content: string;
@@ -27,14 +28,14 @@ interface ChatMessageProps {
   isBot?: boolean;
 }
 
-export function ChatMessage({
+export function MessageBubble({
   message,
   isOwn,
   senderName,
   userAvatar,
   onReactionAdd,
   isBot: isBotProp,
-}: ChatMessageProps) {
+}: MessageBubbleProps) {
   const { user } = useAuth();
   const [showReactions, setShowReactions] = useState(false);
   const [reactions, setReactions] = useState<Map<string, { count: number; users: string[] }>>(new Map());
@@ -162,20 +163,20 @@ export function ChatMessage({
 
   const getSenderBadge = () => {
     if (isBot) return "PASOA Bot";
-    if (isAdmin) return `${senderName}`;
-    return "You";
+    if (isAdmin) return senderName;
+    return "Student";
   };
 
   const getBadgeColor = () => {
     if (isBot) return "bg-blue-500/20 text-blue-700 dark:text-blue-300";
-    if (isAdmin) return "bg-green-500/25 text-green-700 dark:text-green-400 font-semibold";
-    return "bg-primary/20 text-primary";
+    if (isAdmin) return "bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 font-semibold";
+    return "bg-slate-400/20 text-slate-700 dark:text-slate-300";
   };
 
   return (
     <div className={cn("flex gap-1.5 sm:gap-3 group", isOwn ? "flex-row-reverse" : "flex-row")}>
       {/* Avatar */}
-      <div className="flex-shrink-0 w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold bg-gradient-to-br">
+      <div className="flex-shrink-0 w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold ring-2 ring-background overflow-hidden">
         {isBot ? (
           <img
             src={logo}
@@ -190,10 +191,12 @@ export function ChatMessage({
           />
         ) : (
           <div className={cn(
-            "w-full h-full rounded-full flex items-center justify-center",
-            isAdmin ? "bg-green-500" : "bg-primary"
+            "w-full h-full rounded-full flex items-center justify-center font-semibold text-white",
+            isAdmin 
+              ? "bg-gradient-to-br from-emerald-400 to-emerald-600" 
+              : "bg-gradient-to-br from-blue-400 to-blue-600"
           )}>
-            <span className="text-white text-xs">
+            <span className="text-xs sm:text-xs">
               {senderName.charAt(0).toUpperCase()}
             </span>
           </div>
@@ -201,7 +204,7 @@ export function ChatMessage({
       </div>
 
       {/* Message Content */}
-      <div className={cn("flex flex-col gap-0.5 sm:gap-1 max-w-xs sm:max-w-xl", isOwn ? "items-end" : "items-start")}>
+      <div className={cn("flex flex-col gap-0.5 sm:gap-1 max-w-xs sm:max-w-2xl", isOwn ? "items-end" : "items-start")}>
         {/* Sender Badge */}
         <div className={cn(
           "text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-medium",
@@ -225,21 +228,18 @@ export function ChatMessage({
               <img
                 src={message.image_url}
                 alt="message image"
-                className="max-w-[150px] sm:max-w-[250px] rounded-lg mb-2"
+                className="max-w-[150px] sm:max-w-[280px] rounded-lg mb-2 shadow-sm hover:shadow-md transition-shadow"
               />
             )}
 
             {/* Text Content */}
-            <p className="text-foreground break-words">
+            <p className="text-foreground break-words whitespace-pre-wrap">
               {message.content}
             </p>
 
             {/* Timestamp */}
-            <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1 text-right">
-              {new Date(message.created_at).toLocaleTimeString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1 text-right opacity-75">
+              {format(new Date(message.created_at), "HH:mm")}
             </p>
           </div>
 
@@ -251,16 +251,16 @@ export function ChatMessage({
                   key={emoji}
                   onClick={() => setShowReactions(!showReactions)}
                   className={cn(
-                    "text-xs px-1.5 py-0.5 rounded-full transition-all",
+                    "text-xs px-2 py-0.5 rounded-full transition-all font-medium",
                     "hover:scale-110 active:scale-95",
                     userReaction === emoji 
-                      ? "bg-primary/15 ring-1 ring-primary/30" 
-                      : "hover:bg-secondary/50"
+                      ? "bg-primary/20 ring-1 ring-primary/40 shadow-sm" 
+                      : "bg-secondary/50 hover:bg-secondary/70"
                   )}
                   title={`${users.length} reaction${count > 1 ? "s" : ""}`}
                 >
                   {emoji}
-                  {count > 1 && <span className="ml-0.5 text-[9px] font-medium">{count}</span>}
+                  {count > 1 && <span className="ml-0.5 text-[9px] font-bold">{count}</span>}
                 </button>
               ))}
             </div>
@@ -271,10 +271,10 @@ export function ChatMessage({
             <div className="opacity-0 group-hover:opacity-100 transition-opacity mt-1">
               <button
                 onClick={() => setShowReactions(true)}
-                className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                className="text-xs px-2 py-1 rounded-full bg-secondary/60 hover:bg-primary/15 border border-border/40 hover:border-primary/40 transition-all text-muted-foreground hover:text-primary flex items-center gap-1"
                 title="Add reaction"
               >
-                + react
+                <span>+ react</span>
               </button>
             </div>
           )}

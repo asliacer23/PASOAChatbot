@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import { SideNavigation } from "./SideNavigation";
-import { BottomNavigation } from "./BottomNavigation";
 import { MobileHeader } from "./MobileHeader";
 import { WebHeader } from "./WebHeader";
 import { cn } from "@/lib/utils";
@@ -57,23 +56,20 @@ export function AppLayout() {
             navbarVisible ? "translate-x-0" : "-translate-x-full"
           )}
         >
-          <SideNavigation />
+          <SideNavigation onCloseSidebar={() => setNavbarVisible(false)} />
         </div>
       )}
 
       {/* Main Content Container */}
       <div className={cn("flex-1 flex flex-col w-full transition-all duration-300 ease-in-out", navbarVisible ? "md:ml-56 lg:ml-64" : "md:ml-0")}>
         {/* Headers */}
-        <MobileHeader />
+        <MobileHeader onToggleSidebar={() => setNavbarVisible(!navbarVisible)} />
         <WebHeader navbarVisible={navbarVisible} onToggleNavbar={() => setNavbarVisible(!navbarVisible)} />
         
         {/* Main Content - Scrollable Area */}
-        <main className="flex-1 overflow-y-auto pt-14 md:pt-16 pb-16 md:pb-0">
+        <main className="flex-1 overflow-y-auto pt-14 md:pt-16">
           <Outlet />
         </main>
-        
-        {/* Bottom Navigation */}
-        <BottomNavigation />
       </div>
     </div>
   );

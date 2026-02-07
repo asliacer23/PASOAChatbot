@@ -29,7 +29,6 @@ const studentNavItems = [
   { to: "/events", icon: Calendar, label: "Events" },
   { to: "/announcements", icon: Bell, label: "Announcements" },
   { to: "/profile", icon: User, label: "Profile" },
-  { to: "/settings", icon: Settings, label: "Settings" },
 ];
 
 const adminNavItems = [
@@ -39,9 +38,7 @@ const adminNavItems = [
   { to: "/admin/conversations", icon: MessageCircle, label: "Conversations" },
   { to: "/admin/announcements", icon: Bell, label: "Announcements" },
   { to: "/admin/events", icon: Calendar, label: "Events" },
-  { to: "/admin/content", icon: FileText, label: "Content" },
   { to: "/admin/reports", icon: BarChart3, label: "Reports" },
-  { to: "/admin/settings", icon: Settings, label: "System Settings" },
 ];
 
 export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void }) {
@@ -61,7 +58,7 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
   return (
     <aside
       className={cn(
-        "hidden md:flex flex-col h-screen border-r border-border bg-sidebar w-full"
+        "flex flex-col h-screen border-r border-border bg-sidebar w-full"
       )}
     >
       {/* Header */}
@@ -112,6 +109,7 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
               <NavLink
                 to={item.to}
                 end={item.to === "/" || item.to === "/admin"}
+                onClick={onCloseSidebar}
                 className={cn(
                   "flex items-center gap-2 lg:gap-3 px-2.5 lg:px-3 py-2 lg:py-2.5 rounded-xl text-sidebar-foreground transition-all duration-300 ease-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:scale-105 hover:shadow-md hover:font-bold text-xs lg:text-sm active:scale-95"
                 )}
@@ -131,6 +129,7 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
             <div className="px-2">
               <NavLink
                 to={isAdminRoute ? "/" : "/admin"}
+                onClick={onCloseSidebar}
                 className={cn(
                   "flex items-center gap-2 lg:gap-3 px-2.5 lg:px-3 py-2 lg:py-2.5 rounded-xl text-muted-foreground transition-all duration-300 ease-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:scale-105 hover:shadow-md hover:font-bold text-xs lg:text-sm active:scale-95"
                 )}

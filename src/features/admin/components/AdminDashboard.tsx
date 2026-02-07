@@ -132,6 +132,9 @@ export function AdminDashboard() {
   const maxCount = Math.max(...topQuestions.map((q) => q.count), 1);
 
   return (
+
+    
+  
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/5">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 animate-fade-up">
         <Tabs value={getActiveTab()} onValueChange={handleTabChange} className="space-y-6 md:space-y-8">
@@ -145,8 +148,12 @@ export function AdminDashboard() {
                 </div>
               </div>
             ) : (
-              <>
+              < >
+
+          
+
                 {/* Stats Cards Grid */}
+                
                 <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                   {statsCards.map((stat) => (
                     <Card key={stat.title} className={`border-border/50 bg-gradient-to-br ${stat.color} hover:shadow-lg transition-all duration-300`}>

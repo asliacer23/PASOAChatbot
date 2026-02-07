@@ -244,7 +244,54 @@ export function ChatPage() {
       return;
     }
 
-    await requestAdminSupport(currentConversation.id);
+    try {
+      setIsTyping(true);
+      setMascotMood("thinking");
+
+      // Add initial bot message about the request
+      const { data: notificationMsg, error: notificationError } = await supabase
+        .from("messages")
+        .insert({
+          conversation_id: currentConversation.id,
+          content: `You're requesting to speak with a human support agent. Our team will assist you shortly. Below is a summary of your conversation so far.`,
+          sender_type: "bot",
+        })
+        .select()
+        .single();
+
+      if (notificationError) throw notificationError;
+
+      setMessages((prev) => [...prev, notificationMsg]);
+
+      // Small delay for effect
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      // Add waiting message
+      const { data: waitingMsg, error: waitingError } = await supabase
+        .from("messages")
+        .insert({
+          conversation_id: currentConversation.id,
+          content: `⏳ Please wait while we connect you with an available support member. Thank you for your patience!`,
+          sender_type: "bot",
+        })
+        .select()
+        .single();
+
+      if (waitingError) throw waitingError;
+
+      setMessages((prev) => [...prev, waitingMsg]);
+
+      // Request admin support in background
+      await requestAdminSupport(currentConversation.id);
+      
+      toast.success("Human support requested! Please wait for a response.");
+    } catch (error) {
+      console.error("Error requesting agent:", error);
+      toast.error("Failed to request human support");
+    } finally {
+      setIsTyping(false);
+      setMascotMood("idle");
+    }
   };
 
   // Handle new conversation
