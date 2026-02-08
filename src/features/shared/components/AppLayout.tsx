@@ -52,7 +52,7 @@ export function AppLayout() {
       {isMobile && (
         <div
           className={cn(
-            "fixed top-0 left-0 w-56 h-screen bg-background z-45 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg",
+            "fixed top-0 left-0 w-56 h-screen bg-background z-40 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg",
             navbarVisible ? "translate-x-0" : "-translate-x-full"
           )}
         >
