@@ -247,7 +247,9 @@ export function EventsManagement() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 md:gap-6">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Calendar className="h-5 w-5 text-primary" />
+            </div>
             <h2 className="text-2xl md:text-3xl font-bold">Events Management</h2>
           </div>
           <p className="text-sm md:text-base text-muted-foreground">
@@ -259,41 +261,43 @@ export function EventsManagement() {
           if (!open) resetForm();
         }}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-primary to-primary/80 hover:shadow-lg transition-all rounded-lg h-10 whitespace-nowrap">
+            <Button className="bg-primary hover:bg-primary/90 h-10 whitespace-nowrap">
               <Plus className="h-4 w-4 mr-2" />
               Add Event
             </Button>
           </DialogTrigger>
-            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-lg w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>
+                <DialogTitle className="text-xl">
                   {editingEvent ? "Edit" : "Create"} Event
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Event Title</Label>
+                  <Label htmlFor="title" className="text-sm">Event Title</Label>
                   <Input
                     id="title"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    placeholder="Enter event title"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description" className="text-sm">Description</Label>
                   <Textarea
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Event description"
                     rows={3}
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="event_date">Start Date & Time</Label>
+                    <Label htmlFor="event_date" className="text-sm">Start Date & Time</Label>
                     <Input
                       id="event_date"
                       type="datetime-local"
@@ -303,7 +307,7 @@ export function EventsManagement() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="end_date">End Date & Time</Label>
+                    <Label htmlFor="end_date" className="text-sm">End Date & Time</Label>
                     <Input
                       id="end_date"
                       type="datetime-local"
@@ -313,9 +317,9 @@ export function EventsManagement() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="location">Location</Label>
+                    <Label htmlFor="location" className="text-sm">Location</Label>
                     <Input
                       id="location"
                       value={formData.location}
@@ -324,7 +328,7 @@ export function EventsManagement() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
+                    <Label htmlFor="category" className="text-sm">Category</Label>
                     <Select
                       value={formData.category}
                       onValueChange={(value) => setFormData({ ...formData, category: value })}
@@ -344,7 +348,7 @@ export function EventsManagement() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="max_attendees">Max Attendees (optional)</Label>
+                  <Label htmlFor="max_attendees" className="text-sm">Max Attendees (optional)</Label>
                   <Input
                     id="max_attendees"
                     type="number"
@@ -354,31 +358,34 @@ export function EventsManagement() {
                   />
                 </div>
 
-                <div className="flex flex-wrap gap-4">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      id="published"
-                      checked={formData.is_published}
-                      onCheckedChange={(checked) => setFormData({ ...formData, is_published: checked })}
-                    />
-                    <Label htmlFor="published">Publish</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      id="featured"
-                      checked={formData.is_featured}
-                      onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
-                    />
-                    <Label htmlFor="featured">Featured</Label>
+                <div className="space-y-3 pt-4 border-t border-border/50">
+                  <h4 className="font-semibold text-sm">Settings</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="published" className="text-sm">Publish Event</Label>
+                      <Switch
+                        id="published"
+                        checked={formData.is_published}
+                        onCheckedChange={(checked) => setFormData({ ...formData, is_published: checked })}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="featured" className="text-sm">Feature Event</Label>
+                      <Switch
+                        id="featured"
+                        checked={formData.is_featured}
+                        onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-2">
+                <div className="flex justify-end gap-2 pt-4 border-t border-border/50">
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Cancel
                   </Button>
-                  <Button type="submit">
-                    {editingEvent ? "Update" : "Create"}
+                  <Button type="submit" className="bg-primary hover:bg-primary/90">
+                    {editingEvent ? "Update Event" : "Create Event"}
                   </Button>
                 </div>
               </form>
@@ -388,57 +395,57 @@ export function EventsManagement() {
 
       {/* Stats Cards */}
       <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-border/50 bg-gradient-to-br from-blue-500/20 to-blue-600/20 hover:shadow-lg transition-all duration-300">
+        <Card className="border border-border/50 bg-card hover:border-border transition-all">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
                 <p className="text-xs sm:text-sm text-muted-foreground font-medium">Total Events</p>
-                <p className="text-2xl sm:text-3xl font-bold">{events.length}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-foreground">{events.length}</p>
               </div>
-              <div className="p-2 bg-blue-500/20 rounded-lg">
-                <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Calendar className="h-5 w-5 text-primary" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 bg-gradient-to-br from-green-500/20 to-green-600/20 hover:shadow-lg transition-all duration-300">
+        <Card className="border border-border/50 bg-card hover:border-border transition-all">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
                 <p className="text-xs sm:text-sm text-muted-foreground font-medium">Upcoming</p>
-                <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">{upcomingEvents.length}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-foreground">{upcomingEvents.length}</p>
               </div>
-              <div className="p-2 bg-green-500/20 rounded-lg">
-                <Clock className="h-4 w-4 text-green-600 dark:text-green-400" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Clock className="h-5 w-5 text-primary" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 hover:shadow-lg transition-all duration-300">
+        <Card className="border border-border/50 bg-card hover:border-border transition-all">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
                 <p className="text-xs sm:text-sm text-muted-foreground font-medium">Featured</p>
-                <p className="text-2xl sm:text-3xl font-bold text-yellow-600 dark:text-yellow-400">{events.filter(e => e.is_featured).length}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-foreground">{events.filter(e => e.is_featured).length}</p>
               </div>
-              <div className="p-2 bg-yellow-500/20 rounded-lg">
-                <Star className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Star className="h-5 w-5 text-primary" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 bg-gradient-to-br from-purple-500/20 to-purple-600/20 hover:shadow-lg transition-all duration-300">
+        <Card className="border border-border/50 bg-card hover:border-border transition-all">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
                 <p className="text-xs sm:text-sm text-muted-foreground font-medium">Published</p>
-                <p className="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400">{events.filter(e => e.is_published).length}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-foreground">{events.filter(e => e.is_published).length}</p>
               </div>
-              <div className="p-2 bg-purple-500/20 rounded-lg">
-                <Eye className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Eye className="h-5 w-5 text-primary" />
               </div>
             </div>
           </CardContent>
@@ -446,39 +453,37 @@ export function EventsManagement() {
       </div>
 
       {/* Filters Section */}
-      <Card className="border-border/50 p-4 sm:p-6">
+      <Card className="border border-border/50 p-4 sm:p-6">
         <div className="space-y-4">
-          <h3 className="font-semibold text-sm md:text-base">Filters</h3>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search events by title or description..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 rounded-lg bg-secondary/50 border-border/50 focus:border-primary/50 transition-colors"
-              />
-            </div>
+          <h3 className="font-semibold text-sm md:text-base">Search Events</h3>
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by title or description..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 rounded-lg bg-background border-border/50 focus:border-primary transition-colors"
+            />
           </div>
         </div>
       </Card>
 
       {/* Events List */}
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-16">
-          <Loader2 className="h-8 w-8 md:h-10 md:w-10 animate-spin text-primary mb-3" />
+        <div className="flex flex-col items-center justify-center py-12 sm:py-16">
+          <Loader2 className="h-8 w-8 sm:h-10 sm:w-10 animate-spin text-primary mb-3" />
           <p className="text-sm text-muted-foreground">Loading events...</p>
         </div>
       ) : (
         <div>
           {filteredEvents.length === 0 ? (
-            <Card className="border-border/50">
+            <Card className="border border-border/50">
               <CardContent className="py-12 sm:py-16 text-center">
                 <div className="flex flex-col items-center gap-3">
                   <Calendar className="h-8 w-8 text-muted-foreground/50" />
                   <div>
-                    <p className="font-medium text-muted-foreground">No events found</p>
-                    <p className="text-sm text-muted-foreground mt-1">Create your first event to get started</p>
+                    <p className="font-medium text-muted-foreground text-sm sm:text-base">No events found</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">Try adjusting your search or create a new event</p>
                   </div>
                 </div>
               </CardContent>
@@ -487,37 +492,35 @@ export function EventsManagement() {
             <div className="grid gap-3 sm:gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {filteredEvents.map((event) => (
                 <Card key={event.id} className={cn(
-                  "border-border/50 overflow-hidden hover:shadow-lg transition-all duration-300 group",
-                  event.is_featured && "ring-2 ring-yellow-500/50"
+                  "border border-border/50 overflow-hidden hover:border-primary/30 transition-all duration-300",
+                  event.is_featured && "ring-1 ring-primary/30"
                 )}>
-                  {/* Event Image */}
-                  <div className="h-32 sm:h-40 bg-gradient-to-r from-primary/20 to-primary/10 flex items-center justify-center overflow-hidden">
+                  {/* Event Image Header */}
+                  <div className="h-32 sm:h-40 bg-primary/5 border-b border-border/50 flex items-center justify-center overflow-hidden">
                     {event.image_url ? (
-                      <img src={event.image_url} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <img src={event.image_url} alt={event.title} className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
                     ) : (
-                      <Calendar className="h-12 w-12 text-primary/40" />
+                      <Calendar className="h-12 w-12 text-primary/20" />
                     )}
                   </div>
 
                   {/* Card Content */}
                   <CardContent className="p-4 sm:p-6 space-y-4">
-                    {/* Header with Title and Badges */}
-                    <div className="space-y-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-sm sm:text-base line-clamp-2">{event.title}</h3>
-                          <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
-                            {event.description || "No description"}
-                          </p>
-                        </div>
+                    {/* Title and Badges */}
+                    <div className="space-y-3">
+                      <div>
+                        <h3 className="font-semibold text-sm sm:text-base line-clamp-2 text-foreground">{event.title}</h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mt-1">
+                          {event.description || "No description"}
+                        </p>
                       </div>
                       <div className="flex items-center flex-wrap gap-2">
-                        <Badge className="bg-primary/20 text-primary text-xs sm:text-xs capitalize">
+                        <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 text-xs capitalize">
                           {event.category}
                         </Badge>
                         {event.is_featured && (
-                          <Badge variant="outline" className="text-xs text-yellow-600 border-yellow-200 bg-yellow-50 dark:border-yellow-900 dark:bg-yellow-950">
-                            Featured
+                          <Badge variant="outline" className="text-xs text-primary border-primary/30 bg-primary/5">
+                            ⭐ Featured
                           </Badge>
                         )}
                       </div>
@@ -526,7 +529,7 @@ export function EventsManagement() {
                     {/* Event Details */}
                     <div className="space-y-2 text-xs sm:text-sm text-muted-foreground border-t border-border/50 pt-4">
                       <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                        <Clock className="h-4 w-4 text-primary flex-shrink-0" />
                         <span className="line-clamp-1">
                           {new Date(event.event_date).toLocaleDateString("en-US", {
                             month: "short",
@@ -540,20 +543,20 @@ export function EventsManagement() {
                       </div>
                       {event.location && (
                         <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                          <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
                           <span className="line-clamp-1">{event.location}</span>
                         </div>
                       )}
                       {event.max_attendees && (
                         <div className="flex items-center gap-2">
-                          <Users className="h-4 w-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+                          <Users className="h-4 w-4 text-primary flex-shrink-0" />
                           <span>Max {event.max_attendees} attendees</span>
                         </div>
                       )}
                     </div>
 
-                    {/* Status Badge and Actions */}
-                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                    {/* Status and Actions */}
+                    <div className="flex items-center justify-between pt-4 border-t border-border/50">
                       <Badge variant={event.is_published ? "default" : "secondary"} className="text-xs">
                         {event.is_published ? "Published" : "Draft"}
                       </Badge>
@@ -562,7 +565,7 @@ export function EventsManagement() {
                           variant="ghost" 
                           size="icon" 
                           onClick={() => togglePublish(event)}
-                          className="h-8 w-8 hover:bg-accent"
+                          className="h-8 w-8 hover:bg-accent transition-colors"
                           title={event.is_published ? "Unpublish" : "Publish"}
                         >
                           {event.is_published ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
@@ -571,16 +574,16 @@ export function EventsManagement() {
                           variant="ghost" 
                           size="icon" 
                           onClick={() => toggleFeatured(event)}
-                          className="h-8 w-8 hover:bg-accent"
+                          className="h-8 w-8 hover:bg-accent transition-colors"
                           title={event.is_featured ? "Unfeature" : "Feature"}
                         >
-                          <Star className={cn("h-4 w-4", event.is_featured && "fill-yellow-500 text-yellow-500")} />
+                          <Star className={cn("h-4 w-4", event.is_featured && "fill-primary text-primary")} />
                         </Button>
                         <Button 
                           variant="ghost" 
                           size="icon" 
                           onClick={() => handleEdit(event)}
-                          className="h-8 w-8 hover:bg-accent"
+                          className="h-8 w-8 hover:bg-accent transition-colors"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -588,7 +591,7 @@ export function EventsManagement() {
                           variant="ghost" 
                           size="icon" 
                           onClick={() => handleDelete(event.id)}
-                          className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                          className="h-8 w-8 hover:bg-destructive/10 text-destructive transition-colors"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

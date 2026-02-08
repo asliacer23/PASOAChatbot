@@ -12,7 +12,7 @@ interface WebHeaderProps {
 export function WebHeader({ navbarVisible = true, onToggleNavbar }: WebHeaderProps) {
   return (
     <header className={cn(
-      "fixed top-0 z-35 hidden md:flex items-center justify-between h-16 px-4 lg:px-6 border-b border-border bg-card/95 backdrop-blur-lg transition-all duration-300 ease-in-out right-0",
+      "fixed top-0 z-50 hidden md:flex items-center justify-between h-16 px-4 lg:px-6 border-b border-border bg-card/95 backdrop-blur-lg transition-all duration-300 ease-in-out right-0",
       navbarVisible ? "md:left-56 lg:left-64" : "md:left-0 lg:left-0"
     )}>
       <Button

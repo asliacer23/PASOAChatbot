@@ -11,7 +11,7 @@ interface MobileHeaderProps {
 
 export function MobileHeader({ title = "PASOA Student Hub", onToggleSidebar }: MobileHeaderProps) {
   return (
-    <header className="fixed top-0 left-0 right-0 z-35 flex items-center justify-between h-14 px-3 sm:px-4 border-b border-border/30 bg-background/95 backdrop-blur-md shadow-sm md:hidden">
+    <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between h-14 px-3 sm:px-4 border-b border-border/30 bg-background/95 backdrop-blur-md shadow-sm md:hidden">
       <div className="flex items-center gap-2 min-w-0">
         <Button
           variant="ghost"
