@@ -37,7 +37,9 @@ export function ChatPage() {
   const [showSidebar, setShowSidebar] = useState(!isMobile);
   const [isTyping, setIsTyping] = useState(false);
   const [mascotMood, setMascotMood] = useState<"happy" | "thinking" | "waving" | "idle">("waving");
+  const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const creatingConversationRef = useRef(false);
 
   // Handle responsive sidebar
   useEffect(() => {
@@ -101,15 +103,101 @@ export function ChatPage() {
     fetchFAQs();
   }, [fetchFAQs]);
 
+  // Create automatic initial conversation for new users
+  useEffect(() => {
+    if (!user?.id || isLoadingConversations || creatingConversationRef.current) return;
+
+    const ensureInitialConversation = async () => {
+      // If user already has conversations, don't create one
+      if (conversations.length > 0) return;
+
+      // If already creating, skip
+      if (creatingConversationRef.current) return;
+
+      try {
+        creatingConversationRef.current = true;
+        setIsCreatingConversation(true);
+
+        // Create initial conversation for new user
+        const { data, error } = await supabase
+          .from("conversations")
+          .insert({
+            user_id: user.id,
+            title: "Welcome to PASOA Hub",
+            status: "active",
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        // Create initial greeting message
+        if (data) {
+          const greetingMessage =
+            "Hello! 👋 I'm PASOA Bot, here to help you with any questions about CBA and campus life. What would you like to know today?";
+
+          await supabase.from("messages").insert({
+            conversation_id: data.id,
+            content: greetingMessage,
+            sender_type: "bot",
+          });
+
+          setConversations((prev) => [data, ...prev]);
+          setCurrentConversation(data);
+          await fetchMessages(data.id);
+        }
+      } catch (error) {
+        console.error("Error creating initial conversation:", error);
+      } finally {
+        creatingConversationRef.current = false;
+        setIsCreatingConversation(false);
+      }
+    };
+
+    ensureInitialConversation();
+  }, [user?.id, isLoadingConversations, conversations.length, fetchMessages, setConversations, setCurrentConversation]);
+
+  // Fetch FAQs on mount
+  useEffect(() => {
+    fetchFAQs();
+  }, [fetchFAQs]);
+
   // Handle sending message
   const handleSendMessage = async (content: string, imageFile?: File) => {
-    if (!currentConversation || !user) {
-      const newConv = await createNewConversation();
-      if (newConv) {
-        setCurrentConversation(newConv);
-        await handleSendMessage(content, imageFile);
-      }
+    // Prevent sending if creating conversation or typing
+    if (isCreatingConversation || isTyping || !user) {
       return;
+    }
+
+    if (!currentConversation) {
+      // Prevent concurrent conversation creation
+      if (creatingConversationRef.current) {
+        toast.info("Loading conversation, please wait...");
+        return;
+      }
+
+      try {
+        creatingConversationRef.current = true;
+        setIsCreatingConversation(true);
+
+        const newConv = await createNewConversation();
+        if (newConv) {
+          setCurrentConversation(newConv);
+          // Recursively send the message
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          return handleSendMessage(content, imageFile);
+        } else {
+          toast.error("Failed to create conversation");
+          return;
+        }
+      } catch (error) {
+        console.error("Error creating conversation:", error);
+        toast.error("Failed to create conversation");
+        return;
+      } finally {
+        creatingConversationRef.current = false;
+        setIsCreatingConversation(false);
+      }
     }
 
     if (!validateMessage(content)) {
@@ -296,10 +384,49 @@ export function ChatPage() {
 
   // Handle new conversation
   const handleNewChat = async () => {
-    const newConv = await createNewConversation();
-    if (newConv) {
-      setCurrentConversation(newConv);
-      setMessages([]);
+    // Prevent multiple concurrent conversation creation
+    if (creatingConversationRef.current || isCreatingConversation) {
+      toast.info("Loading conversation, please wait...");
+      return;
+    }
+
+    try {
+      creatingConversationRef.current = true;
+      setIsCreatingConversation(true);
+
+      const newConv = await createNewConversation();
+      if (newConv) {
+        setCurrentConversation(newConv);
+        setMessages([]);
+        
+        // Send initial greeting message with suggestions
+        try {
+          const greetingMessage = "Hello! 👋 I'm PASOA Bot, here to help you with any questions about CBA and campus life. What would you like to know today?";
+          
+          const { data: botMsg, error: botMsgError } = await supabase
+            .from("messages")
+            .insert({
+              conversation_id: newConv.id,
+              content: greetingMessage,
+              sender_type: "bot",
+            })
+            .select()
+            .single();
+
+          if (botMsgError) throw botMsgError;
+
+          setMessages([botMsg]);
+        } catch (error) {
+          console.error("Error sending greeting message:", error);
+          toast.error("Failed to load greeting message");
+        }
+      }
+    } catch (error) {
+      console.error("Error creating conversation:", error);
+      toast.error("Failed to create new chat");
+    } finally {
+      creatingConversationRef.current = false;
+      setIsCreatingConversation(false);
     }
   };
 
@@ -324,17 +451,21 @@ export function ChatPage() {
           entity_id: messageId,
         });
       } else {
-        // Upsert reaction (insert or update if exists)
+        // First delete any existing reaction from this user on this message
         await supabase
           .from("message_reactions")
-          .upsert(
-            {
-              message_id: messageId,
-              user_id: user.id,
-              reaction: reaction,
-            },
-            { onConflict: "message_id,user_id" }
-          );
+          .delete()
+          .eq("message_id", messageId)
+          .eq("user_id", user.id);
+
+        // Then insert the new reaction
+        await supabase
+          .from("message_reactions")
+          .insert({
+            message_id: messageId,
+            user_id: user.id,
+            reaction: reaction,
+          });
         
         // Also log the action
         await supabase.from("activity_logs").insert({
@@ -488,7 +619,7 @@ export function ChatPage() {
                   senderName = `Admin - ${message.sender_profile.last_name}`;
                   senderAvatar = message.sender_profile.avatar_url;
                 } else {
-                  senderName = "Support Team";
+                  senderName = "Admin";
                 }
               } else if (message.sender_type === "user") {
                 senderAvatar = profile?.avatar_url;
@@ -577,7 +708,8 @@ export function ChatPage() {
             isWaitingForAgent={currentConversation?.requires_admin}
             isAdminConnected={!!currentConversation?.assigned_admin_id}
             maxMessageLength={config.maxMessageLength}
-            disabled={isTyping}
+            disabled={isTyping || isCreatingConversation}
+            suggestions={suggestedQuestions}
           />
         )}
       </div>

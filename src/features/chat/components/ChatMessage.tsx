@@ -5,6 +5,7 @@ import { ReactionPicker } from "./ReactionPicker";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/features/auth";
 import logo from "@/assets/pasoa-logo.png";
+import { Smile } from "lucide-react";
 
 interface ChatMessageProps {
   message: {
@@ -105,6 +106,24 @@ export function ChatMessage({
             
             setReactions((prev) => {
               const newReactions = new Map(prev);
+              
+              // If this is the current user, remove their old reaction first
+              if (user?.id === userId && userReaction && userReaction !== reaction) {
+                const oldReaction = userReaction;
+                const oldExisting = newReactions.get(oldReaction);
+                if (oldExisting) {
+                  oldExisting.count = Math.max(0, oldExisting.count - 1);
+                  oldExisting.users = oldExisting.users.filter((id) => id !== userId);
+                  
+                  if (oldExisting.count === 0) {
+                    newReactions.delete(oldReaction);
+                  } else {
+                    newReactions.set(oldReaction, oldExisting);
+                  }
+                }
+              }
+              
+              // Add or update the new reaction
               const existing = newReactions.get(reaction) || { count: 0, users: [] };
               
               if (!existing.users.includes(userId)) {
@@ -254,10 +273,10 @@ export function ChatMessage({
                     "text-xs px-1.5 py-0.5 rounded-full transition-all",
                     "hover:scale-110 active:scale-95",
                     userReaction === emoji 
-                      ? "bg-primary/15 ring-1 ring-primary/30" 
-                      : "hover:bg-secondary/50"
+                      ? "bg-primary/15 ring-1 ring-primary/30 cursor-pointer" 
+                      : "hover:bg-secondary/50 cursor-pointer"
                   )}
-                  title={`${users.length} reaction${count > 1 ? "s" : ""}`}
+                  title={userReaction === emoji ? "Click to change reaction" : `${users.length} reaction${count > 1 ? "s" : ""}`}
                 >
                   {emoji}
                   {count > 1 && <span className="ml-0.5 text-[9px] font-medium">{count}</span>}
@@ -266,15 +285,15 @@ export function ChatMessage({
             </div>
           )}
 
-          {/* Minimalist add reaction button - show on hover if can react */}
-          {canReact && !showReactions && (
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity mt-1">
+          {/* Add reaction button - icon always visible but hidden if user has reaction */}
+          {canReact && !userReaction && (
+            <div className="mt-1.5">
               <button
                 onClick={() => setShowReactions(true)}
-                className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                className="inline-flex items-center justify-center p-1.5 text-foreground bg-secondary/50 hover:bg-primary/20 border border-border/40 rounded-full transition-all hover:scale-110 active:scale-95"
                 title="Add reaction"
               >
-                + react
+                <Smile className="w-4 h-4" />
               </button>
             </div>
           )}

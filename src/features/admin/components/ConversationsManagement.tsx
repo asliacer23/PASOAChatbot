@@ -76,8 +76,12 @@ interface Message {
   content: string;
   sender_type: "student" | "admin" | "bot";
   sender_id: string | null;
-  sender_name?: string;
-  sender_avatar_url?: string | null;
+  sender_profile?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    avatar_url: string | null;
+  } | null;
   is_read: boolean;
   created_at: string;
   image_url: string | null;
@@ -180,20 +184,46 @@ export function ConversationsManagement() {
       const { data, error } = await supabase
         .from("messages")
         .select(`
-          *,
-          sender:profiles(id, first_name, last_name)
+          id,
+          conversation_id,
+          content,
+          sender_type,
+          sender_id,
+          is_read,
+          created_at,
+          image_url
         `)
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: true });
 
       if (error) throw error;
 
-      const messagesWithNames = (data || []).map((msg: any) => ({
-        ...msg,
-        sender_name: msg.sender ? `${msg.sender.first_name} ${msg.sender.last_name}` : undefined,
-      }));
+      // Fetch profiles for messages with sender_id
+      const messagesWithProfiles = await Promise.all(
+        (data || []).map(async (msg: any) => {
+          let sender_profile = null;
+          
+          if (msg.sender_id) {
+            try {
+              const { data: profile } = await supabase
+                .from("profiles")
+                .select("id, first_name, last_name, avatar_url")
+                .eq("id", msg.sender_id)
+                .single();
+              sender_profile = profile;
+            } catch (err) {
+              // Profile not found
+            }
+          }
+          
+          return {
+            ...msg,
+            sender_profile,
+          };
+        })
+      );
 
-      setMessages(messagesWithNames as Message[]);
+      setMessages(messagesWithProfiles as any);
       
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -335,6 +365,46 @@ export function ConversationsManagement() {
       startTyping();
     } else {
       stopTyping();
+    }
+  };
+
+  const handleReactionAdd = async (messageId: string, reaction: string) => {
+    if (!user) return;
+
+    try {
+      if (reaction === "") {
+        // Remove reaction
+        await supabase
+          .from("message_reactions")
+          .delete()
+          .eq("message_id", messageId)
+          .eq("user_id", user.id);
+      } else {
+        // Delete old reaction and insert new one
+        await supabase
+          .from("message_reactions")
+          .delete()
+          .eq("message_id", messageId)
+          .eq("user_id", user.id);
+
+        await supabase
+          .from("message_reactions")
+          .insert({
+            message_id: messageId,
+            user_id: user.id,
+            reaction: reaction,
+          });
+      }
+
+      // Refresh messages to show updated reactions
+      if (selectedConversation) {
+        await fetchMessages(selectedConversation.id);
+      }
+
+      toast.success(reaction ? `Reaction ${reaction} added!` : "Reaction removed!");
+    } catch (error) {
+      console.error("Error recording reaction:", error);
+      toast.error("Failed to save reaction");
     }
   };
 
@@ -653,11 +723,11 @@ export function ConversationsManagement() {
                     if (message.sender_type === "bot") {
                       senderName = "PASOA Bot";
                     } else if (message.sender_type === "admin") {
-                      if (message.sender_name) {
-                        senderName = message.sender_name;
-                        senderAvatar = undefined;
+                      if (message.sender_profile) {
+                        senderName = `Admin - ${message.sender_profile.last_name}`;
+                        senderAvatar = message.sender_profile.avatar_url;
                       } else {
-                        senderName = "Support Team";
+                        senderName = "Admin";
                       }
                     } else if (message.sender_type === "student") {
                       senderName = selectedConversation?.profile
@@ -674,6 +744,7 @@ export function ConversationsManagement() {
                         senderName={senderName}
                         userAvatar={senderAvatar}
                         isBot={message.sender_type === "bot"}
+                        onReactionAdd={handleReactionAdd}
                       />
                     );
                   })}

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { SuggestionsCarousel } from "./SuggestionsCarousel";
 
 interface ChatInputAreaProps {
   onSendMessage: (message: string, file?: File) => void;
@@ -12,6 +13,7 @@ interface ChatInputAreaProps {
   isAdminConnected?: boolean;
   maxMessageLength?: number;
   disabled?: boolean;
+  suggestions?: string[];
 }
 
 export function ChatInputArea({
@@ -21,6 +23,7 @@ export function ChatInputArea({
   isAdminConnected,
   maxMessageLength = 1000,
   disabled = false,
+  suggestions = [],
 }: ChatInputAreaProps) {
   const [message, setMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -85,6 +88,15 @@ export function ChatInputArea({
 
   return (
     <div className="sticky bottom-0 left-0 right-0 z-20 border-t border-border/40 bg-gradient-to-t from-background via-background/95 to-background/90 backdrop-blur-md pt-2 sm:pt-3 pb-3 sm:pb-4 px-2 sm:px-4 space-y-2.5 sm:space-y-3 shadow-xl">
+      {/* Suggestions Carousel */}
+      {suggestions.length > 0 && (
+        <SuggestionsCarousel
+          suggestions={suggestions}
+          onSuggestionClick={onSendMessage}
+          disabled={disabled}
+        />
+      )}
+
       {/* Admin Status Banner */}
       {isAdminConnected ? (
         <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/40 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 flex items-start gap-2.5 animate-pulse">

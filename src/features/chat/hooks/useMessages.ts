@@ -99,19 +99,37 @@ export function useMessages(userId: string | undefined) {
           sender_id,
           created_at,
           matched_faq_id,
-          image_url,
-          profiles:sender_id(id, first_name, last_name, avatar_url)
+          image_url
         `)
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: true });
 
       if (error) throw error;
       
-      // Transform the data to nest sender_profile
-      const messagesWithProfiles = (data || []).map((msg: any) => ({
-        ...msg,
-        sender_profile: msg.profiles?.[0] || null,
-      }));
+      // Fetch profiles for messages that have a sender_id
+      const messagesWithProfiles = await Promise.all(
+        (data || []).map(async (msg: any) => {
+          let sender_profile = null;
+          
+          if (msg.sender_id) {
+            try {
+              const { data: profile } = await supabase
+                .from("profiles")
+                .select("id, first_name, last_name, avatar_url")
+                .eq("id", msg.sender_id)
+                .single();
+              sender_profile = profile;
+            } catch (err) {
+              // Profile not found, keep as null
+            }
+          }
+          
+          return {
+            ...msg,
+            sender_profile,
+          };
+        })
+      );
       
       setMessages(messagesWithProfiles);
     } catch (error) {

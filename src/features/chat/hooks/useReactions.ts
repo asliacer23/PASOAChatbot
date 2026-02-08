@@ -90,17 +90,20 @@ export function useReactions(messageId: string) {
             .eq("message_id", messageId)
             .eq("user_id", user.id);
         } else {
-          // Different reaction - upsert
+          // Different reaction - delete old one first, then insert new
           await supabase
             .from("message_reactions")
-            .upsert(
-              {
-                message_id: messageId,
-                user_id: user.id,
-                reaction: reaction,
-              },
-              { onConflict: "message_id,user_id" }
-            );
+            .delete()
+            .eq("message_id", messageId)
+            .eq("user_id", user.id);
+          
+          await supabase
+            .from("message_reactions")
+            .insert({
+              message_id: messageId,
+              user_id: user.id,
+              reaction: reaction,
+            });
         }
 
         // Refresh reactions

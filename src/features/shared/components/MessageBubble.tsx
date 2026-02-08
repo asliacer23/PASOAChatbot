@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/features/auth";
 import logo from "@/assets/pasoa-logo.png";
 import { format } from "date-fns";
+import { Smile } from "lucide-react";
 
 interface MessageBubbleProps {
   message: {
@@ -90,65 +91,128 @@ export function MessageBubble({
 
     // Subscribe to real-time reaction updates
     const channel = supabase
-      .channel(`reactions:${message.id}`)
+      .channel(`message-reactions-${message.id}-${Date.now()}`, {
+        config: {
+          broadcast: { self: true },
+        },
+      })
       .on(
         "postgres_changes",
         {
-          event: "*",
+          event: "INSERT",
           schema: "public",
           table: "message_reactions",
           filter: `message_id=eq.${message.id}`,
         },
         (payload) => {
-          if (payload.eventType === "INSERT" || payload.eventType === "UPDATE") {
-            const reaction = payload.new.reaction;
-            const userId = payload.new.user_id;
+          const reaction = payload.new.reaction;
+          const userId = payload.new.user_id;
+          
+          setReactions((prev) => {
+            const newReactions = new Map(prev);
+            const existing = newReactions.get(reaction) || { count: 0, users: [] };
             
-            setReactions((prev) => {
-              const newReactions = new Map(prev);
-              const existing = newReactions.get(reaction) || { count: 0, users: [] };
-              
-              if (!existing.users.includes(userId)) {
-                existing.count += 1;
-                existing.users.push(userId);
-                newReactions.set(reaction, existing);
-              }
-              
-              return newReactions;
-            });
-
-            if (user?.id === userId) {
-              setUserReaction(reaction);
+            if (!existing.users.includes(userId)) {
+              existing.count += 1;
+              existing.users.push(userId);
+              newReactions.set(reaction, existing);
             }
-          } else if (payload.eventType === "DELETE") {
-            const reaction = payload.old.reaction;
-            const userId = payload.old.user_id;
+            
+            return newReactions;
+          });
 
-            setReactions((prev) => {
-              const newReactions = new Map(prev);
-              const existing = newReactions.get(reaction);
-              
-              if (existing) {
-                existing.count = Math.max(0, existing.count - 1);
-                existing.users = existing.users.filter((id) => id !== userId);
-                
-                if (existing.count === 0) {
-                  newReactions.delete(reaction);
-                } else {
-                  newReactions.set(reaction, existing);
-                }
-              }
-              
-              return newReactions;
-            });
-
-            if (user?.id === userId) {
-              setUserReaction(null);
-            }
+          if (user?.id === userId) {
+            setUserReaction(reaction);
           }
         }
       )
-      .subscribe();
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "message_reactions",
+          filter: `message_id=eq.${message.id}`,
+        },
+        (payload) => {
+          const reaction = payload.old.reaction;
+          const userId = payload.old.user_id;
+
+          setReactions((prev) => {
+            const newReactions = new Map(prev);
+            const existing = newReactions.get(reaction);
+            
+            if (existing) {
+              existing.count = Math.max(0, existing.count - 1);
+              existing.users = existing.users.filter((id) => id !== userId);
+              
+              if (existing.count === 0) {
+                newReactions.delete(reaction);
+              } else {
+                newReactions.set(reaction, existing);
+              }
+            }
+            
+            return newReactions;
+          });
+
+          if (user?.id === userId) {
+            setUserReaction(null);
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "message_reactions",
+          filter: `message_id=eq.${message.id}`,
+        },
+        (payload) => {
+          const oldReaction = payload.old.reaction;
+          const newReactionEmoji = payload.new.reaction;
+          const userId = payload.new.user_id;
+
+          setReactions((prev) => {
+            const newReactions = new Map(prev);
+            
+            // Remove old reaction
+            const oldExisting = newReactions.get(oldReaction);
+            if (oldExisting) {
+              oldExisting.count = Math.max(0, oldExisting.count - 1);
+              oldExisting.users = oldExisting.users.filter((id) => id !== userId);
+              
+              if (oldExisting.count === 0) {
+                newReactions.delete(oldReaction);
+              } else {
+                newReactions.set(oldReaction, oldExisting);
+              }
+            }
+            
+            // Add new reaction
+            const newExisting = newReactions.get(newReactionEmoji) || { count: 0, users: [] };
+            if (!newExisting.users.includes(userId)) {
+              newExisting.count += 1;
+              newExisting.users.push(userId);
+              newReactions.set(newReactionEmoji, newExisting);
+            }
+            
+            return newReactions;
+          });
+
+          if (user?.id === userId) {
+            setUserReaction(newReactionEmoji);
+          }
+        }
+      )
+      .subscribe((status) => {
+        if (status === "CLOSED") {
+          console.log(`Subscription closed for message ${message.id}`);
+        } else if (status === "CHANNEL_ERROR") {
+          console.error(`Channel error for message ${message.id}`);
+        }
+      });
 
     return () => {
       supabase.removeChannel(channel);
@@ -164,7 +228,7 @@ export function MessageBubble({
   const getSenderBadge = () => {
     if (isBot) return "PASOA Bot";
     if (isAdmin) return senderName;
-    return "Student";
+    return senderName;
   };
 
   const getBadgeColor = () => {
@@ -254,10 +318,10 @@ export function MessageBubble({
                     "text-xs px-2 py-0.5 rounded-full transition-all font-medium",
                     "hover:scale-110 active:scale-95",
                     userReaction === emoji 
-                      ? "bg-primary/20 ring-1 ring-primary/40 shadow-sm" 
-                      : "bg-secondary/50 hover:bg-secondary/70"
+                      ? "bg-primary/20 ring-1 ring-primary/40 shadow-sm cursor-pointer" 
+                      : "bg-secondary/50 hover:bg-secondary/70 cursor-pointer"
                   )}
-                  title={`${users.length} reaction${count > 1 ? "s" : ""}`}
+                  title={userReaction === emoji ? "Click to change reaction" : `${users.length} reaction${count > 1 ? "s" : ""}`}
                 >
                   {emoji}
                   {count > 1 && <span className="ml-0.5 text-[9px] font-bold">{count}</span>}
@@ -266,15 +330,15 @@ export function MessageBubble({
             </div>
           )}
 
-          {/* Minimalist add reaction button - show on hover if can react */}
-          {canReact && !showReactions && (
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity mt-1">
+          {/* Add reaction button - icon always visible but hidden if user has reaction */}
+          {canReact && !userReaction && (
+            <div className="mt-1.5">
               <button
                 onClick={() => setShowReactions(true)}
-                className="text-xs px-2 py-1 rounded-full bg-secondary/60 hover:bg-primary/15 border border-border/40 hover:border-primary/40 transition-all text-muted-foreground hover:text-primary flex items-center gap-1"
+                className="inline-flex items-center justify-center p-1.5 text-foreground bg-secondary/50 hover:bg-primary/20 border border-border/40 rounded-full transition-all hover:scale-110 active:scale-95"
                 title="Add reaction"
               >
-                <span>+ react</span>
+                <Smile className="w-4 h-4" />
               </button>
             </div>
           )}
