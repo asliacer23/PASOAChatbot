@@ -57,13 +57,13 @@ export function LandingPage() {
       {/* Sections */}
       <main className="relative">
         {/* Hero */}
-        <HeroSection />
+
 
         {/* Features */}
         <FeaturesSection />
 
         {/* Chatbot Demo */}
-        <ChatbotDemoSection />
+
 
         {/* How It Works */}
         <HowItWorksSection />
