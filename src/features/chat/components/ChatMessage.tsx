@@ -25,6 +25,7 @@ interface ChatMessageProps {
   senderName: string;
   userAvatar?: string | null;
   onReactionAdd?: (messageId: string, reaction: string) => void;
+  onImageClick?: (imageUrl: string) => void;
   isBot?: boolean;
 }
 
@@ -34,6 +35,7 @@ export function ChatMessage({
   senderName,
   userAvatar,
   onReactionAdd,
+  onImageClick,
   isBot: isBotProp,
 }: ChatMessageProps) {
   const { user } = useAuth();
@@ -174,8 +176,9 @@ export function ChatMessage({
   }, [message.id, user]);
 
   const getSenderColor = () => {
-    if (isOwn) return "bg-primary/10 border-primary/30";
     if (isAdmin) return "bg-green-500/15 border-green-500/40 shadow-sm";
+    if (isBot) return "bg-slate-100/50 border-slate-200/60 dark:bg-slate-800/50 dark:border-slate-700/60";
+    if (isOwn) return "bg-violet-500/15 border-violet-500/40";
     return "bg-muted/50 border-border/30";
   };
 
@@ -186,9 +189,9 @@ export function ChatMessage({
   };
 
   const getBadgeColor = () => {
-    if (isBot) return "bg-blue-500/20 text-blue-700 dark:text-blue-300";
+    if (isBot) return "bg-slate-300/30 text-slate-700 dark:text-slate-300";
     if (isAdmin) return "bg-green-500/25 text-green-700 dark:text-green-400 font-semibold";
-    return "bg-primary/20 text-primary";
+    return "bg-violet-500/20 text-violet-700 dark:text-violet-400";
   };
 
   return (
@@ -210,7 +213,7 @@ export function ChatMessage({
         ) : (
           <div className={cn(
             "w-full h-full rounded-full flex items-center justify-center",
-            isAdmin ? "bg-green-500" : "bg-primary"
+            isAdmin ? "bg-green-500" : isBot ? "bg-slate-500" : "bg-violet-500"
           )}>
             <span className="text-white text-xs">
               {senderName.charAt(0).toUpperCase()}
@@ -244,7 +247,8 @@ export function ChatMessage({
               <img
                 src={message.image_url}
                 alt="message image"
-                className="max-w-[150px] sm:max-w-[250px] rounded-lg mb-2"
+                onClick={() => onImageClick?.(message.image_url!)}
+                className="max-w-[150px] sm:max-w-[250px] rounded-lg mb-2 cursor-pointer hover:opacity-90 transition-opacity"
               />
             )}
 

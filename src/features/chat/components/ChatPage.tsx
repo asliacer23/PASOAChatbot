@@ -13,6 +13,7 @@ import { useTypingIndicator } from "../hooks/useTypingIndicator";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInputArea } from "./ChatInputArea";
 import { ConversationSidebar } from "./ConversationSidebar";
+import { ImageViewer } from "./ImageViewer";
 import { cn } from "@/lib/utils";
 
 const suggestedQuestions = [
@@ -38,6 +39,7 @@ export function ChatPage() {
   const [isTyping, setIsTyping] = useState(false);
   const [mascotMood, setMascotMood] = useState<"happy" | "thinking" | "waving" | "idle">("waving");
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const creatingConversationRef = useRef(false);
 
@@ -639,6 +641,7 @@ export function ChatPage() {
                   senderName={senderName}
                   userAvatar={senderAvatar}
                   onReactionAdd={handleReactionAdd}
+                  onImageClick={setSelectedImage}
                   isBot={message.sender_type === "bot"}
                 />
               );
@@ -718,6 +721,13 @@ export function ChatPage() {
           />
         )}
       </div>
+
+      {/* Image Viewer */}
+      <ImageViewer
+        isOpen={!!selectedImage}
+        imageUrl={selectedImage}
+        onClose={() => setSelectedImage(null)}
+      />
     </div>
   );
 }

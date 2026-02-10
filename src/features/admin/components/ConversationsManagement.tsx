@@ -21,6 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/features/auth";
 import { useTypingIndicator } from "@/features/chat/hooks/useTypingIndicator";
 import { MessageBubble } from "@/features/shared/components/MessageBubble";
+import { ImageViewer } from "@/features/chat/components/ImageViewer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -101,6 +102,7 @@ export function ConversationsManagement() {
   const [isSending, setIsSending] = useState(false);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [conversationToClose, setConversationToClose] = useState<Conversation | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { startTyping, stopTyping, isOtherTyping } = useTypingIndicator(
@@ -726,8 +728,9 @@ export function ConversationsManagement() {
                         key={message.id}
                         className={cn(
                           "rounded-lg p-2",
-                          senderInfo.type === "admin" && "text-violet-600 dark:text-violet-400",
-                          senderInfo.type === "student" && "text-green-600 dark:text-green-400"
+                          senderInfo.type === "admin" && "text-green-600 dark:text-green-400",
+                          senderInfo.type === "bot" && "text-slate-600 dark:text-slate-400",
+                          senderInfo.type === "student" && "text-violet-600 dark:text-violet-400"
                         )}
                       >
                         <MessageBubble
@@ -737,6 +740,7 @@ export function ConversationsManagement() {
                           userAvatar={senderInfo.avatar}
                           isBot={senderInfo.type === "bot"}
                           onReactionAdd={handleReactionAdd}
+                          onImageClick={setSelectedImage}
                         />
                       </div>
                     );
@@ -829,6 +833,13 @@ export function ConversationsManagement() {
             </Button>
           </DialogFooter>
         </DialogContent>
+
+      {/* Image Viewer */}
+      <ImageViewer
+        isOpen={!!selectedImage}
+        imageUrl={selectedImage}
+        onClose={() => setSelectedImage(null)}
+      />
       </Dialog>
     </div>
   );
