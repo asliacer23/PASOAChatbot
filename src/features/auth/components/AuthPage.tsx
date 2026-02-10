@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Eye, EyeOff, Loader2, LogIn, UserPlus, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, Loader2, LogIn, UserPlus, AlertCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -128,7 +128,7 @@ export function AuthPage() {
         title: "Welcome back!",
         description: "You have successfully signed in.",
       });
-      navigate("/");
+      navigate("/dashboard");
     }
   };
 
@@ -206,7 +206,14 @@ export function AuthPage() {
     <>
       {showEmailVerification ? (
         <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/20 flex flex-col items-center justify-center overflow-hidden relative p-4">
-          {/* Theme Toggle */}
+          {/* Back Button & Theme Toggle */}
+          <div className="absolute top-4 md:top-6 left-4 md:left-6 z-50">
+            <Link to="/">
+              <Button variant="outline" size="icon" className="rounded-lg h-10 w-10">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
           <div className="absolute top-4 md:top-6 right-4 md:right-6 z-50">
             <ThemeToggle />
           </div>
@@ -288,7 +295,14 @@ export function AuthPage() {
         </div>
       ) : showTermsAcceptance ? (
         <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/20 flex flex-col items-center justify-center overflow-hidden relative p-4">
-          {/* Theme Toggle */}
+          {/* Back Button & Theme Toggle */}
+          <div className="absolute top-4 md:top-6 left-4 md:left-6 z-50">
+            <Link to="/">
+              <Button variant="outline" size="icon" className="rounded-lg h-10 w-10">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
           <div className="absolute top-4 md:top-6 right-4 md:right-6 z-50">
             <ThemeToggle />
           </div>
@@ -305,7 +319,14 @@ export function AuthPage() {
         </div>
       ) : (
         <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/20 flex flex-col items-center justify-center overflow-hidden relative">
-      {/* Theme Toggle */}
+      {/* Back Button & Theme Toggle */}
+      <div className="absolute top-4 md:top-6 left-4 md:left-6 z-50">
+        <Link to="/">
+          <Button variant="outline" size="icon" className="rounded-lg h-10 w-10">
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
       <div className="absolute top-4 md:top-6 right-4 md:right-6 z-50">
         <ThemeToggle />
       </div>
@@ -629,6 +650,15 @@ export function AuthPage() {
                   By signing up, you agree to our <br className="md:hidden" />
                   <a href="/auth/terms" className="text-primary hover:underline">Terms of Service</a> and <a href="/auth/terms" className="text-primary hover:underline">Privacy Policy</a>.
                 </p>
+
+                <div className="pt-4 border-t border-border/30 animate-fade-in-up" style={{ animationDelay: "0.45s" }}>
+                  <Link to="/" className="inline-block w-full">
+                    <Button variant="ghost" size="sm" className="w-full gap-2 text-xs text-muted-foreground hover:text-foreground">
+                      <ArrowLeft className="h-3 w-3" />
+                      Back to Home
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           </div>

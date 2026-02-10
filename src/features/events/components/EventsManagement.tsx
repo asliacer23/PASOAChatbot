@@ -393,64 +393,7 @@ export function EventsManagement() {
           </Dialog>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="border border-border/50 bg-card hover:border-border transition-all">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Total Events</p>
-                <p className="text-2xl sm:text-3xl font-bold text-foreground">{events.length}</p>
-              </div>
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Calendar className="h-5 w-5 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-border/50 bg-card hover:border-border transition-all">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Upcoming</p>
-                <p className="text-2xl sm:text-3xl font-bold text-foreground">{upcomingEvents.length}</p>
-              </div>
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Clock className="h-5 w-5 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-border/50 bg-card hover:border-border transition-all">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Featured</p>
-                <p className="text-2xl sm:text-3xl font-bold text-foreground">{events.filter(e => e.is_featured).length}</p>
-              </div>
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Star className="h-5 w-5 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-border/50 bg-card hover:border-border transition-all">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Published</p>
-                <p className="text-2xl sm:text-3xl font-bold text-foreground">{events.filter(e => e.is_published).length}</p>
-              </div>
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Eye className="h-5 w-5 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      
 
       {/* Filters Section */}
       <Card className="border border-border/50 p-4 sm:p-6">

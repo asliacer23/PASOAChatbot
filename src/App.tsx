@@ -24,6 +24,7 @@ import { UpcomingEvents } from "@/features/events";
 import { AdminDashboard } from "@/features/admin";
 
 import NotFound from "./pages/NotFound";
+import { LandingPage } from "@/features/landing";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,9 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<LandingPage />} />
+              
               {/* Public Auth Routes */}
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
@@ -50,7 +54,7 @@ const App = () => (
                 </ProtectedRoute>
               }>
                 {/* Student Routes */}
-                <Route path="/" element={<StudentDashboard />} />
+                <Route path="/dashboard" element={<StudentDashboard />} />
                 <Route path="/chat" element={<ChatInterface />} />
                 <Route path="/faq" element={<FAQCenter />} />
                 <Route path="/events" element={<UpcomingEvents />} />

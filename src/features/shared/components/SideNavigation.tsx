@@ -23,7 +23,7 @@ import { PasoaMascot } from "./PasoaMascot";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const studentNavItems = [
-  { to: "/", icon: Home, label: "Home" },
+  { to: "/dashboard", icon: Home, label: "Home" },
   { to: "/chat", icon: MessageCircle, label: "Chatbot" },
   { to: "/faq", icon: HelpCircle, label: "FAQ Center" },
   { to: "/events", icon: Calendar, label: "Events" },
@@ -108,7 +108,7 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
             <li key={item.to}>
               <NavLink
                 to={item.to}
-                end={item.to === "/" || item.to === "/admin"}
+                end={item.to === "/dashboard" || item.to === "/admin"}
                 onClick={onCloseSidebar}
                 className={cn(
                   "flex items-center gap-2 lg:gap-3 px-2.5 lg:px-3 py-2 lg:py-2.5 rounded-xl text-sidebar-foreground transition-all duration-300 ease-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:scale-105 hover:shadow-md hover:font-bold text-xs lg:text-sm active:scale-95"
@@ -128,7 +128,7 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
             <Separator className="my-3 lg:my-4 mx-2" />
             <div className="px-2">
               <NavLink
-                to={isAdminRoute ? "/" : "/admin"}
+                to={isAdminRoute ? "/dashboard" : "/admin"}
                 onClick={onCloseSidebar}
                 className={cn(
                   "flex items-center gap-2 lg:gap-3 px-2.5 lg:px-3 py-2 lg:py-2.5 rounded-xl text-muted-foreground transition-all duration-300 ease-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:scale-105 hover:shadow-md hover:font-bold text-xs lg:text-sm active:scale-95"

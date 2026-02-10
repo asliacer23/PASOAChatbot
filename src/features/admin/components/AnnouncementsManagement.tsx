@@ -406,64 +406,6 @@ export function AnnouncementsManagement() {
             </Dialog>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-border/50 bg-gradient-to-br from-blue-500/20 to-blue-600/20 hover:shadow-lg transition-all duration-300">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Total Announcements</p>
-                <p className="text-2xl sm:text-3xl font-bold">{announcements.length}</p>
-              </div>
-              <div className="p-2 bg-blue-500/20 rounded-lg">
-                <Bell className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/50 bg-gradient-to-br from-green-500/20 to-green-600/20 hover:shadow-lg transition-all duration-300">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Published</p>
-                <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">{announcements.filter(a => a.is_published).length}</p>
-              </div>
-              <div className="p-2 bg-green-500/20 rounded-lg">
-                <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/50 bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 hover:shadow-lg transition-all duration-300">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Pinned</p>
-                <p className="text-2xl sm:text-3xl font-bold text-yellow-600 dark:text-yellow-400">{announcements.filter(a => a.is_pinned).length}</p>
-              </div>
-              <div className="p-2 bg-yellow-500/20 rounded-lg">
-                <Pin className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/50 bg-gradient-to-br from-red-500/20 to-red-600/20 hover:shadow-lg transition-all duration-300">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Urgent</p>
-                <p className="text-2xl sm:text-3xl font-bold text-red-600 dark:text-red-400">{announcements.filter(a => a.is_urgent).length}</p>
-              </div>
-              <div className="p-2 bg-red-500/20 rounded-lg">
-                <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Filters Section */}
       <Card className="border-border/50 p-4 sm:p-6">

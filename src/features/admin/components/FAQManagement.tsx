@@ -262,54 +262,7 @@ export function FAQManagement() {
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        <Card className="border-border/50 bg-gradient-to-br from-blue-500/20 to-blue-600/20 hover:shadow-lg transition-all duration-300">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Total FAQs</p>
-                <p className="text-2xl sm:text-3xl font-bold">{faqs.length}</p>
-              </div>
-              <div className="p-2 bg-blue-500/20 rounded-lg">
-                <HelpCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/50 bg-gradient-to-br from-green-500/20 to-green-600/20 hover:shadow-lg transition-all duration-300">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Total Views</p>
-                <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">
-                  {faqs.reduce((sum, f) => sum + f.view_count, 0).toLocaleString()}
-                </p>
-              </div>
-              <div className="p-2 bg-green-500/20 rounded-lg">
-                <Eye className="h-4 w-4 text-green-600 dark:text-green-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/50 bg-gradient-to-br from-purple-500/20 to-purple-600/20 hover:shadow-lg transition-all duration-300">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Total Matches</p>
-                <p className="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400">
-                  {faqs.reduce((sum, f) => sum + f.match_count, 0).toLocaleString()}
-                </p>
-              </div>
-              <div className="p-2 bg-purple-500/20 rounded-lg">
-                <MessageCircle className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      
 
       {/* Filters Section */}
       <Card className="border-border/50 p-4 sm:p-6">

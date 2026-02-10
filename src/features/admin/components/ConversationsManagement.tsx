@@ -92,6 +92,7 @@ export function ConversationsManagement() {
   const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [studentProfile, setStudentProfile] = useState<any>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -236,7 +237,61 @@ export function ConversationsManagement() {
 
   const handleSelectConversation = async (conversation: Conversation) => {
     setSelectedConversation(conversation);
+    
+    // Store the student profile for easy access
+    if (conversation.profile) {
+      setStudentProfile({
+        id: conversation.profile.id,
+        first_name: conversation.profile.first_name,
+        last_name: conversation.profile.last_name,
+        avatar_url: conversation.profile.avatar_url,
+        email: conversation.profile.email,
+        student_id: conversation.profile.student_id,
+      });
+    }
+    
     await fetchMessages(conversation.id);
+  };
+
+  // Helper function to get sender information
+  const getSenderInfo = (message: Message) => {
+    if (message.sender_type === "bot") {
+      return {
+        name: "PASOA Bot",
+        avatar: null,
+        type: "bot",
+      };
+    }
+    
+    if (message.sender_type === "admin") {
+      if (message.sender_profile?.first_name && message.sender_profile?.last_name) {
+        return {
+          name: `${message.sender_profile.first_name} ${message.sender_profile.last_name}`,
+          avatar: message.sender_profile.avatar_url || null,
+          type: "admin",
+        };
+      }
+      return {
+        name: "Admin",
+        avatar: null,
+        type: "admin",
+      };
+    }
+    
+    // Student message
+    if (studentProfile?.first_name && studentProfile?.last_name) {
+      return {
+        name: `${studentProfile.first_name} ${studentProfile.last_name}`,
+        avatar: studentProfile.avatar_url || null,
+        type: "student",
+      };
+    }
+    
+    return {
+      name: "Student",
+      avatar: null,
+      type: "student",
+    };
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -466,81 +521,28 @@ export function ConversationsManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-screen bg-background overflow-hidden -mx-4 -my-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between pb-2">
+      <div className="px-4 sm:px-6 py-4 border-b border-border/50 bg-gradient-to-r from-background to-secondary/5 shrink-0">
         <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/15 rounded-xl">
-              <MessageCircle className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold">Student Conversations</h2>
-              <p className="text-xs md:text-sm text-muted-foreground mt-0.5">Manage and support student inquiries</p>
-            </div>
+          <div className="flex items-center gap-2">
+            <MessageCircle className="h-5 w-5 text-primary" />
+            <h2 className="text-2xl md:text-3xl font-bold">Conversation Management</h2>
           </div>
+          <p className="text-sm md:text-base text-muted-foreground">
+            View and manage all student conversations in one place. 
+          </p>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        <Card className="border-border/50 bg-gradient-to-br from-blue-500/15 via-blue-500/5 to-transparent hover:shadow-lg hover:border-blue-500/30 transition-all duration-300 cursor-pointer group">
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between">
-              <div className="space-y-3">
-                <p className="text-xs sm:text-sm text-muted-foreground font-semibold uppercase tracking-wider">Total Conversations</p>
-                <p className="text-3xl sm:text-4xl font-bold text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
-                  {conversations.length}
-                </p>
-              </div>
-              <div className="p-3 bg-blue-500/20 rounded-xl group-hover:scale-110 transition-transform">
-                <MessageCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/50 bg-gradient-to-br from-green-500/15 via-green-500/5 to-transparent hover:shadow-lg hover:border-green-500/30 transition-all duration-300 cursor-pointer group">
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between">
-              <div className="space-y-3">
-                <p className="text-xs sm:text-sm text-muted-foreground font-semibold uppercase tracking-wider">Active Chats</p>
-                <p className="text-3xl sm:text-4xl font-bold text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform">
-                  {conversations.filter((c) => c.status === "active").length}
-                </p>
-              </div>
-              <div className="p-3 bg-green-500/20 rounded-xl group-hover:scale-110 transition-transform">
-                <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/50 bg-gradient-to-br from-red-500/15 via-red-500/5 to-transparent hover:shadow-lg hover:border-red-500/30 transition-all duration-300 cursor-pointer group">
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between">
-              <div className="space-y-3">
-                <p className="text-xs sm:text-sm text-muted-foreground font-semibold uppercase tracking-wider">Needs Attention</p>
-                <p className="text-3xl sm:text-4xl font-bold text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform">
-                  {conversations.filter((c) => c.requires_admin && !c.assigned_admin_id).length}
-                </p>
-              </div>
-              <div className="p-3 bg-red-500/20 rounded-xl group-hover:scale-110 transition-transform">
-                <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-[calc(100vh-22rem)]">
+      <div className="flex flex-1 overflow-hidden gap-4 p-4 sm:p-6">
         {/* Conversations List */}
         <Card className={cn(
-          "border-border/50 lg:col-span-1 overflow-hidden shadow-lg",
-          selectedConversation && "hidden lg:block"
+          "border-border/50 overflow-hidden shadow-lg flex flex-col w-full md:w-80 shrink-0",
+          selectedConversation && "hidden md:flex"
         )}>
-          <CardHeader className="pb-4 border-b border-border/50 bg-gradient-to-br from-primary/5 to-primary/10">
+          <CardHeader className="pb-4 border-b border-border/50 bg-gradient-to-br from-primary/5 to-primary/10 shrink-0">
             <CardTitle className="text-lg font-bold">Active Chats</CardTitle>
             <div className="relative mt-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -565,7 +567,7 @@ export function ConversationsManagement() {
               ))}
             </div>
           </CardHeader>
-          <ScrollArea className="h-[calc(100%-10rem)]">
+          <ScrollArea className="flex-1">
             <CardContent className="p-3 space-y-2">
               {filteredConversations.length === 0 ? (
                 <div className="text-center text-muted-foreground py-12 text-sm">
@@ -617,37 +619,37 @@ export function ConversationsManagement() {
                 ))
               )}
             </CardContent>
-          </ScrollArea>
-        </Card>
+            </ScrollArea>
+          </Card>
 
         {/* Chat View */}
         <Card className={cn(
-          "border-border/50 lg:col-span-3 flex flex-col overflow-hidden shadow-lg",
-          !selectedConversation && "hidden lg:flex"
+          "border-border/50 flex flex-col overflow-hidden shadow-lg flex-1",
+          !selectedConversation && "hidden md:flex"
         )}>
           {selectedConversation ? (
             <>
               {/* Header */}
-              <CardHeader className="pb-4 border-b border-border/50 bg-gradient-to-r from-primary/5 via-primary/3 to-transparent">
+              <CardHeader className="pb-4 border-b border-border/50 bg-gradient-to-r from-primary/5 via-primary/3 to-transparent shrink-0">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 flex-1">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="lg:hidden hover:bg-secondary/50 rounded-lg"
+                      className="md:hidden hover:bg-secondary/50 rounded-lg shrink-0"
                       onClick={() => setSelectedConversation(null)}
                     >
                       <ArrowLeft className="h-5 w-5" />
                     </Button>
-                    <Avatar className="h-12 w-12 ring-2 ring-primary/20">
+                    <Avatar className="h-12 w-12 ring-2 ring-primary/20 shrink-0">
                       <AvatarImage src={selectedConversation.profile?.avatar_url || ""} />
                       <AvatarFallback className="bg-gradient-to-br from-primary to-purple-600 text-white font-bold">
                         {selectedConversation.profile?.first_name?.[0]}
                         {selectedConversation.profile?.last_name?.[0]}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1">
-                      <p className="font-bold text-base">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-base truncate">
                         {selectedConversation.profile?.first_name} {selectedConversation.profile?.last_name}
                       </p>
                       {selectedConversation.profile?.student_id && (
@@ -667,7 +669,7 @@ export function ConversationsManagement() {
                   {/* Actions */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="hover:bg-secondary/50 rounded-lg">
+                      <Button variant="ghost" size="icon" className="hover:bg-secondary/50 rounded-lg shrink-0">
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -697,7 +699,7 @@ export function ConversationsManagement() {
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className="cursor-pointer">
                         <Eye className="h-4 w-4 mr-2" />
-                        View Profile
+                        View Details
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -715,50 +717,39 @@ export function ConversationsManagement() {
 
               {/* Messages */}
               <ScrollArea className="flex-1 p-3 sm:p-5">
-                <div className="space-y-3 sm:space-y-4 pr-4">
+                <div className="space-y-2 sm:space-y-3 pr-4">
                   {messages.map((message) => {
-                    let senderName = "Student";
-                    let senderAvatar: string | null | undefined = undefined;
-                    
-                    if (message.sender_type === "bot") {
-                      senderName = "PASOA Bot";
-                    } else if (message.sender_type === "admin") {
-                      if (message.sender_profile) {
-                        senderName = `Admin - ${message.sender_profile.last_name}`;
-                        senderAvatar = message.sender_profile.avatar_url;
-                      } else {
-                        senderName = "Admin";
-                      }
-                    } else if (message.sender_type === "student") {
-                      senderName = selectedConversation?.profile
-                        ? `${selectedConversation.profile.first_name} ${selectedConversation.profile.last_name}`
-                        : "Student";
-                      senderAvatar = selectedConversation?.profile?.avatar_url;
-                    }
+                    const senderInfo = getSenderInfo(message);
                     
                     return (
-                      <MessageBubble
+                      <div
                         key={message.id}
-                        message={message}
-                        isOwn={message.sender_type === "admin"}
-                        senderName={senderName}
-                        userAvatar={senderAvatar}
-                        isBot={message.sender_type === "bot"}
-                        onReactionAdd={handleReactionAdd}
-                      />
+                        className={cn(
+                          "rounded-lg p-2",
+                          senderInfo.type === "admin" && "text-violet-600 dark:text-violet-400",
+                          senderInfo.type === "student" && "text-green-600 dark:text-green-400"
+                        )}
+                      >
+                        <MessageBubble
+                          message={message}
+                          isOwn={senderInfo.type === "admin"}
+                          senderName={senderInfo.name}
+                          userAvatar={senderInfo.avatar}
+                          isBot={senderInfo.type === "bot"}
+                          onReactionAdd={handleReactionAdd}
+                        />
+                      </div>
                     );
                   })}
 
                   {/* Typing Indicator */}
                   {isOtherTyping && (
-                    <div className="flex gap-3">
-                      <Avatar className="h-8 w-8 hidden sm:flex">
-                        <AvatarFallback className="bg-secondary text-xs">S</AvatarFallback>
-                      </Avatar>
-                      <div className="bg-secondary/60 rounded-2xl px-4 py-3 flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "0ms" }} />
-                        <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "150ms" }} />
-                        <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <div className="bg-slate-50 dark:bg-slate-950/30 border-l-4 border-slate-400 pl-4 pr-4 py-3 rounded-md flex gap-3">
+                      <span className="text-slate-700 dark:text-slate-400 font-semibold text-xs mb-1 block w-full">Student is typing...</span>
+                      <div className="flex gap-1.5 items-center">
+                        <span className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: "0ms" }} />
+                        <span className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: "150ms" }} />
+                        <span className="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: "300ms" }} />
                       </div>
                     </div>
                   )}
@@ -769,18 +760,19 @@ export function ConversationsManagement() {
 
               {/* Message Input */}
               {selectedConversation.status === "active" ? (
-                <form onSubmit={handleSendMessage} className="p-5 border-t border-border/50 bg-gradient-to-t from-background to-transparent">
+                <form onSubmit={handleSendMessage} className="p-4 sm:p-5 border-t border-border/50 bg-gradient-to-t from-background to-transparent shrink-0">
                   <div className="flex gap-2 items-end">
                     <Input
                       value={newMessage}
                       onChange={handleInputChange}
                       placeholder="Type your reply..."
-                      className="flex-1 border-primary/30 focus:border-primary/60 rounded-xl shadow-sm transition-all"
+                      className="flex-1 border-primary/30 focus:border-primary/60 rounded-xl shadow-sm transition-all text-sm"
                     />
                     <Button 
                       type="submit" 
                       disabled={isSending || !newMessage.trim()}
-                      className="rounded-xl hover:shadow-md transition-all shadow-sm"
+                      className="rounded-xl hover:shadow-md transition-all shadow-sm shrink-0"
+                      size="sm"
                     >
                       {isSending ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -791,7 +783,7 @@ export function ConversationsManagement() {
                   </div>
                 </form>
               ) : (
-                <div className="p-5 bg-gradient-to-t from-amber-500/5 to-transparent border-t border-amber-500/20">
+                <div className="p-4 sm:p-5 bg-gradient-to-t from-amber-500/5 to-transparent border-t border-amber-500/20 shrink-0">
                   <p className="text-xs text-center text-muted-foreground font-medium">
                     This chat is closed. Reopen it to send messages.
                   </p>

@@ -14,6 +14,9 @@ import {
   Calendar,
   ArrowUp,
   Activity,
+  CalendarDays,
+  FileCheck,
+  BarChart,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -150,36 +153,48 @@ export function AdminDashboard() {
             ) : (
               < >
 
-          
+          {/* Header Section */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <LayoutDashboard className="h-5 w-5 text-primary" />
+          <h2 className="text-2xl md:text-3xl font-bold">Dashboard</h2>
+        </div>
+        <p className="text-sm md:text-base text-muted-foreground">
+          Welcome back, Admin! Here's a quick overview of your system's performance and recent activity.
+        </p>
+      </div>
 
-                {/* Stats Cards Grid */}
-                
-                <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-                  {statsCards.map((stat) => (
-                    <Card key={stat.title} className={`border-border/50 bg-gradient-to-br ${stat.color} hover:shadow-lg transition-all duration-300`}>
-                      <CardHeader className="flex flex-row items-start justify-between pb-3 sm:pb-4">
-                        <div className="space-y-1">
-                          <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
-                            {stat.title}
-                          </CardTitle>
+                {/* Quick Actions */}
+                  <Card className="border-border/50 hover:shadow-lg transition-all duration-300">
+                    <CardHeader className="pb-4 sm:pb-6">
+                      <div className="flex items-center gap-2">
+                        <Activity className="h-5 w-5 text-primary" />
+                        <div>
+                          <CardTitle className="text-lg sm:text-xl">Quick Actions</CardTitle>
+                          <CardDescription className="text-xs sm:text-sm mt-1">Common tasks</CardDescription>
                         </div>
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <stat.icon className="h-4 w-4 text-primary" />
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-2">
-                        <div className="text-2xl sm:text-3xl font-bold tracking-tight">{stat.value}</div>
-                        <div className="flex items-center gap-1.5">
-                          <div className="flex items-center gap-0.5 text-xs sm:text-sm text-green-600 dark:text-green-400 font-medium">
-                            <ArrowUp className="h-3 w-3" />
-                            {stat.change}
-                          </div>
-                          <span className="text-xs text-muted-foreground">from last month</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {[
+                        { label: "Manage Users", icon: Users, tab: "users" },
+                        { label: "Manage FAQ", icon: HelpCircle, tab: "faq" },
+                        { label: "Conversations", icon: MessageCircle, tab: "conversations" },
+                        { label: "Announcements", icon: Bell, tab: "announcements" },
+                        { label: "Events", icon: CalendarDays, tab: "events" },
+                        { label: "Reports", icon: BarChart, tab: "reports" },
+                      ].map((action, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleTabChange(action.tab)}
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-accent/30 hover:bg-accent/60 transition-colors cursor-pointer text-left group"
+                        >
+                          <action.icon className="h-4 w-4 text-primary shrink-0 group-hover:scale-110 transition-transform" />
+                          <span className="text-xs sm:text-sm font-medium truncate">{action.label}</span>
+                        </button>
+                      ))}
+                    </CardContent>
+                  </Card>
 
                 {/* Analytics Section */}
                 <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-3">
@@ -214,35 +229,7 @@ export function AdminDashboard() {
                     </CardContent>
                   </Card>
 
-                  {/* Quick Actions */}
-                  <Card className="border-border/50 hover:shadow-lg transition-all duration-300">
-                    <CardHeader className="pb-4 sm:pb-6">
-                      <div className="flex items-center gap-2">
-                        <Activity className="h-5 w-5 text-primary" />
-                        <div>
-                          <CardTitle className="text-lg sm:text-xl">Quick Actions</CardTitle>
-                          <CardDescription className="text-xs sm:text-sm mt-1">Common tasks</CardDescription>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {[
-                        { label: "Manage FAQ", icon: HelpCircle, tab: "faq" },
-                        { label: "View Users", icon: Users, tab: "users" },
-                        { label: "Conversations", icon: MessageCircle, tab: "conversations" },
-                        { label: "Announcements", icon: Bell, tab: "announcements" },
-                      ].map((action, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handleTabChange(action.tab)}
-                          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-accent/30 hover:bg-accent/60 transition-colors cursor-pointer text-left group"
-                        >
-                          <action.icon className="h-4 w-4 text-primary shrink-0 group-hover:scale-110 transition-transform" />
-                          <span className="text-xs sm:text-sm font-medium truncate">{action.label}</span>
-                        </button>
-                      ))}
-                    </CardContent>
-                  </Card>
+                  
                 </div>
 
                 {/* Activity Summary */}
