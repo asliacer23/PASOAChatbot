@@ -13,7 +13,7 @@ import { CTASection } from "./components/CTASection";
 import { LandingFooter } from "./components/LandingFooter";
 
 export function LandingPage() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isAdmin } = useAuth();
 
   // Smooth scroll behavior for hash links
   useEffect(() => {
@@ -44,9 +44,9 @@ export function LandingPage() {
     );
   }
 
-  // If authenticated, navigate to the app dashboard
+  // If authenticated, navigate to the appropriate dashboard
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={isAdmin ? "/admin" : "/dashboard"} replace />;
   }
 
   return (

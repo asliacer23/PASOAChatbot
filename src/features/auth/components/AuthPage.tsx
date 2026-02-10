@@ -49,10 +49,24 @@ export function AuthPage() {
   const [showEmailVerification, setShowEmailVerification] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState("");
   const [redirectCountdown, setRedirectCountdown] = useState(15);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user, isAdmin } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { recordFailedAttempt, checkLoginStatus, clearLoginAttempts } = useLoginAttempts();
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+
+  // Redirect after user is authenticated and roles are loaded
+  useEffect(() => {
+    if (shouldRedirect && user) {
+      // Give a moment for the auth context to fully populate roles
+      const timer = setTimeout(() => {
+        const redirectPath = isAdmin ? "/admin" : "/dashboard";
+        navigate(redirectPath);
+        setShouldRedirect(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [shouldRedirect, user, isAdmin, navigate]);
 
   // Auto-redirect to login after 15 seconds on email verification screen
   useEffect(() => {
@@ -128,7 +142,7 @@ export function AuthPage() {
         title: "Welcome back!",
         description: "You have successfully signed in.",
       });
-      navigate("/dashboard");
+      setShouldRedirect(true);
     }
   };
 

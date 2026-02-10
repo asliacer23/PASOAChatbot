@@ -84,10 +84,18 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
       {profile && (
         <div className="px-3 lg:px-4 py-2.5 lg:py-3 border-b border-sidebar-border">
           <div className="flex items-center gap-2 lg:gap-3">
-            <div className="h-8 w-8 lg:h-9 lg:w-9 rounded-full bg-gradient-primary flex items-center justify-center shrink-0">
-              <span className="text-xs lg:text-sm font-medium text-primary-foreground">
-                {profile.first_name[0]}{profile.last_name[0]}
-              </span>
+            <div className="h-8 w-8 lg:h-9 lg:w-9 rounded-full bg-gradient-primary flex items-center justify-center shrink-0 overflow-hidden">
+              {profile.avatar_url ? (
+                <img 
+                  src={profile.avatar_url} 
+                  alt={`${profile.first_name} ${profile.last_name}`}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-xs lg:text-sm font-medium text-primary-foreground">
+                  {profile.first_name[0]}{profile.last_name[0]}
+                </span>
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs lg:text-sm font-medium truncate">

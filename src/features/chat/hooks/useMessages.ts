@@ -158,15 +158,16 @@ export function useMessages(userId: string | undefined) {
       }
     }
 
-    // Check if there's already an empty conversation
+    // Check if there's already an empty conversation (no user messages yet)
     for (const conv of conversations) {
-      const { data: messageCount } = await supabase
+      const { data: messages } = await supabase
         .from("messages")
-        .select("id", { count: "exact" })
-        .eq("conversation_id", conv.id)
-        .limit(2);
+        .select("id, sender_type")
+        .eq("conversation_id", conv.id);
 
-      if (messageCount && messageCount.length === 0) {
+      // If conversation has no user messages (only bot greeting or empty), use it
+      const hasUserMessages = messages && messages.some(msg => msg.sender_type === "user");
+      if (!hasUserMessages) {
         setCurrentConversation(conv);
         setMessages([]);
         await fetchMessages(conv.id);
