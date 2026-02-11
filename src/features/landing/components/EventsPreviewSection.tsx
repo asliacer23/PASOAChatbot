@@ -1,7 +1,9 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Users, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { fetchLandingEvents } from "../landing.services";
 
 const mockEvents = [
   {
@@ -44,6 +46,14 @@ const mockEvents = [
 
 export function EventsPreviewSection() {
   const navigate = useNavigate();
+  const [events, setEvents] = useState(mockEvents);
+  useEffect(() => {
+    fetchLandingEvents()
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) setEvents(data);
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <section id="events" className="relative py-16 md:py-32 overflow-hidden">
@@ -79,7 +89,7 @@ export function EventsPreviewSection() {
 
         {/* Events Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {mockEvents.map((event, index) => {
+          {events.map((event, index) => {
             const occupancyPercent = Math.round(
               (event.attendees / event.maxAttendees) * 100
             );
@@ -92,7 +102,7 @@ export function EventsPreviewSection() {
                 {/* Image Section */}
                 <div className="relative h-32 bg-gradient-to-br from-purple-500/20 via-violet-500/10 to-indigo-500/5 flex items-center justify-center border-b border-border/40 group-hover:from-purple-500/30 transition-all duration-300 overflow-hidden">
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-30 bg-gradient-to-r from-purple-600 to-violet-600 transition-opacity" />
-                  <div className="relative text-6xl">{event.image}</div>
+                  <div className="relative text-6xl">{event.image || "🎫"}</div>
                 </div>
 
                 {/* Content */}
@@ -105,7 +115,7 @@ export function EventsPreviewSection() {
                   {/* Category Badge */}
                   <Badge
                     variant="outline"
-                    className={`rounded-full text-xs font-semibold border w-fit ${event.categoryColor}`}
+                    className={`rounded-full text-xs font-semibold border w-fit ${event.categoryColor || "bg-gray-200 text-gray-700 border-gray-200"}`}
                   >
                     {event.category}
                   </Badge>

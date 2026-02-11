@@ -1,6 +1,9 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Pin } from "lucide-react";
+
+import { useEffect, useState } from "react";
+import { fetchLandingAnnouncements } from "../landing.services";
 
 const mockAnnouncements = [
   {
@@ -36,6 +39,14 @@ const mockAnnouncements = [
 ];
 
 export function AnnouncementsPreviewSection() {
+  const [announcements, setAnnouncements] = useState(mockAnnouncements);
+  useEffect(() => {
+    fetchLandingAnnouncements()
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) setAnnouncements(data);
+      })
+      .catch(() => {});
+  }, []);
   return (
     <section id="announcements" className="relative py-16 md:py-32 overflow-hidden">
       {/* Background */}
@@ -69,7 +80,7 @@ export function AnnouncementsPreviewSection() {
 
         {/* Announcements Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          {mockAnnouncements.map((announcement, index) => (
+          {announcements.map((announcement, index) => (
             <div
               key={announcement.id}
               className="group relative rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 overflow-hidden hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-500"
@@ -79,7 +90,7 @@ export function AnnouncementsPreviewSection() {
               <div className="p-4 sm:p-6 space-y-4">
                 {/* Header with Pin */}
                 <div className="flex items-start justify-between gap-3">
-                  <div className="text-3xl">{announcement.icon}</div>
+                  <div className="text-3xl">{announcement.icon || "📢"}</div>
                   {announcement.isPinned && (
                     <Pin className="w-4 h-4 text-purple-600 fill-purple-600" />
                   )}
@@ -99,7 +110,7 @@ export function AnnouncementsPreviewSection() {
                 <div className="flex items-center justify-between pt-4 border-t border-border/40">
                   <Badge
                     variant="outline"
-                    className={`rounded-full text-xs font-semibold border ${announcement.categoryColor}`}
+                    className={`rounded-full text-xs font-semibold border ${announcement.categoryColor || "bg-gray-200 text-gray-700 border-gray-200"}`}
                   >
                     {announcement.category}
                   </Badge>
