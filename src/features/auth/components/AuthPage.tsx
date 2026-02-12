@@ -49,7 +49,7 @@ export function AuthPage() {
   const [showEmailVerification, setShowEmailVerification] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState("");
   const [redirectCountdown, setRedirectCountdown] = useState(15);
-  const { signIn, signUp, user, isAdmin } = useAuth();
+  const { signIn, signUp, user, isAdmin, isLoading: authIsLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { recordFailedAttempt, checkLoginStatus, clearLoginAttempts } = useLoginAttempts();
@@ -57,8 +57,8 @@ export function AuthPage() {
 
   // Redirect after user is authenticated and roles are loaded
   useEffect(() => {
-    if (shouldRedirect && user) {
-      // Give a moment for the auth context to fully populate roles
+    if (shouldRedirect && user && !authIsLoading) {
+      // Redirect to appropriate dashboard once roles are fully loaded
       const timer = setTimeout(() => {
         const redirectPath = isAdmin ? "/admin" : "/dashboard";
         navigate(redirectPath);
@@ -66,7 +66,7 @@ export function AuthPage() {
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [shouldRedirect, user, isAdmin, navigate]);
+  }, [shouldRedirect, user, isAdmin, authIsLoading, navigate]);
 
   // Auto-redirect to login after 15 seconds on email verification screen
   useEffect(() => {
