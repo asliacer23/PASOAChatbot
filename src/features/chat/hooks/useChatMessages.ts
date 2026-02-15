@@ -1,6 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import {
+  validateMessageContent,
+  checkBadWords,
+  matchesKeywordSmart,
+  calculateKeywordScore,
+  normalizeText,
+  extractEntities,
+} from "@/features/chat/lib/textProcessing";
 
 export interface Message {
   id: string;
@@ -244,74 +252,39 @@ export function useChatMessages(userId: string | undefined) {
     return CHATBOT_CONFIG.SUSPICIOUS_PATTERNS.some(pattern => pattern.test(content));
   }, []);
 
-  // Validate message content with all restrictions
+  // Validate message content with ENHANCED restrictions and bad word filtering
   const validateMessage = useCallback((content: string): { valid: boolean; error?: string } => {
-    // #2: Check minimum length
-    if (content.length < CHATBOT_CONFIG.MIN_MESSAGE_LENGTH) {
-      return { valid: false, error: "Message is too short" };
-    }
-    
-    // #1: Check maximum length
-    if (content.length > CHATBOT_CONFIG.MAX_MESSAGE_LENGTH) {
-      return { valid: false, error: `Message exceeds ${CHATBOT_CONFIG.MAX_MESSAGE_LENGTH} characters` };
-    }
-    
-    // #7: Check word count
-    const wordCount = content.split(/\s+/).filter(w => w.length > 0).length;
-    if (wordCount > CHATBOT_CONFIG.MAX_MESSAGE_WORDS) {
-      return { valid: false, error: `Message exceeds ${CHATBOT_CONFIG.MAX_MESSAGE_WORDS} words` };
-    }
-    
-    // #8: Check for blocked words
-    const lowerContent = content.toLowerCase();
-    for (const word of CHATBOT_CONFIG.BLOCKED_WORDS) {
-      if (lowerContent.includes(word)) {
+    const validation = validateMessageContent(content, {
+      maxLength: CHATBOT_CONFIG.MAX_MESSAGE_LENGTH,
+      minLength: CHATBOT_CONFIG.MIN_MESSAGE_LENGTH,
+      checkBadWords: true,
+      checkSpamPatterns: true,
+    });
+
+    if (!validation.valid) {
+      if (validation.badWordsFound && validation.badWordsFound.length > 0) {
         setViolationCount(prev => prev + 1);
-        return { valid: false, error: "Message contains inappropriate content" };
       }
+      return { valid: false, error: validation.error };
     }
-    
-    // #9: Check suspicious patterns
-    if (hasSuspiciousPatterns(content)) {
-      setViolationCount(prev => prev + 1);
-      return { valid: false, error: "Message contains suspicious content" };
-    }
-    
-    // #10: Check repeated characters
-    if (hasRepeatedChars(content)) {
-      return { valid: false, error: "Please avoid repeating characters" };
-    }
-    
-    // #11: Check excessive caps
-    if (hasExcessiveCaps(content)) {
-      return { valid: false, error: "Please avoid using all caps" };
-    }
-    
+
     // #3: Rate limiting
     const now = Date.now();
     if (now - lastMessageTime < 60000 / CHATBOT_CONFIG.MAX_MESSAGES_PER_MINUTE) {
       return { valid: false, error: "Please wait before sending another message" };
     }
-    
+
     // #44: Check if blocked
     if (violationCount >= CHATBOT_CONFIG.BLOCK_AFTER_VIOLATIONS) {
       return { valid: false, error: "You've been temporarily blocked due to violations. Please try again later." };
     }
-    
-    return { valid: true };
-  }, [lastMessageTime, violationCount, hasRepeatedChars, hasExcessiveCaps, hasSuspiciousPatterns]);
 
-  // Pattern detection helpers
+    return { valid: true };
+  }, [lastMessageTime, violationCount]);
+
+  // Pattern detection helpers - ENHANCED with matchesKeywordSmart
   const matchesKeywords = useCallback((content: string, keywords: string[]): boolean => {
-    const lowerContent = content.toLowerCase().trim();
-    return keywords.some(keyword => 
-      lowerContent === keyword || 
-      lowerContent.startsWith(keyword + " ") || 
-      lowerContent.startsWith(keyword + "!") ||
-      lowerContent.startsWith(keyword + "?") ||
-      lowerContent.endsWith(" " + keyword) ||
-      lowerContent.includes(" " + keyword + " ")
-    );
+    return matchesKeywordSmart(content, keywords);
   }, []);
 
   const isGreeting = useCallback((content: string): boolean => {
@@ -522,35 +495,38 @@ export function useChatMessages(userId: string | undefined) {
   }, [userId, currentConversation, conversations, fetchMessages]);
 
   // Enhanced FAQ matching with confidence scoring
+  // ENHANCED: Handles compound words, multiple keywords, smart matching
   const findBestMatch = useCallback((query: string): { faq: FAQ | null; confidence: number; suggestions: string[] } => {
-    const queryLower = query.toLowerCase();
-    const queryWords = queryLower.split(/\s+/).filter((w) => w.length > 2);
-
+    const normalizedQuery = normalizeText(query);
+    const entities = extractEntities(query);
+    
     let bestMatch: FAQ | null = null;
     let highestScore = 0;
     const relatedFaqs: FAQ[] = [];
 
     for (const faq of faqs) {
       let score = 0;
-      const questionLower = faq.question.toLowerCase();
-      const answerLower = faq.answer.toLowerCase();
-      
-      // #21: Exact or near-exact match bonus
-      if (questionLower.includes(queryLower) || queryLower.includes(questionLower)) {
+      const questionLower = normalizeText(faq.question);
+      const answerLower = normalizeText(faq.answer);
+
+      // #21: Exact or near-exact match bonus (enhanced for compound words)
+      if (
+        questionLower.includes(normalizedQuery) ||
+        normalizedQuery.includes(questionLower)
+      ) {
         score += CHATBOT_CONFIG.EXACT_MATCH_BONUS;
       }
 
-      // #19: Keyword matching (weighted higher)
-      if (faq.keywords) {
-        for (const keyword of faq.keywords) {
-          if (queryLower.includes(keyword.toLowerCase())) {
-            score += CHATBOT_CONFIG.KEYWORD_WEIGHT;
-          }
+      // #19: Keyword matching (enhanced with smart matching)
+      if (faq.keywords && faq.keywords.length > 0) {
+        const keywordScore = calculateKeywordScore(query, faq.keywords);
+        if (keywordScore > 0) {
+          score += (keywordScore / 100) * CHATBOT_CONFIG.KEYWORD_WEIGHT;
         }
       }
 
-      // #20: Word-by-word matching
-      for (const word of queryWords) {
+      // #20: Word-by-word matching (via entities)
+      for (const word of entities.keywords) {
         if (questionLower.includes(word)) score += CHATBOT_CONFIG.QUESTION_WORD_WEIGHT;
         if (answerLower.includes(word)) score += 4;
       }
@@ -558,8 +534,26 @@ export function useChatMessages(userId: string | undefined) {
       // Bonus for question word match
       const questionWords = ["what", "how", "when", "where", "who", "why", "is", "can", "do", "ano", "paano", "kailan", "saan"];
       for (const qWord of questionWords) {
-        if (queryLower.startsWith(qWord) && questionLower.startsWith(qWord)) {
+        if (normalizedQuery.startsWith(qWord) && questionLower.startsWith(qWord)) {
           score += 5;
+        }
+      }
+
+      // Bonus for category match
+      if (entities.category) {
+        const categoryKeywords: Record<string, string[]> = {
+          enrollment: ["enroll", "registration", "register"],
+          internship: ["intern", "ojt", "training"],
+          fees: ["tuition", "payment", "cost"],
+          events: ["event", "activity"],
+        };
+        
+        if (categoryKeywords[entities.category]) {
+          const hasCategory = matchesKeywordSmart(
+            faq.question + " " + faq.answer,
+            categoryKeywords[entities.category]
+          );
+          if (hasCategory) score += 10;
         }
       }
 
@@ -585,7 +579,7 @@ export function useChatMessages(userId: string | undefined) {
     }
 
     // Get context-aware suggestions
-    const context = detectContext(query);
+    const context = entities.category || detectContext(query);
     const suggestions = context 
       ? getSuggestions(context)
       : relatedFaqs.slice(0, 3).map(f => f.question);

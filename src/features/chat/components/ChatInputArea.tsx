@@ -14,6 +14,8 @@ interface ChatInputAreaProps {
   maxMessageLength?: number;
   disabled?: boolean;
   suggestions?: string[];
+  showSuggestions?: boolean;
+  onToggleSuggestions?: (show: boolean) => void;
 }
 
 export function ChatInputArea({
@@ -24,6 +26,8 @@ export function ChatInputArea({
   maxMessageLength = 1000,
   disabled = false,
   suggestions = [],
+  showSuggestions = true,
+  onToggleSuggestions,
 }: ChatInputAreaProps) {
   const [message, setMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -87,14 +91,37 @@ export function ChatInputArea({
   const charPercentage = (message.length / maxMessageLength) * 100;
 
   return (
-    <div className="sticky bottom-0 left-0 right-0 z-20 border-t border-border/40 bg-gradient-to-t from-background via-background/95 to-background/90 backdrop-blur-md pt-2 sm:pt-3 pb-3 sm:pb-4 px-2 sm:px-4 space-y-2.5 sm:space-y-3 shadow-xl">
-      {/* Suggestions Carousel */}
-      {suggestions.length > 0 && (
-        <SuggestionsCarousel
-          suggestions={suggestions}
-          onSuggestionClick={onSendMessage}
-          disabled={disabled}
-        />
+    <div className="sticky bottom-0 left-0 right-0 z-20 border-t border-border/40 bg-gradient-to-t from-background via-background/95 to-background/90 backdrop-blur-md pt-2 sm:pt-3 pb-2.5 sm:pb-3 px-2 sm:px-4 space-y-2 sm:space-y-2.5 shadow-xl">
+      {/* Suggestions Section */}
+      {suggestions.length > 0 && showSuggestions && (
+        <div className="px-1 sm:px-0 space-y-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[11px] sm:text-xs font-medium text-muted-foreground/80">
+              💡 Suggested Questions
+            </p>
+            <button
+              onClick={() => onToggleSuggestions?.(false)}
+              className="text-[10px] sm:text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors underline"
+            >
+              Hide
+            </button>
+          </div>
+          <SuggestionsCarousel
+            suggestions={suggestions}
+            onSuggestionClick={onSendMessage}
+            disabled={disabled}
+          />
+        </div>
+      )}
+
+      {/* Show Suggestions Button */}
+      {suggestions.length > 0 && !showSuggestions && (
+        <button
+          onClick={() => onToggleSuggestions?.(true)}
+          className="text-xs sm:text-sm text-primary hover:text-primary/80 transition-colors underline font-medium px-1"
+        >
+          💡 Show Suggestions
+        </button>
       )}
 
       {/* Admin Status Banner */}

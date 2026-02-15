@@ -17,12 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { PasoaMascot } from "@/features/shared/components/PasoaMascot";
 
 const programs = [
-  "BSBA - Business Administration",
-  "BSOA - Office Administration",
   "BSOA-D - Office Administration with Data Analytics",
-  "BSBA-MM - Business Administration Major in Marketing Management",
-  "BSBA-FM - Business Administration Major in Financial Management",
-  "BSBA-HRM - Business Administration Major in Human Resource Management",
 ];
 
 const yearLevels = [

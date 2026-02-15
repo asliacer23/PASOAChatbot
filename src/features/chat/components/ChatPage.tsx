@@ -10,19 +10,12 @@ import { useMessages } from "../hooks/useMessages";
 import { useSmartResponses } from "../hooks/useSmartResponses";
 import { useMessageValidation } from "../hooks/useMessageValidation";
 import { useTypingIndicator } from "../hooks/useTypingIndicator";
+import { useSuggestedQuestions } from "../hooks/useSuggestedQuestions";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInputArea } from "./ChatInputArea";
 import { ConversationSidebar } from "./ConversationSidebar";
 import { ImageViewer } from "./ImageViewer";
 import { cn } from "@/lib/utils";
-
-const suggestedQuestions = [
-  "What are the requirements for internship?",
-  "How much is the organizational shirt?",
-  "What is the schedule of CBA Main Event?",
-  "How do I apply for leave of absence?",
-  "Where can I get my school ID?",
-];
 
 const config = {
   minTypingDelay: 500,
@@ -40,8 +33,12 @@ export function ChatPage() {
   const [mascotMood, setMascotMood] = useState<"happy" | "thinking" | "waving" | "idle">("waving");
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showSuggestions, setShowSuggestions] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const creatingConversationRef = useRef(false);
+
+  // Fetch suggested questions from database
+  const { suggestions: suggestedQuestions } = useSuggestedQuestions();
 
   // Handle responsive sidebar
   useEffect(() => {
@@ -588,7 +585,7 @@ export function ChatPage() {
           <div className="flex flex-col h-full px-2 sm:px-4 py-2 sm:py-4 space-y-2 sm:space-y-4">
             {messages.length === 0 && !isLoadingConversations && (
               <div className="flex-1 flex items-center justify-center">
-                <div className="text-center space-y-3 sm:space-y-4 max-w-sm px-2">
+                <div className="text-center space-y-3 sm:space-y-4 max-w-lg px-2">
                   <div className="flex justify-center">
                     <PasoaMascot size="lg" mood="waving" />
                   </div>
@@ -599,18 +596,44 @@ export function ChatPage() {
                     </p>
                   </div>
 
-                  {/* Suggested Questions */}
-                  <div className="space-y-1.5 sm:space-y-2 mt-4 sm:mt-6">
-                    {suggestedQuestions.map((question, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => handleSendMessage(question)}
-                        className="w-full text-left px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-border/50 text-xs sm:text-sm hover:bg-primary/10 hover:border-primary/50 transition-colors"
-                      >
-                        {question}
-                      </button>
-                    ))}
-                  </div>
+                  {/* Suggested Questions - Responsive Grid */}
+                  {suggestedQuestions.length > 0 && showSuggestions && (
+                    <div className="space-y-2 mt-4 sm:mt-6">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-[11px] sm:text-xs font-medium text-muted-foreground/80">
+                          💡 Suggested Questions
+                        </p>
+                        <button
+                          onClick={() => setShowSuggestions(false)}
+                          className="text-[10px] sm:text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors underline"
+                        >
+                          Hide
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 sm:gap-2">
+                        {suggestedQuestions.map((question, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => handleSendMessage(question)}
+                            className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-border/50 text-[11px] sm:text-xs font-medium text-foreground/75 hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-all duration-150 active:scale-95 line-clamp-2"
+                            title={question}
+                          >
+                            {question}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Show Suggestions Button */}
+                  {suggestedQuestions.length > 0 && !showSuggestions && (
+                    <button
+                      onClick={() => setShowSuggestions(true)}
+                      className="text-xs sm:text-sm text-primary hover:text-primary/80 transition-colors underline font-medium mt-2"
+                    >
+                      Show Suggestions
+                    </button>
+                  )}
                 </div>
               </div>
             )}
@@ -718,6 +741,8 @@ export function ChatPage() {
             maxMessageLength={config.maxMessageLength}
             disabled={isTyping || isCreatingConversation}
             suggestions={suggestedQuestions}
+            showSuggestions={showSuggestions}
+            onToggleSuggestions={setShowSuggestions}
           />
         )}
       </div>

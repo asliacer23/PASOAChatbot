@@ -1,5 +1,13 @@
 import { useCallback, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  matchesKeywordSmart,
+  calculateKeywordScore,
+  normalizeText,
+  extractEntities,
+  fuzzyMatch,
+  calculateFAQSimilarity,
+} from "@/features/chat/lib/textProcessing";
 
 export interface FAQ {
   id: string;
@@ -153,7 +161,7 @@ const FAQ_CONFIG = {
   MAX_TYPING_DELAY_MS: 1500, // #23: Maximum typing delay
   
   // ========== FAQ MATCHING ==========
-  MIN_CONFIDENCE_THRESHOLD: 0.2, // #17: Minimum match confidence
+  MIN_CONFIDENCE_THRESHOLD: 0.15, // #17: Minimum match confidence (lowered for better matching)
   HIGH_CONFIDENCE_THRESHOLD: 0.6, // #18: High confidence (no confirmation)
   KEYWORD_WEIGHT: 25, // #19: Keyword match weight
   QUESTION_WORD_WEIGHT: 8, // #20: Question word match weight
@@ -188,20 +196,12 @@ export function useSmartResponses() {
   }, []);
 
   /**
-   * Match keywords in content
+   * Smart keyword matching - handles compound words, case insensitivity
+   * "teambuilding" matches "team building"
    */
   const matchesKeywords = useCallback(
     (content: string, keywords: string[]): boolean => {
-      const lowerContent = content.toLowerCase().trim();
-      return keywords.some(
-        (keyword) =>
-          lowerContent === keyword ||
-          lowerContent.startsWith(keyword + " ") ||
-          lowerContent.startsWith(keyword + "!") ||
-          lowerContent.startsWith(keyword + "?") ||
-          lowerContent.endsWith(" " + keyword) ||
-          lowerContent.includes(" " + keyword + " ")
-      );
+      return matchesKeywordSmart(content, keywords);
     },
     []
   );
@@ -329,7 +329,7 @@ export function useSmartResponses() {
 
   /**
    * Find best matching FAQ with confidence scoring
-   * Considers keyword matching, exact matches, and question similarity
+   * ENHANCED: Handles compound words, multiple keywords, fuzzy matching
    */
   const findBestMatch = useCallback(
     (query: string): {
@@ -337,41 +337,72 @@ export function useSmartResponses() {
       confidence: number;
       suggestions: string[];
     } => {
-      const queryLower = query.toLowerCase();
-      const queryWords = queryLower
-        .split(/\s+/)
-        .filter((w) => w.length > 2);
-
+      const normalizedQuery = normalizeText(query);
+      const entities = extractEntities(query);
+      
       let bestMatch: FAQ | null = null;
       let highestScore = 0;
       const relatedFaqs: FAQ[] = [];
 
       for (const faq of faqs) {
         let score = 0;
-        const questionLower = faq.question.toLowerCase();
-        const answerLower = faq.answer.toLowerCase();
+        const questionLower = normalizeText(faq.question);
+        const answerLower = normalizeText(faq.answer);
 
-        // #21: Exact or near-exact match bonus
+        // #21: Exact or near-exact match bonus (enhanced for compound words)
         if (
-          questionLower.includes(queryLower) ||
-          queryLower.includes(questionLower)
+          questionLower.includes(normalizedQuery) ||
+          normalizedQuery.includes(questionLower)
         ) {
           score += FAQ_CONFIG.EXACT_MATCH_BONUS;
         }
+        // Fuzzy match bonus for typos (NEW)
+        else if (
+          fuzzyMatch(questionLower, normalizedQuery, 0.85) ||
+          fuzzyMatch(normalizedQuery, questionLower, 0.85)
+        ) {
+          score += FAQ_CONFIG.EXACT_MATCH_BONUS * 0.9; // 45 points for fuzzy match
+        }
 
-        // #19: Keyword matching (weighted higher)
-        if (faq.keywords) {
-          for (const keyword of faq.keywords) {
-            if (queryLower.includes(keyword.toLowerCase())) {
-              score += FAQ_CONFIG.KEYWORD_WEIGHT;
-            }
+        // FAQ Question Similarity Match (NEW - checks entire question text)
+        const questionSimilarity = calculateFAQSimilarity(query, faq.question);
+        if (questionSimilarity >= 0.75) {
+          // Strong similarity to the FAQ question
+          score += questionSimilarity * 50; // Up to 50 points based on similarity
+        }
+
+        // Also check answer for relevance (bonus if query words appear in answer)
+        const answerSimilarity = calculateFAQSimilarity(query, faq.answer);
+        if (answerSimilarity >= 0.6) {
+          // Significant similarity to the FAQ answer
+          score += answerSimilarity * 30; // Up to 30 bonus points
+        }
+
+        // #19: Keyword matching (enhanced with smart matching)
+        if (faq.keywords && faq.keywords.length > 0) {
+          const keywordScore = calculateKeywordScore(query, faq.keywords);
+          if (keywordScore > 0) {
+            score += (keywordScore / 100) * FAQ_CONFIG.KEYWORD_WEIGHT;
           }
         }
 
-        // #20: Word-by-word matching
-        for (const word of queryWords) {
+        // #20: Word-by-word matching (via entities)
+        for (const word of entities.keywords) {
           if (questionLower.includes(word)) score += FAQ_CONFIG.QUESTION_WORD_WEIGHT;
-          if (answerLower.includes(word)) score += 4;
+          if (answerLower.includes(word)) score += 6; // Increased from 4
+        }
+
+        // Smart token matching - if all entity keywords appear in question or answer
+        if (entities.keywords.length > 0) {
+          const allKeywordsInQuestion = entities.keywords.every((kw) =>
+            matchesKeywordSmart(questionLower, kw)
+          );
+          const allKeywordsInAnswer = entities.keywords.every((kw) =>
+            matchesKeywordSmart(answerLower, kw)
+          );
+          
+          if (allKeywordsInQuestion) score += 15;
+          else if (allKeywordsInAnswer) score += 12;
         }
 
         // Bonus for question word match
@@ -391,8 +422,26 @@ export function useSmartResponses() {
           "saan",
         ];
         for (const qWord of questionWords) {
-          if (queryLower.startsWith(qWord) && questionLower.startsWith(qWord)) {
+          if (normalizedQuery.startsWith(qWord) && questionLower.startsWith(qWord)) {
             score += 5;
+          }
+        }
+
+        // Bonus for category match
+        if (entities.category) {
+          const categoryKeywords: Record<string, string[]> = {
+            enrollment: ["enroll", "registration", "register"],
+            internship: ["intern", "ojt", "training"],
+            fees: ["tuition", "payment", "cost"],
+            events: ["event", "activity"],
+          };
+          
+          if (categoryKeywords[entities.category]) {
+            const hasCategory = matchesKeywordSmart(
+              faq.question + " " + faq.answer,
+              categoryKeywords[entities.category]
+            );
+            if (hasCategory) score += 10;
           }
         }
 
@@ -418,7 +467,7 @@ export function useSmartResponses() {
       }
 
       // Get context-aware suggestions
-      const context = detectContext(query);
+      const context = entities.category || detectContext(query);
       const suggestions = context
         ? getSuggestions(context)
         : relatedFaqs.slice(0, 3).map((f) => f.question);
