@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Text Processing & Smart Matching Utilities
  * Handles normalization, similarity scoring, and keyword matching
  * Fixes issues like "teambuilding" vs "team building"
@@ -502,4 +502,70 @@ export function extractEntities(content: string): ExtractedEntities {
     intent,
     category,
   };
+}
+
+// ==========================================
+// SUGGESTION LABEL UTILITIES
+// ==========================================
+function truncateWithEllipsis(text: string, maxChars: number): string {
+  if (text.length <= maxChars) return text;
+  const target = Math.max(0, maxChars - 3);
+  const cutAt = text.lastIndexOf(" ", target);
+  const safeCut = cutAt >= 20 ? cutAt : target;
+  return text.slice(0, safeCut).trimEnd() + "...";
+}
+
+/**
+ * Format suggestion labels to be short and presentable
+ * Keeps original suggestion for click/tooltip, only affects display
+ */
+export function formatSuggestionLabel(suggestion: string, maxChars: number = 64): string {
+  const cleaned = suggestion.replace(/\s+/g, " ").trim();
+  if (cleaned.length <= maxChars) return cleaned;
+
+  // Prefer first question/sentence if it is reasonably short
+  const questionSplit = cleaned.split("?").map((s) => s.trim()).filter(Boolean);
+  if (questionSplit.length > 0) {
+    const firstQ = questionSplit[0] + "?";
+    if (firstQ.length >= 20 && firstQ.length <= maxChars) { return firstQ; }
+  }
+
+  const sentenceSplit = cleaned.split(".").map((s) => s.trim()).filter(Boolean);
+  if (sentenceSplit.length > 0) {
+    const firstSentence = sentenceSplit[0];
+    if (firstSentence.length >= 20 && firstSentence.length <= maxChars) { return firstSentence; }
+  }
+
+  return truncateWithEllipsis(cleaned, maxChars);
+}
+
+
+/**
+ * Split a message into question-like segments for better FAQ matching
+ */
+export function extractQuestionSegments(content: string): string[] {
+  const raw = content.replace(/\s+/g, " ").trim();
+  if (!raw) return [];
+
+  const parts = raw
+    .split(/[\?\!\.:\n]+/)
+    .map((p) => p.trim())
+    .filter((p) => p.length >= 3);
+
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const part of parts) {
+    const key = part.toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      result.push(part);
+    }
+  }
+
+  if (!seen.has(raw.toLowerCase())) {
+    result.unshift(raw);
+  }
+
+  return result;
 }

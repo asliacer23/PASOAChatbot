@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+﻿import { useState, useRef, useEffect, useCallback } from "react";
 import { Bot, Loader2, Menu, AlertTriangle, Plus, X, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -11,6 +11,7 @@ import { useSmartResponses } from "../hooks/useSmartResponses";
 import { useMessageValidation } from "../hooks/useMessageValidation";
 import { useTypingIndicator } from "../hooks/useTypingIndicator";
 import { useSuggestedQuestions } from "../hooks/useSuggestedQuestions";
+import { formatSuggestionLabel } from "../lib/textProcessing";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInputArea } from "./ChatInputArea";
 import { ConversationSidebar } from "./ConversationSidebar";
@@ -133,7 +134,7 @@ export function ChatPage() {
         // Create initial greeting message
         if (data) {
           const greetingMessage =
-            "Hello! 👋 I'm PASOA Bot, here to help you with any questions about CBA and campus life. What would you like to know today?";
+            "Hello! ðŸ‘‹ I'm PASOA Bot, here to help you with any questions about CBA and campus life. What would you like to know today?";
 
           await supabase.from("messages").insert({
             conversation_id: data.id,
@@ -358,7 +359,7 @@ export function ChatPage() {
         .from("messages")
         .insert({
           conversation_id: currentConversation.id,
-          content: `⏳ Please wait while we connect you with an available support member. Thank you for your patience!`,
+          content: `â³ Please wait while we connect you with an available support member. Thank you for your patience!`,
           sender_type: "bot",
         })
         .select()
@@ -400,7 +401,7 @@ export function ChatPage() {
         
         // Send initial greeting message with suggestions
         try {
-          const greetingMessage = "Hello! 👋 I'm PASOA Bot, here to help you with any questions about CBA and campus life. What would you like to know today?";
+          const greetingMessage = "Hello! ðŸ‘‹ I'm PASOA Bot, here to help you with any questions about CBA and campus life. What would you like to know today?";
           
           const { data: botMsg, error: botMsgError } = await supabase
             .from("messages")
@@ -601,7 +602,7 @@ export function ChatPage() {
                     <div className="space-y-2 mt-4 sm:mt-6">
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-[11px] sm:text-xs font-medium text-muted-foreground/80">
-                          💡 Suggested Questions
+                          ðŸ’¡ Suggested Questions
                         </p>
                         <button
                           onClick={() => setShowSuggestions(false)}
@@ -611,16 +612,19 @@ export function ChatPage() {
                         </button>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 sm:gap-2">
-                        {suggestedQuestions.map((question, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => handleSendMessage(question)}
-                            className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-border/50 text-[11px] sm:text-xs font-medium text-foreground/75 hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-all duration-150 active:scale-95 line-clamp-2"
-                            title={question}
-                          >
-                            {question}
-                          </button>
-                        ))}
+                        {suggestedQuestions.map((question, idx) => {
+                          const displayLabel = formatSuggestionLabel(question, 58);
+                          return (
+                            <button
+                              key={idx}
+                              onClick={() => handleSendMessage(question)}
+                              className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-border/50 text-[11px] sm:text-xs font-medium text-foreground/75 hover:bg-primary/10 hover:border-primary/50 hover:text-primary transition-all duration-150 active:scale-95 line-clamp-2"
+                              title={question}
+                            >
+                              {displayLabel}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -689,7 +693,7 @@ export function ChatPage() {
             {isOtherTyping && !isTyping && (
               <div className="flex gap-1.5 sm:gap-2 items-end">
                 <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-[10px] sm:text-xs font-bold text-green-600">👤</span>
+                  <span className="text-[10px] sm:text-xs font-bold text-green-600">ðŸ‘¤</span>
                 </div>
                 <div className="space-y-0.5 sm:space-y-1">
                   <div className="flex gap-1">
@@ -756,3 +760,5 @@ export function ChatPage() {
     </div>
   );
 }
+
+

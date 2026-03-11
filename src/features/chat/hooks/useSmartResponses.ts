@@ -1,10 +1,11 @@
-import { useCallback, useState, useEffect } from "react";
+﻿import { useCallback, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   matchesKeywordSmart,
   calculateKeywordScore,
   normalizeText,
   extractEntities,
+  extractQuestionSegments,
   fuzzyMatch,
   calculateFAQSimilarity,
 } from "@/features/chat/lib/textProcessing";
@@ -22,29 +23,29 @@ export interface FAQ {
  */
 const RESPONSE_TEMPLATES = {
   GREETING: [
-    "Hi there, PASOAnian! 👋 How can I help you today?",
+    "Hi there, PASOAnian! ðŸ‘‹ How can I help you today?",
     "Hello! Welcome to Pasoa Student Hub. What can I assist you with?",
     "Hey! Great to see you. What questions do you have?",
     "Good day! I'm here to help with any CBA-related questions.",
-    "Kamusta! Ready to help you with anything you need! 🎓",
+    "Kamusta! Ready to help you with anything you need! ðŸŽ“",
   ],
   THANKS: [
     "You're welcome! Is there anything else I can help you with?",
-    "Happy to help! Let me know if you need anything else. 😊",
+    "Happy to help! Let me know if you need anything else. ðŸ˜Š",
     "Glad I could assist! Feel free to ask more questions.",
     "No problem! Always here to help fellow PASOAnians.",
-    "Anytime! Don't hesitate to reach out again. 💜",
+    "Anytime! Don't hesitate to reach out again. ðŸ’œ",
   ],
   GOODBYE: [
-    "Goodbye! Have a great day ahead! 👋",
+    "Goodbye! Have a great day ahead! ðŸ‘‹",
     "Take care! Come back anytime you need help.",
-    "See you later! Good luck with your studies! 📚",
+    "See you later! Good luck with your studies! ðŸ“š",
     "Bye! Don't hesitate to reach out if you have more questions.",
-    "Paalam! Ingat ka lagi! 💜",
+    "Paalam! Ingat ka lagi! ðŸ’œ",
   ],
   HELP: [
     "I'm here to help! You can ask me about enrollment, internship, fees, schedules, events, and more. What do you need?",
-    "Need assistance? Just type your question or choose from the suggested topics below. I'm all ears! 👂",
+    "Need assistance? Just type your question or choose from the suggested topics below. I'm all ears! ðŸ‘‚",
     "Don't worry, I've got you covered! What would you like to know about CBA?",
   ],
   CONFUSED: [
@@ -57,7 +58,7 @@ const RESPONSE_TEMPLATES = {
     "I couldn't find a specific answer. Let me connect you with our support team.",
     "That's a great question, but I don't have that information. Want me to get a human agent?",
     "I'm still learning! Would you prefer to chat with an administrator for this one?",
-    "Hmm, I'm not sure about this one. You can try rephrasing or request a human agent. 🤔",
+    "Hmm, I'm not sure about this one. You can try rephrasing or request a human agent. ðŸ¤”",
   ],
   VIOLATION: [
     "Please keep the conversation respectful. Your message was blocked.",
@@ -246,31 +247,63 @@ export function useSmartResponses() {
    */
   const getSmartResponse = useCallback(
     (content: string): { response: string; type: string } | null => {
-      if (isGreeting(content)) {
+      const trimmed = content.trim();
+      const lower = trimmed.toLowerCase();
+      const wordCount = trimmed ? trimmed.split(/\s+/).length : 0;
+      const hasQuestionMark = trimmed.includes("?");
+      const questionWords = [
+        "what",
+        "how",
+        "when",
+        "where",
+        "who",
+        "why",
+        "is",
+        "are",
+        "can",
+        "do",
+        "ano",
+        "paano",
+        "kailan",
+        "saan",
+      ];
+      const startsWithQuestionWord = questionWords.some(
+        (w) => lower === w || lower.startsWith(w + " ")
+      );
+      const likelyQuestion = hasQuestionMark || startsWithQuestionWord;
+
+      // Avoid greeting/thanks responses on real questions
+      if (likelyQuestion && wordCount >= 4) {
+        return null;
+      }
+
+      const isShort = trimmed.length <= 60;
+
+      if (isGreeting(content) && isShort) {
         return {
           response: getRandomResponse(RESPONSE_TEMPLATES.GREETING),
           type: "greeting",
         };
       }
-      if (isThanks(content)) {
+      if (isThanks(content) && isShort) {
         return {
           response: getRandomResponse(RESPONSE_TEMPLATES.THANKS),
           type: "thanks",
         };
       }
-      if (isGoodbye(content)) {
+      if (isGoodbye(content) && isShort) {
         return {
           response: getRandomResponse(RESPONSE_TEMPLATES.GOODBYE),
           type: "goodbye",
         };
       }
-      if (isHelpRequest(content)) {
+      if (isHelpRequest(content) && isShort) {
         return {
           response: getRandomResponse(RESPONSE_TEMPLATES.HELP),
           type: "help",
         };
       }
-      if (isConfused(content)) {
+      if (isConfused(content) && isShort) {
         return {
           response: getRandomResponse(RESPONSE_TEMPLATES.CONFUSED),
           type: "confused",
@@ -286,7 +319,7 @@ export function useSmartResponses() {
    */
   const getFallbackResponse = useCallback((): string => {
     if (failedMatchCount >= FAQ_CONFIG.AUTO_ESCALATE_AFTER_FAILED_MATCHES - 1) {
-      return "I've had trouble answering your recent questions. I recommend speaking with a human agent who can better assist you. Click the 'Human Agent' button below to connect with our support team. 👤";
+      return "I've had trouble answering your recent questions. I recommend speaking with a human agent who can better assist you. Click the 'Human Agent' button below to connect with our support team. ðŸ‘¤";
     }
     return getRandomResponse(RESPONSE_TEMPLATES.FALLBACK);
   }, [failedMatchCount, getRandomResponse]);
@@ -339,6 +372,9 @@ export function useSmartResponses() {
     } => {
       const normalizedQuery = normalizeText(query);
       const entities = extractEntities(query);
+      const segments = extractQuestionSegments(query);
+      const segmentsToCheck = segments.length > 0 ? segments : [query];
+      const normalizedSegments = segmentsToCheck.map((s) => normalizeText(s));
       
       let bestMatch: FAQ | null = null;
       let highestScore = 0;
@@ -350,29 +386,34 @@ export function useSmartResponses() {
         const answerLower = normalizeText(faq.answer);
 
         // #21: Exact or near-exact match bonus (enhanced for compound words)
-        if (
-          questionLower.includes(normalizedQuery) ||
-          normalizedQuery.includes(questionLower)
-        ) {
+        const hasExactSegmentMatch = normalizedSegments.some(
+          (seg) => questionLower.includes(seg) || seg.includes(questionLower)
+        );
+        if (hasExactSegmentMatch) {
           score += FAQ_CONFIG.EXACT_MATCH_BONUS;
         }
         // Fuzzy match bonus for typos (NEW)
         else if (
-          fuzzyMatch(questionLower, normalizedQuery, 0.85) ||
-          fuzzyMatch(normalizedQuery, questionLower, 0.85)
+          normalizedSegments.some(
+            (seg) => fuzzyMatch(questionLower, seg, 0.85) || fuzzyMatch(seg, questionLower, 0.85)
+          )
         ) {
           score += FAQ_CONFIG.EXACT_MATCH_BONUS * 0.9; // 45 points for fuzzy match
         }
 
-        // FAQ Question Similarity Match (NEW - checks entire question text)
-        const questionSimilarity = calculateFAQSimilarity(query, faq.question);
+        // FAQ Question Similarity Match (checks per segment)
+        const questionSimilarity = Math.max(
+          ...segmentsToCheck.map((seg) => calculateFAQSimilarity(seg, faq.question))
+        );
         if (questionSimilarity >= 0.75) {
           // Strong similarity to the FAQ question
           score += questionSimilarity * 50; // Up to 50 points based on similarity
         }
 
         // Also check answer for relevance (bonus if query words appear in answer)
-        const answerSimilarity = calculateFAQSimilarity(query, faq.answer);
+        const answerSimilarity = Math.max(
+          ...segmentsToCheck.map((seg) => calculateFAQSimilarity(seg, faq.answer))
+        );
         if (answerSimilarity >= 0.6) {
           // Significant similarity to the FAQ answer
           score += answerSimilarity * 30; // Up to 30 bonus points
@@ -506,3 +547,21 @@ export function useSmartResponses() {
     quickSuggestions: QUICK_SUGGESTIONS,
   };
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
