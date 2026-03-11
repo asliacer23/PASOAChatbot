@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ReactionPicker } from "./ReactionPicker";
@@ -253,7 +253,7 @@ export function ChatMessage({
             )}
 
             {/* Text Content */}
-            <p className="text-foreground break-words">
+            <p className="text-foreground break-words whitespace-pre-wrap">
               {message.content}
             </p>
 
@@ -317,3 +317,4 @@ export function ChatMessage({
     </div>
   );
 }
+

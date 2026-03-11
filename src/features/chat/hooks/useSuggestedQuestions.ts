@@ -1,9 +1,13 @@
-import { useCallback, useState, useEffect } from "react";
+﻿import { useCallback, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface SuggestedQuestion {
   id: string;
   question: string;
+  faq_categories?: {
+    name?: string | null;
+    slug?: string | null;
+  } | null;
 }
 
 /**
@@ -26,17 +30,28 @@ export function useSuggestedQuestions() {
     try {
       const { data, error: fetchError } = await supabase
         .from("faqs")
-        .select("id, question")
+        .select("id, question, faq_categories ( name, slug )")
         .eq("is_active", true)
         .eq("is_archived", false)
         .order("view_count", { ascending: false })
         .order("match_count", { ascending: false })
-        .limit(5);
+        .limit(30);
 
       if (fetchError) throw fetchError;
 
-      // Extract just the questions from the data
-      const questions = (data as SuggestedQuestion[]).map((item) => item.question);
+      const items = (data as SuggestedQuestion[]) || [];
+      const isEventCategory = (item: SuggestedQuestion) => {
+        const slug = item.faq_categories?.slug?.toLowerCase() || "";
+        const name = item.faq_categories?.name?.toLowerCase() || "";
+        return slug === "events" || slug === "event" || name.includes("event");
+      };
+
+      // Only keep event-category questions
+      const questions = items
+        .filter(isEventCategory)
+        .slice(0, 5)
+        .map((item) => item.question);
+
       setSuggestions(questions);
     } catch (err) {
       console.error("Error fetching suggested questions:", err);
@@ -62,3 +77,6 @@ export function useSuggestedQuestions() {
     refetch: fetchSuggestedQuestions,
   };
 }
+
+
+
