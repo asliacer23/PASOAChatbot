@@ -1,13 +1,9 @@
 import { useState, useEffect } from "react";
-import { Calendar, MapPin, Clock, Users, ChevronRight, Star, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, Star, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/features/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 
 interface Event {
   id: string;
@@ -21,23 +17,13 @@ interface Event {
   max_attendees: number | null;
 }
 
-interface Registration {
-  event_id: string;
-}
-
 export function UpcomingEvents() {
-  const { user } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
-  const [registrations, setRegistrations] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [registeringId, setRegisteringId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchEvents();
-    if (user) {
-      fetchRegistrations();
-    }
-  }, [user]);
+  }, []);
 
   const fetchEvents = async () => {
     try {
@@ -53,58 +39,6 @@ export function UpcomingEvents() {
       console.error("Error fetching events:", error);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const fetchRegistrations = async () => {
-    if (!user) return;
-    try {
-      const { data, error } = await supabase
-        .from("event_registrations")
-        .select("event_id")
-        .eq("user_id", user.id);
-
-      if (error) throw error;
-      setRegistrations((data || []).map((r: Registration) => r.event_id));
-    } catch (error) {
-      console.error("Error fetching registrations:", error);
-    }
-  };
-
-  const handleRegister = async (eventId: string) => {
-    if (!user) {
-      toast.error("Please sign in to register");
-      return;
-    }
-
-    setRegisteringId(eventId);
-    try {
-      if (registrations.includes(eventId)) {
-        // Unregister
-        const { error } = await supabase
-          .from("event_registrations")
-          .delete()
-          .eq("event_id", eventId)
-          .eq("user_id", user.id);
-
-        if (error) throw error;
-        setRegistrations((prev) => prev.filter((id) => id !== eventId));
-        toast.success("Unregistered from event");
-      } else {
-        // Register
-        const { error } = await supabase
-          .from("event_registrations")
-          .insert({ event_id: eventId, user_id: user.id });
-
-        if (error) throw error;
-        setRegistrations((prev) => [...prev, eventId]);
-        toast.success("Registered for event!");
-      }
-    } catch (error) {
-      console.error("Error with registration:", error);
-      toast.error("Failed to update registration");
-    } finally {
-      setRegisteringId(null);
     }
   };
 
@@ -178,18 +112,12 @@ export function UpcomingEvents() {
               <div className="flex gap-4 sm:gap-6">
                 {featuredEvents.map((event) => {
                   const { month, day, time } = formatEventDate(event.event_date);
-                  const isRegistered = registrations.includes(event.id);
                   return (
                     <div
                       key={event.id}
                       className="w-full sm:w-[360px] shrink-0"
                     >
-                      <Card className="h-full border border-border/50 bg-card overflow-hidden hover:border-primary/30 transition-all duration-300">
-                        {/* Header Section - Clean */}
-                        <div className="h-32 sm:h-40 bg-primary/5 border-b border-border/50 flex items-center justify-center overflow-hidden">
-                          <Calendar className="h-16 sm:h-20 text-primary/20" />
-                        </div>
-
+                      <Card className="h-full border border-border/50 bg-card hover:border-primary/30 transition-all duration-300">
                         <CardContent className="p-5 sm:p-6 space-y-4">
                           {/* Featured Badge */}
                           <div className="flex items-center gap-2">
@@ -245,28 +173,6 @@ export function UpcomingEvents() {
                               {event.description}
                             </p>
                           )}
-
-                          {/* Register Button */}
-                          <Button
-                            className={cn(
-                              "w-full h-10 font-semibold text-sm rounded-lg transition-all duration-300",
-                              isRegistered
-                                ? "bg-green-600 hover:bg-green-700 text-white border-0"
-                                : "bg-primary hover:bg-primary/90 text-primary-foreground border-0"
-                            )}
-                            onClick={() => handleRegister(event.id)}
-                            disabled={registeringId === event.id}
-                          >
-                            {registeringId === event.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : isRegistered ? (
-                              <span className="flex items-center gap-2">
-                                ✓ Registered
-                              </span>
-                            ) : (
-                              "Register for Event"
-                            )}
-                          </Button>
                         </CardContent>
                       </Card>
                     </div>
@@ -294,7 +200,6 @@ export function UpcomingEvents() {
             ) : (
               regularEvents.map((event) => {
                 const { month, day, time } = formatEventDate(event.event_date);
-                const isRegistered = registrations.includes(event.id);
                 return (
                   <div
                     key={event.id}
@@ -328,25 +233,6 @@ export function UpcomingEvents() {
                         {event.category}
                       </Badge>
                     </div>
-                    <Button
-                      size="sm"
-                      className={cn(
-                        "shrink-0 text-xs sm:text-sm h-9 px-3 font-medium transition-all",
-                        isRegistered
-                          ? "bg-green-600 hover:bg-green-700 text-white border-0"
-                          : "bg-primary hover:bg-primary/90 text-primary-foreground border-0"
-                      )}
-                      onClick={() => handleRegister(event.id)}
-                      disabled={registeringId === event.id}
-                    >
-                      {registeringId === event.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : isRegistered ? (
-                        "✓ Going"
-                      ) : (
-                        "Join"
-                      )}
-                    </Button>
                   </div>
                 );
               })
@@ -357,3 +243,5 @@ export function UpcomingEvents() {
     </div>
   );
 }
+
+

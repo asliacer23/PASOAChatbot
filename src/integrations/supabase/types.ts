@@ -660,7 +660,6 @@ export type Database = {
           id: string
           last_login_at: string | null
           last_name: string
-          program: string | null
           status: Database["public"]["Enums"]["user_status"]
           student_id: string | null
           suspension_reason: string | null
@@ -675,7 +674,6 @@ export type Database = {
           id: string
           last_login_at?: string | null
           last_name: string
-          program?: string | null
           status?: Database["public"]["Enums"]["user_status"]
           student_id?: string | null
           suspension_reason?: string | null
@@ -690,7 +688,6 @@ export type Database = {
           id?: string
           last_login_at?: string | null
           last_name?: string
-          program?: string | null
           status?: Database["public"]["Enums"]["user_status"]
           student_id?: string | null
           suspension_reason?: string | null

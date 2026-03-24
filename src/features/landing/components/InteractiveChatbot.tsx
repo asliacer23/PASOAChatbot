@@ -24,7 +24,7 @@ const botResponses: Record<string, string> = {
   "What's the FAQ system?":
     "Our FAQ system is searchable and organized by categories like Internship, Enrollment, Events, and Requirements. You can quickly find answers to common questions.",
   "How do I contact support?":
-    "You can reach out through this chat anytime! For further assistance, contact us at support@pasoahub.edu.ph",
+    "You can reach out through this chat anytime! For further assistance, contact us at pasoastudenthub@gmail.com",
 };
 
 export function InteractiveChatbot() {
@@ -100,7 +100,7 @@ export function InteractiveChatbot() {
     setTimeout(() => {
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: "Thanks for reaching out! For more detailed support, please contact us at support@pasoahub.edu.ph",
+        text: "Thanks for reaching out! For more detailed support, please contact us at pasoastudenthub@gmail.com",
         sender: "bot",
         timestamp: new Date(),
       };

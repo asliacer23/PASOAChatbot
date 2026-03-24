@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Users, ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Calendar, MapPin, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchLandingEvents } from "../landing.services";
 
 const mockEvents = [
@@ -47,6 +47,7 @@ const mockEvents = [
 export function EventsPreviewSection() {
   const navigate = useNavigate();
   const [events, setEvents] = useState(mockEvents);
+
   useEffect(() => {
     fetchLandingEvents()
       .then((data) => {
@@ -63,7 +64,7 @@ export function EventsPreviewSection() {
         <div className="absolute top-1/2 right-0 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-8 mb-12 md:mb-16">
           <div className="space-y-4">
@@ -79,6 +80,7 @@ export function EventsPreviewSection() {
           </div>
 
           <Button
+            onClick={() => navigate("/auth")}
             variant="outline"
             className="rounded-xl border-2 w-fit group hover:bg-accent"
           >
@@ -90,13 +92,11 @@ export function EventsPreviewSection() {
         {/* Events Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {events.map((event, index) => {
-            const occupancyPercent = Math.round(
-              (event.attendees / event.maxAttendees) * 100
-            );
             return (
               <div
                 key={event.id}
-                className="group relative rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 overflow-hidden hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                onClick={() => navigate("/auth")}
+                className="group relative cursor-pointer rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 overflow-hidden hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-500"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Image Section */}
@@ -135,36 +135,6 @@ export function EventsPreviewSection() {
                       <span>{event.location}</span>
                     </div>
                   </div>
-
-                  {/* Attendees Progress */}
-                  <div className="space-y-2 pt-2">
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-1 text-muted-foreground">
-                        <Users className="w-3 h-3" />
-                        <span>
-                          {event.attendees}/{event.maxAttendees} attending
-                        </span>
-                      </div>
-                      <span className="font-semibold text-purple-600">
-                        {occupancyPercent}%
-                      </span>
-                    </div>
-                    <div className="w-full h-1.5 rounded-full bg-background/50 border border-border/40 overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-purple-500 to-violet-600 transition-all duration-300"
-                        style={{ width: `${occupancyPercent}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Register Button */}
-                  <Button
-                    onClick={() => navigate("/auth")}
-                    className="w-full mt-4 rounded-lg bg-gradient-to-r from-purple-600 to-violet-600 hover:shadow-lg transition-all group/btn"
-                  >
-                    Register
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                  </Button>
                 </div>
 
                 {/* Corner Accent */}

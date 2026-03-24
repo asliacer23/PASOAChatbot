@@ -17,7 +17,7 @@ const steps = [
     number: "02",
     icon: Mail,
     title: "Verify Email",
-    description: "Confirm your email to activate your PASOA Hub account",
+    description: "Confirm your email to activate your PASOA Student Hub account",
   },
   {
     number: "03",
@@ -43,7 +43,7 @@ export function HowItWorksSection() {
         <div className="absolute -top-32 left-1/3 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
         <div className="text-center space-y-3 mb-12 md:mb-16">

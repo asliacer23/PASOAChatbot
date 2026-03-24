@@ -11,7 +11,6 @@ interface Profile {
   last_name: string;
   email: string;
   avatar_url: string | null;
-  program: string | null;
   year_level: number | null;
   status: string;
   suspension_reason: string | null;

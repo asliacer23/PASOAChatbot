@@ -18,6 +18,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/features/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -70,7 +71,6 @@ interface UserProfile {
   last_name: string;
   email: string;
   status: UserStatus;
-  program: string | null;
   year_level: number | null;
   created_at: string;
   last_login_at: string | null;
@@ -100,7 +100,10 @@ export function UserManagement() {
   const [suspensionReason, setSuspensionReason] = useState("");
   const [isSuspending, setIsSuspending] = useState(false);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
+  const [isUpdatingRole, setIsUpdatingRole] = useState(false);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const { toast } = useToast();
+  const { roles: userRolesList } = useAuth();
 
   useEffect(() => {
     fetchUsers();
@@ -162,6 +165,94 @@ export function UserManagement() {
       });
     } catch (error) {
       console.error("Error fetching user stats:", error);
+    }
+  };
+
+  const handleOpenRoleDialog = (user: UserProfile) => {
+    const isSuperAdmin = userRolesList.includes("super_admin");
+    
+    if (!isSuperAdmin) {
+      toast({
+        title: "Permission Denied",
+        description: "Only super admin users can manage roles",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setSelectedUser(user);
+    setSelectedRoles(userRoles[user.id] || ["student"]);
+    setShowRoleDialog(true);
+  };
+
+  const toggleRole = (role: string) => {
+    setSelectedRoles((prev) => {
+      if (prev.includes(role)) {
+        return prev.filter((r) => r !== role);
+      } else {
+        return [...prev, role];
+      }
+    });
+  };
+
+  const saveRoles = async () => {
+    if (!selectedUser) return;
+
+    setIsUpdatingRole(true);
+    try {
+      const currentRoles = userRoles[selectedUser.id] || ["student"];
+      const rolesToAdd = selectedRoles.filter((r) => !currentRoles.includes(r));
+      const rolesToRemove = currentRoles.filter((r) => !selectedRoles.includes(r) && r !== "student");
+
+      // Remove roles
+      if (rolesToRemove.length > 0) {
+        for (const role of rolesToRemove) {
+          const { error } = await supabase
+            .from("user_roles")
+            .delete()
+            .eq("user_id", selectedUser.id)
+            .eq("role", role as "student" | "admin" | "super_admin");
+
+          if (error) throw error;
+        }
+      }
+
+      // Add roles
+      if (rolesToAdd.length > 0) {
+        for (const role of rolesToAdd) {
+          const { error } = await supabase
+            .from("user_roles")
+            .insert({
+              user_id: selectedUser.id,
+              role: role as "student" | "admin" | "super_admin",
+            });
+
+          if (error) throw error;
+        }
+      }
+
+      // Update local state
+      setUserRoles((prev) => ({
+        ...prev,
+        [selectedUser.id]: selectedRoles,
+      }));
+
+      toast({
+        title: "Roles updated",
+        description: `Successfully updated roles for ${selectedUser.first_name} ${selectedUser.last_name}`,
+      });
+
+      setShowRoleDialog(false);
+      setSelectedRoles([]);
+    } catch (error) {
+      console.error("Error updating roles:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update roles",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingRole(false);
     }
   };
 
@@ -381,8 +472,7 @@ export function UserManagement() {
                                   View Details
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => {
-                                  setSelectedUser(user);
-                                  setShowRoleDialog(true);
+                                  handleOpenRoleDialog(user);
                                 }} className="cursor-pointer">
                                   <Shield className="h-4 w-4 mr-2" />
                                   Manage Roles
@@ -431,10 +521,6 @@ export function UserManagement() {
                                 ))}
                               </div>
                             </div>
-                            <div className="space-y-1">
-                              <p className="text-xs text-muted-foreground font-medium">Program</p>
-                              <p className="text-sm">{user.program ? user.program.split(" - ")[0] : "—"}</p>
-                            </div>
                           </div>
 
                           {/* Additional Info */}
@@ -458,7 +544,6 @@ export function UserManagement() {
                             <TableHead className="text-xs sm:text-sm font-semibold text-foreground">Student ID</TableHead>
                             <TableHead className="text-xs sm:text-sm font-semibold text-foreground">Role</TableHead>
                             <TableHead className="text-xs sm:text-sm font-semibold text-foreground">Status</TableHead>
-                            <TableHead className="text-xs sm:text-sm font-semibold text-foreground hidden lg:table-cell">Program</TableHead>
                             <TableHead className="w-12 text-center"></TableHead>
                           </TableRow>
                         </TableHeader>
@@ -498,9 +583,6 @@ export function UserManagement() {
                               <TableCell className="py-3 sm:py-4">
                                 {getStatusBadge(user)}
                               </TableCell>
-                              <TableCell className="text-muted-foreground text-xs sm:text-sm hidden lg:table-cell py-3 sm:py-4">
-                                {user.program ? user.program.split(" - ")[0] : "—"}
-                              </TableCell>
                               <TableCell className="text-center py-3 sm:py-4">
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
@@ -514,8 +596,7 @@ export function UserManagement() {
                                       View Details
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => {
-                                      setSelectedUser(user);
-                                      setShowRoleDialog(true);
+                                      handleOpenRoleDialog(user);
                                     }} className="cursor-pointer">
                                       <Shield className="h-4 w-4 mr-2" />
                                       Manage Roles
@@ -618,12 +699,6 @@ export function UserManagement() {
                       <Mail className="h-4 w-4 text-muted-foreground" />
                       <span className="text-muted-foreground">Email:</span>
                       <span className="font-medium">{selectedUser.email}</span>
-                    </div>
-                    
-                    <div className="flex items-center gap-3 text-sm">
-                      <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">Program:</span>
-                      <span className="font-medium">{selectedUser.program || "Not set"}</span>
                     </div>
                     
                     <div className="flex items-center gap-3 text-sm">
@@ -736,13 +811,74 @@ export function UserManagement() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Current roles: {selectedUser && (userRoles[selectedUser.id] || ["student"]).join(", ")}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Role management requires super admin privileges and is configured in the database.
-            </p>
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Available Roles</label>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2 p-3 rounded-lg border border-border/50 hover:bg-accent/30 transition-colors">
+                  <input
+                    type="checkbox"
+                    id="student"
+                    checked={selectedRoles.includes("student")}
+                    onChange={() => toggleRole("student")}
+                    className="h-4 w-4 rounded border border-input bg-background cursor-pointer"
+                  />
+                  <label htmlFor="student" className="text-sm cursor-pointer flex-1">
+                    <span className="font-medium">Student</span>
+                    <p className="text-xs text-muted-foreground">Default role for all users</p>
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2 p-3 rounded-lg border border-border/50 hover:bg-accent/30 transition-colors">
+                  <input
+                    type="checkbox"
+                    id="admin"
+                    checked={selectedRoles.includes("admin")}
+                    onChange={() => toggleRole("admin")}
+                    className="h-4 w-4 rounded border border-input bg-background cursor-pointer"
+                  />
+                  <label htmlFor="admin" className="text-sm cursor-pointer flex-1">
+                    <span className="font-medium">Admin</span>
+                    <p className="text-xs text-muted-foreground">Full access to admin features</p>
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2 p-3 rounded-lg border border-border/50 hover:bg-accent/30 transition-colors">
+                  <input
+                    type="checkbox"
+                    id="super_admin"
+                    checked={selectedRoles.includes("super_admin")}
+                    onChange={() => toggleRole("super_admin")}
+                    className="h-4 w-4 rounded border border-input bg-background cursor-pointer"
+                  />
+                  <label htmlFor="super_admin" className="text-sm cursor-pointer flex-1">
+                    <span className="font-medium">Super Admin</span>
+                    <p className="text-xs text-muted-foreground">Complete system access and control</p>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+              <p className="text-xs text-foreground">
+                <strong>Current roles:</strong> {selectedRoles.length > 0 ? selectedRoles.join(", ") : "No roles assigned"}
+              </p>
+            </div>
           </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowRoleDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={saveRoles}
+              disabled={isUpdatingRole}
+            >
+              {isUpdatingRole ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Shield className="h-4 w-4 mr-2" />
+              )}
+              Save Roles
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

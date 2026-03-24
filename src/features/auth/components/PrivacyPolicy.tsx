@@ -17,14 +17,20 @@ export function PrivacyPolicy({ onAccept, showAcceptButton = false, compact = fa
   const handleBack = () => {
     if (onBack) {
       onBack();
-    } else {
-      navigate("/auth");
+      return;
     }
+
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+
+    navigate("/");
   };
 
   return (
     <div className={compact ? "" : "min-h-screen bg-gradient-to-br from-background via-background to-accent/5 py-8 px-4"}>
-      <div className={compact ? "" : "max-w-3xl mx-auto"}>
+      <div className={compact ? "" : "w-full px-4 sm:px-6 lg:px-8"}>
         <Card className={compact ? "border-0 bg-transparent shadow-none" : "border-border/50 shadow-elegant bg-card/95 backdrop-blur"}>
           {!compact && (
             <CardHeader className="pb-6">
@@ -100,3 +106,4 @@ export function PrivacyPolicy({ onAccept, showAcceptButton = false, compact = fa
     </div>
   );
 }
+

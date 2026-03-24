@@ -137,7 +137,7 @@ const CHATBOT_CONFIG = {
 
 const GREETING_RESPONSES = [
   "Hi there, PASOAnian! 👋 How can I help you today?",
-  "Hello! Welcome to Pasoa Student Hub. What can I assist you with?",
+  "Hello! Welcome to PASOA Student Hub. What can I assist you with?",
   "Hey! Great to see you. What questions do you have?",
   "Good day! I'm here to help with any CBA-related questions.",
   "Kamusta! Ready to help you with anything you need! 🎓",

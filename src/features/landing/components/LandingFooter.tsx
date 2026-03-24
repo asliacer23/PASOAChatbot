@@ -7,7 +7,7 @@ const currentYear = new Date().getFullYear();
 export function LandingFooter() {
   return (
     <footer className="relative border-t border-border/40 bg-background/50 backdrop-blur-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         {/* Main Footer Content */}
         <div className="grid md:grid-cols-4 gap-8 md:gap-12 mb-12 md:mb-16">
           {/* Brand Column */}
@@ -62,12 +62,17 @@ export function LandingFooter() {
             <h4 className="font-bold text-foreground">Company</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <Link to="/auth/privacy" className="hover:text-purple-600 transition-colors">
+                <Link to="/acknowledgements" className="hover:text-purple-600 transition-colors">
+                  Acknowledgements
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy" className="hover:text-purple-600 transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link to="/auth/terms" className="hover:text-purple-600 transition-colors">
+                <Link to="/terms" className="hover:text-purple-600 transition-colors">
                   Terms of Service
                 </Link>
               </li>
@@ -89,8 +94,8 @@ export function LandingFooter() {
             <h4 className="font-bold text-foreground">Contact</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <a href="mailto:support@pasoahub.edu.ph" className="hover:text-purple-600 transition-colors">
-                  support@pasoahub.edu.ph
+                <a href="mailto:pasoastudenthub@gmail.com" className="hover:text-purple-600 transition-colors">
+                  pasoastudenthub@gmail.com
                 </a>
               </li>
               <li>
@@ -129,3 +134,4 @@ export function LandingFooter() {
     </footer>
   );
 }
+

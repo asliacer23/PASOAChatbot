@@ -16,10 +16,6 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { PasoaMascot } from "@/features/shared/components/PasoaMascot";
 
-const programs = [
-  "BSOA-D - Office Administration with Data Analytics",
-];
-
 const yearLevels = [
   { value: "1", label: "1st Year" },
   { value: "2", label: "2nd Year" },
@@ -38,7 +34,6 @@ export function ProfileSettings() {
     first_name: "",
     last_name: "",
     student_id: "",
-    program: "",
     year_level: "",
   });
 
@@ -48,7 +43,6 @@ export function ProfileSettings() {
         first_name: profile.first_name || "",
         last_name: profile.last_name || "",
         student_id: profile.student_id || "",
-        program: profile.program || "",
         year_level: profile.year_level?.toString() || "",
       });
       setAvatarPreview(profile.avatar_url);
@@ -181,7 +175,6 @@ export function ProfileSettings() {
           first_name: formData.first_name,
           last_name: formData.last_name,
           student_id: formData.student_id || null,
-          program: formData.program || null,
           year_level: formData.year_level ? parseInt(formData.year_level) : null,
         })
         .eq("id", profile.id);
@@ -342,27 +335,6 @@ export function ProfileSettings() {
                   placeholder="e.g., 2024-00001"
                   className="rounded-lg sm:rounded-xl text-sm h-9 sm:h-10"
                 />
-              </div>
-
-              <div className="space-y-1.5 sm:space-y-2">
-                <Label className="text-xs sm:text-sm">Program</Label>
-                <Select
-                  value={formData.program}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, program: value }))
-                  }
-                >
-                  <SelectTrigger className="rounded-lg sm:rounded-xl text-sm h-9 sm:h-10">
-                    <SelectValue placeholder="Select your program" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {programs.map((program) => (
-                      <SelectItem key={program} value={program} className="text-sm">
-                        {program}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
 
               <div className="space-y-1.5 sm:space-y-2">

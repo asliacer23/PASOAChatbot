@@ -16,7 +16,7 @@ export function HeroSection() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-32">
+      <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-32">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 items-center">
           {/* Left Content */}
           <div className="space-y-4 sm:space-y-6 md:space-y-8 order-1">

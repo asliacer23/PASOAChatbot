@@ -10,6 +10,7 @@ import {
   Activity,
   CalendarDays,
   BarChart,
+  Tags,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -25,6 +26,7 @@ import { UserManagement } from "./UserManagement";
 import { FAQManagement } from "./FAQManagement";
 import { ConversationsManagement } from "./ConversationsManagement";
 import { AnnouncementsManagement } from "./AnnouncementsManagement";
+import { CategoriesManagement } from "./CategoriesManagement";
 import { ContentManagement } from "./ContentManagement";
 import { ReportsManagement } from "./ReportsManagement";
 import { SystemSettings } from "./SystemSettings";
@@ -62,6 +64,7 @@ export function AdminDashboard() {
     if (path.includes("/admin/faq")) return "faq";
     if (path.includes("/admin/conversations")) return "conversations";
     if (path.includes("/admin/announcements")) return "announcements";
+    if (path.includes("/admin/categories")) return "categories";
     if (path.includes("/admin/events")) return "events";
     if (path.includes("/admin/content")) return "content";
     if (path.includes("/admin/reports")) return "reports";
@@ -76,6 +79,7 @@ export function AdminDashboard() {
       faq: "/admin/faq",
       conversations: "/admin/conversations",
       announcements: "/admin/announcements",
+      categories: "/admin/categories",
       events: "/admin/events",
       content: "/admin/content",
       reports: "/admin/reports",
@@ -140,7 +144,7 @@ export function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/5">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 animate-fade-up">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-6 md:py-10 animate-fade-up">
         <Tabs
           value={getActiveTab()}
           onValueChange={handleTabChange}
@@ -186,8 +190,8 @@ export function AdminDashboard() {
                         { label: "FAQ", icon: HelpCircle, tab: "faq" },
                         { label: "Chats", icon: MessageCircle, tab: "conversations" },
                         { label: "Announcements", icon: Bell, tab: "announcements" },
+                        { label: "Categories", icon: Tags, tab: "categories" },
                         { label: "Events", icon: CalendarDays, tab: "events" },
-                        { label: "Reports", icon: BarChart, tab: "reports" },
                       ].map((action, index) => (
                         <button
                           key={index}
@@ -206,7 +210,7 @@ export function AdminDashboard() {
 
                 {/* Analytics Grid */}
                 <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
-                  <Card className="lg:col-span-2">
+                  <Card className="lg:col-span-3">
                     <CardHeader>
                       <CardTitle>Most Matched FAQs</CardTitle>
                       <CardDescription>
@@ -273,6 +277,7 @@ export function AdminDashboard() {
           <TabsContent value="faq"><FAQManagement /></TabsContent>
           <TabsContent value="conversations"><ConversationsManagement /></TabsContent>
           <TabsContent value="announcements"><AnnouncementsManagement /></TabsContent>
+          <TabsContent value="categories"><CategoriesManagement /></TabsContent>
           <TabsContent value="events"><EventsManagement /></TabsContent>
           <TabsContent value="content"><ContentManagement /></TabsContent>
           <TabsContent value="reports"><ReportsManagement /></TabsContent>

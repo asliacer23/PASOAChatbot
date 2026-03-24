@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/features/auth";
@@ -11,9 +11,11 @@ import { AnnouncementsPreviewSection } from "./components/AnnouncementsPreviewSe
 import { EventsPreviewSection } from "./components/EventsPreviewSection";
 import { CTASection } from "./components/CTASection";
 import { LandingFooter } from "./components/LandingFooter";
+import { GoogleAuthModal } from "./components/GoogleAuthModal";
 
 export function LandingPage() {
   const { user, isLoading, isAdmin } = useAuth();
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
 
   // Smooth scroll behavior for hash links
   useEffect(() => {
@@ -35,6 +37,21 @@ export function LandingPage() {
 
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
+
+  // Show Google Auth modal only once per session
+  useEffect(() => {
+    // Only show modal if user is not authenticated and we haven't shown it yet this session
+    if (!user && !isLoading) {
+      const hasShownModal = sessionStorage.getItem("googleAuthModalShown");
+      if (!hasShownModal) {
+        const timer = setTimeout(() => {
+          setShowGoogleModal(true);
+          sessionStorage.setItem("googleAuthModalShown", "true");
+        }, 500); // Small delay for better UX
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [user, isLoading]);
 
   if (isLoading) {
     return (
@@ -80,6 +97,12 @@ export function LandingPage() {
 
       {/* Footer */}
       <LandingFooter />
+
+      {/* Google Auth Modal */}
+      <GoogleAuthModal
+        isOpen={showGoogleModal}
+        onClose={() => setShowGoogleModal(false)}
+      />
     </div>
   );
 }

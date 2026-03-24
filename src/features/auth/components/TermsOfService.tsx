@@ -19,14 +19,20 @@ export function TermsOfService({ onAccept, showAcceptButton = true, compact = fa
   const handleBack = () => {
     if (onBack) {
       onBack();
-    } else {
-      navigate("/auth");
+      return;
     }
+
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+
+    navigate("/");
   };
 
   return (
     <div className={compact ? "" : "min-h-screen bg-gradient-to-br from-background via-background to-accent/5 py-8 px-4"}>
-      <div className={compact ? "" : "max-w-3xl mx-auto"}>
+      <div className={compact ? "" : "w-full px-4 sm:px-6 lg:px-8"}>
         <Card className={compact ? "border-0 bg-transparent shadow-none" : "border-border/50 shadow-elegant bg-card/95 backdrop-blur"}>
           {!compact && (
             <CardHeader className="pb-6">
@@ -79,7 +85,7 @@ export function TermsOfService({ onAccept, showAcceptButton = true, compact = fa
 
                 <div className="pt-4 border-t border-border/50">
                   <p className="text-sm text-muted-foreground text-center">
-                    For our data privacy practices, please see our <a href="/auth/privacy" className="text-primary hover:underline font-semibold">Privacy Policy</a>.
+                    For our data privacy practices, please see our <a href="/privacy" className="text-primary hover:underline font-semibold">Privacy Policy</a>.
                   </p>
                 </div>
 
@@ -103,3 +109,4 @@ export function TermsOfService({ onAccept, showAcceptButton = true, compact = fa
     </div>
   );
 }
+

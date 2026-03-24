@@ -23,6 +23,9 @@ import { UpcomingEvents } from "@/features/events";
 // Admin Features
 import { AdminDashboard } from "@/features/admin";
 
+// Public Features
+import { AcknowledgementsPage } from "@/features/acknowledgements";
+
 import NotFound from "./pages/NotFound";
 import { LandingPage } from "@/features/landing";
 
@@ -39,6 +42,9 @@ const App = () => (
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<LandingPage />} />
+              <Route path="/acknowledgements" element={<AcknowledgementsPage />} />
+              <Route path="/terms" element={<TermsOfService showAcceptButton={false} />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
               
               {/* Public Auth Routes */}
               <Route path="/auth" element={<AuthPage />} />
@@ -88,6 +94,11 @@ const App = () => (
                     <AdminDashboard />
                   </ProtectedRoute>
                 } />
+                <Route path="/admin/categories" element={
+                  <ProtectedRoute requireAdmin>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                } />
                 <Route path="/admin/events" element={
                   <ProtectedRoute requireAdmin>
                     <AdminDashboard />
@@ -121,3 +132,4 @@ const App = () => (
 );
 
 export default App;
+

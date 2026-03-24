@@ -13,6 +13,7 @@ import {
   LogOut,
   Calendar,
   X,
+  Tags,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Button } from "@/components/ui/button";
@@ -24,20 +25,21 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 const studentNavItems = [
   { to: "/dashboard", icon: Home, label: "Home" },
+  { to: "/announcements", icon: Bell, label: "Announcements" },
   { to: "/chat", icon: MessageCircle, label: "Chatbot" },
   { to: "/faq", icon: HelpCircle, label: "FAQ Center" },
   { to: "/events", icon: Calendar, label: "Events" },
-  { to: "/announcements", icon: Bell, label: "Announcements" },
   { to: "/profile", icon: User, label: "Profile" },
 ];
 
 const adminNavItems = [
   { to: "/admin", icon: LayoutDashboard, label: "Dashboard" },
-  { to: "/admin/users", icon: Users, label: "Users" },
-  { to: "/admin/faq", icon: HelpCircle, label: "FAQ Management" },
-  { to: "/admin/conversations", icon: MessageCircle, label: "Conversations" },
   { to: "/admin/announcements", icon: Bell, label: "Announcements" },
+  { to: "/admin/users", icon: Users, label: "Users" },
+  { to: "/admin/conversations", icon: MessageCircle, label: "Conversations" },
   { to: "/admin/events", icon: Calendar, label: "Events" },
+  { to: "/admin/faq", icon: HelpCircle, label: "FAQ Management" },
+  { to: "/admin/categories", icon: Tags, label: "Categories" },
   { to: "/admin/reports", icon: BarChart3, label: "Reports" },
 ];
 
@@ -52,7 +54,7 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/auth");
+    navigate("/");
   };
 
   return (
@@ -65,7 +67,7 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
       <div className="flex items-center justify-between h-14 lg:h-16 px-3 lg:px-4 border-b border-sidebar-border">
         <div className="flex items-center gap-2">
           <PasoaMascot size="xs" mood="happy" animate={false} />
-          <span className="font-semibold text-sidebar-foreground text-sm lg:text-base">PASOA Hub</span>
+          <span className="font-semibold text-sidebar-foreground text-sm lg:text-base">PASOA Student Hub</span>
         </div>
         {isMobile && (
           <Button
@@ -178,3 +180,4 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
     </aside>
   );
 }
+

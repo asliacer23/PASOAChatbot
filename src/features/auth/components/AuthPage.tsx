@@ -366,7 +366,7 @@ export function AuthPage() {
         </div>
       </div>
 
-      <div className="w-full max-w-6xl mx-auto px-4 md:py-0 py-0">
+      <div className="w-full px-4 md:py-0 py-0">
         <div className="grid md:grid-cols-2 gap-8 items-center">
           {/* Left Column - Welcome Section (Desktop only) */}
           <div className="hidden md:flex flex-col justify-center items-center space-y-8 py-12 animate-fade-in-left">
@@ -399,8 +399,8 @@ export function AuthPage() {
           </div>
 
           {/* Right Column - Auth Forms */}
-          <div className="w-full space-y-4 md:space-y-6 animate-fade-in-right md:mb-0 mb-8">
-            <Card className="border-border/50 shadow-elegant bg-card/95 backdrop-blur overflow-hidden animate-card-appear md:rounded-2xl rounded-3xl md:w-full w-full">
+          <div className="w-full space-y-4 md:space-y-6 animate-fade-in-right md:mb-0 mb-8 flex justify-center md:justify-start">
+            <Card className="border-border/50 shadow-elegant bg-card/95 backdrop-blur overflow-hidden animate-card-appear md:rounded-2xl rounded-3xl w-full max-w-2xl md:max-w-2xl">
               <CardHeader className="pb-4 md:pb-6 animate-fade-in-down md:p-6 p-4">
                 <CardTitle className="text-xl md:text-2xl text-center animate-text-shimmer">
                   {activeTab === "signin" ? "Sign In" : "Create an Account"}

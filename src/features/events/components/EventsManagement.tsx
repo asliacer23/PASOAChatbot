@@ -438,15 +438,6 @@ export function EventsManagement() {
                   "border border-border/50 overflow-hidden hover:border-primary/30 transition-all duration-300",
                   event.is_featured && "ring-1 ring-primary/30"
                 )}>
-                  {/* Event Image Header */}
-                  <div className="h-32 sm:h-40 bg-primary/5 border-b border-border/50 flex items-center justify-center overflow-hidden">
-                    {event.image_url ? (
-                      <img src={event.image_url} alt={event.title} className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
-                    ) : (
-                      <Calendar className="h-12 w-12 text-primary/20" />
-                    )}
-                  </div>
-
                   {/* Card Content */}
                   <CardContent className="p-4 sm:p-6 space-y-4">
                     {/* Title and Badges */}

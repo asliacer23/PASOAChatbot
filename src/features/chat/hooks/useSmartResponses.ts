@@ -1,4 +1,4 @@
-﻿import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   matchesKeywordSmart,
@@ -16,6 +16,7 @@ export interface FAQ {
   answer: string;
   keywords: string[] | null;
   category_id: string;
+  match_count?: number | null;
 }
 
 /**
@@ -23,29 +24,29 @@ export interface FAQ {
  */
 const RESPONSE_TEMPLATES = {
   GREETING: [
-    "Hi there, PASOAnian! ðŸ‘‹ How can I help you today?",
-    "Hello! Welcome to Pasoa Student Hub. What can I assist you with?",
+    "Hi there, PASOAnian! How can I help you today?",
+    "Hello! Welcome to PASOA Student Hub. What can I assist you with?",
     "Hey! Great to see you. What questions do you have?",
     "Good day! I'm here to help with any CBA-related questions.",
-    "Kamusta! Ready to help you with anything you need! ðŸŽ“",
+    "Kamusta! Ready to help you with anything you need!",
   ],
   THANKS: [
     "You're welcome! Is there anything else I can help you with?",
-    "Happy to help! Let me know if you need anything else. ðŸ˜Š",
+    "Happy to help! Let me know if you need anything else.",
     "Glad I could assist! Feel free to ask more questions.",
     "No problem! Always here to help fellow PASOAnians.",
-    "Anytime! Don't hesitate to reach out again. ðŸ’œ",
+    "Anytime! Don't hesitate to reach out again.",
   ],
   GOODBYE: [
-    "Goodbye! Have a great day ahead! ðŸ‘‹",
+    "Goodbye! Have a great day ahead!",
     "Take care! Come back anytime you need help.",
-    "See you later! Good luck with your studies! ðŸ“š",
+    "See you later! Good luck with your studies!",
     "Bye! Don't hesitate to reach out if you have more questions.",
-    "Paalam! Ingat ka lagi! ðŸ’œ",
+    "Paalam! Ingat ka lagi!",
   ],
   HELP: [
     "I'm here to help! You can ask me about enrollment, internship, fees, schedules, events, and more. What do you need?",
-    "Need assistance? Just type your question or choose from the suggested topics below. I'm all ears! ðŸ‘‚",
+    "Need assistance? Just type your question or choose from the suggested topics below. I'm all ears!",
     "Don't worry, I've got you covered! What would you like to know about CBA?",
   ],
   CONFUSED: [
@@ -58,7 +59,7 @@ const RESPONSE_TEMPLATES = {
     "I couldn't find a specific answer. Let me connect you with our support team.",
     "That's a great question, but I don't have that information. Want me to get a human agent?",
     "I'm still learning! Would you prefer to chat with an administrator for this one?",
-    "Hmm, I'm not sure about this one. You can try rephrasing or request a human agent. ðŸ¤”",
+    "Hmm, I'm not sure about this one. You can try rephrasing or request a human agent.",
   ],
   VIOLATION: [
     "Please keep the conversation respectful. Your message was blocked.",
@@ -185,7 +186,7 @@ export function useSmartResponses() {
     try {
       const { data, error } = await supabase
         .from("faqs")
-        .select("id, question, answer, keywords, category_id")
+        .select("id, question, answer, keywords, category_id, match_count")
         .eq("is_active", true)
         .eq("is_archived", false);
 
@@ -319,7 +320,7 @@ export function useSmartResponses() {
    */
   const getFallbackResponse = useCallback((): string => {
     if (failedMatchCount >= FAQ_CONFIG.AUTO_ESCALATE_AFTER_FAILED_MATCHES - 1) {
-      return "I've had trouble answering your recent questions. I recommend speaking with a human agent who can better assist you. Click the 'Human Agent' button below to connect with our support team. ðŸ‘¤";
+      return "I've had trouble answering your recent questions. I recommend speaking with a human agent who can better assist you. Click the 'Human Agent' button below to connect with our support team.";
     }
     return getRandomResponse(RESPONSE_TEMPLATES.FALLBACK);
   }, [failedMatchCount, getRandomResponse]);
@@ -495,6 +496,12 @@ export function useSmartResponses() {
           if (bestMatch) relatedFaqs.push(bestMatch);
           highestScore = score;
           bestMatch = faq;
+        } else if (score === highestScore && bestMatch) {
+          const currentMatchCount = faq.match_count || 0;
+          const bestMatchCount = bestMatch.match_count || 0;
+          if (currentMatchCount > bestMatchCount) {
+            bestMatch = faq;
+          }
         }
       }
 
@@ -547,6 +554,10 @@ export function useSmartResponses() {
     quickSuggestions: QUICK_SUGGESTIONS,
   };
 }
+
+
+
+
 
 
 

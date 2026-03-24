@@ -69,11 +69,11 @@ export function SuspendedPage({ reason }: SuspendedPageProps) {
 
             <div className="flex flex-col gap-2 pt-2">
               <a 
-                href="mailto:support@pasoahub.edu.ph" 
+                href="mailto:pasoastudenthub@gmail.com" 
                 className="flex items-center gap-2 text-sm text-primary hover:underline"
               >
                 <Mail className="h-4 w-4" />
-                support@pasoahub.edu.ph
+                pasoastudenthub@gmail.com
               </a>
               <a 
                 href="tel:+639123456789" 

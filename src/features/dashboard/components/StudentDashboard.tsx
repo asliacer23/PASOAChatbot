@@ -100,16 +100,16 @@ export function StudentDashboard() {
     <div className="w-full min-h-screen bg-gradient-to-b from-background via-background to-accent/5">
       <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 py-6 sm:py-8 md:py-12 space-y-6 sm:space-y-8 md:space-y-8 animate-fade-up w-full max-w-none">
         {/* Welcome Section with Mascot - Enhanced */}
-        <section className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 relative">
+        <section className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-8 relative py-4 sm:py-6">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5 rounded-2xl blur-3xl -z-10" />
-          <div className="shrink-0">
+          <div className="shrink-0 mt-2">
             <PasoaMascot size="lg" mood="waving" />
           </div>
-          <div className="space-y-2 text-center sm:text-left flex-1">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent leading-tight">
-              {getGreeting()}, <span className="text-primary">{profile?.first_name || "PASOAnian"}!</span>
+          <div className="space-y-3 sm:space-y-4 text-left flex-1 w-full sm:w-auto min-w-0 pb-2">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent leading-snug break-words word-break">
+              {getGreeting()}, <span className="text-primary block sm:inline">{profile?.first_name || "PASOAnian"}!</span>
             </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl mb-1">
               Your digital assistant is here to help. How can we assist you today?
             </p>
           </div>

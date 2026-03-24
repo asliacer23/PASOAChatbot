@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Bot, Loader2, Menu, AlertTriangle, Plus, X, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -21,7 +21,6 @@ import { cn } from "@/lib/utils";
 const config = {
   minTypingDelay: 500,
   maxTypingDelay: 1500,
-  minConfidenceThreshold: 0.5,
   maxMessageLength: 1000,
   maxImageSizeMB: 5,
 };
@@ -79,6 +78,7 @@ export function ChatPage() {
     getSmartResponse,
     getFallbackResponse,
     findBestMatch,
+    config: faqConfig,
   } = useSmartResponses();
 
   // Message validation
@@ -123,7 +123,7 @@ export function ChatPage() {
           .from("conversations")
           .insert({
             user_id: user.id,
-            title: "Welcome to PASOA Hub",
+            title: "Welcome to PASOA Student Hub",
             status: "active",
           })
           .select()
@@ -134,7 +134,7 @@ export function ChatPage() {
         // Create initial greeting message
         if (data) {
           const greetingMessage =
-            "Hello! ðŸ‘‹ I'm PASOA Bot, here to help you with any questions about CBA and campus life. What would you like to know today?";
+            "Hello! I'm PASOA Bot, here to help you with any questions about CBA and campus life. What would you like to know today?";
 
           await supabase.from("messages").insert({
             conversation_id: data.id,
@@ -156,11 +156,6 @@ export function ChatPage() {
 
     ensureInitialConversation();
   }, [user?.id, isLoadingConversations, conversations.length, fetchMessages, setConversations, setCurrentConversation]);
-
-  // Fetch FAQs on mount
-  useEffect(() => {
-    fetchFAQs();
-  }, [fetchFAQs]);
 
   // Handle sending message
   const handleSendMessage = async (content: string, imageFile?: File) => {
@@ -273,7 +268,7 @@ export function ChatPage() {
       } else {
         const { faq, confidence } = findBestMatch(content);
 
-        if (faq && confidence >= config.minConfidenceThreshold) {
+        if (faq && confidence >= faqConfig.MIN_CONFIDENCE_THRESHOLD) {
           botResponse = faq.answer;
           matchedFaqId = faq.id;
           setMascotMood("happy");
@@ -298,6 +293,27 @@ export function ChatPage() {
       if (botMsgError) throw botMsgError;
 
       setMessages((prev) => [...prev, botMsg]);
+
+      if (matchedFaqId) {
+        void (async () => {
+          try {
+            const { data: matchedFaq, error: readError } = await supabase
+              .from("faqs")
+              .select("match_count")
+              .eq("id", matchedFaqId)
+              .single();
+
+            if (readError) throw readError;
+
+            await supabase
+              .from("faqs")
+              .update({ match_count: (matchedFaq?.match_count || 0) + 1 })
+              .eq("id", matchedFaqId);
+          } catch (error) {
+            console.error("Error updating FAQ match count:", error);
+          }
+        })();
+      }
 
       // Update conversation title
       if (messages.length < 2) {
@@ -359,7 +375,7 @@ export function ChatPage() {
         .from("messages")
         .insert({
           conversation_id: currentConversation.id,
-          content: `â³ Please wait while we connect you with an available support member. Thank you for your patience!`,
+          content: `⏳ Please wait while we connect you with an available support member. Thank you for your patience!`,
           sender_type: "bot",
         })
         .select()
@@ -401,7 +417,7 @@ export function ChatPage() {
         
         // Send initial greeting message with suggestions
         try {
-          const greetingMessage = "Hello! ðŸ‘‹ I'm PASOA Bot, here to help you with any questions about CBA and campus life. What would you like to know today?";
+          const greetingMessage = "Hello! I'm PASOA Bot, here to help you with any questions about CBA and campus life. What would you like to know today?";
           
           const { data: botMsg, error: botMsgError } = await supabase
             .from("messages")
@@ -591,7 +607,7 @@ export function ChatPage() {
                     <PasoaMascot size="lg" mood="waving" />
                   </div>
                   <div>
-                    <h3 className="text-base sm:text-lg font-bold mb-1 sm:mb-2">Welcome to PASOA Hub!</h3>
+                    <h3 className="text-base sm:text-lg font-bold mb-1 sm:mb-2">Welcome to PASOA Student Hub!</h3>
                     <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                       I'm here to help with all your questions about CBA and campus life. What would you like to know?
                     </p>
@@ -602,7 +618,7 @@ export function ChatPage() {
                     <div className="space-y-2 mt-4 sm:mt-6">
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-[11px] sm:text-xs font-medium text-muted-foreground/80">
-                          ðŸ’¡ Suggested Questions
+                          Suggested Questions
                         </p>
                         <button
                           onClick={() => setShowSuggestions(false)}
@@ -693,7 +709,7 @@ export function ChatPage() {
             {isOtherTyping && !isTyping && (
               <div className="flex gap-1.5 sm:gap-2 items-end">
                 <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-[10px] sm:text-xs font-bold text-green-600">ðŸ‘¤</span>
+                  <span className="text-[10px] sm:text-xs font-bold text-green-600">A</span>
                 </div>
                 <div className="space-y-0.5 sm:space-y-1">
                   <div className="flex gap-1">
@@ -760,5 +776,9 @@ export function ChatPage() {
     </div>
   );
 }
+
+
+
+
 
 

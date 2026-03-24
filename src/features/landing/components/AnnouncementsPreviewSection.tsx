@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Pin } from "lucide-react";
-
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchLandingAnnouncements } from "../landing.services";
 
 const mockAnnouncements = [
@@ -39,7 +39,9 @@ const mockAnnouncements = [
 ];
 
 export function AnnouncementsPreviewSection() {
+  const navigate = useNavigate();
   const [announcements, setAnnouncements] = useState(mockAnnouncements);
+
   useEffect(() => {
     fetchLandingAnnouncements()
       .then((data) => {
@@ -47,6 +49,7 @@ export function AnnouncementsPreviewSection() {
       })
       .catch(() => {});
   }, []);
+
   return (
     <section id="announcements" className="relative py-16 md:py-32 overflow-hidden">
       {/* Background */}
@@ -54,7 +57,7 @@ export function AnnouncementsPreviewSection() {
         <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-8 mb-12 md:mb-16">
           <div className="space-y-4">
@@ -70,6 +73,7 @@ export function AnnouncementsPreviewSection() {
           </div>
 
           <Button
+            onClick={() => navigate("/auth")}
             variant="outline"
             className="rounded-xl border-2 w-fit group hover:bg-accent"
           >
@@ -83,7 +87,8 @@ export function AnnouncementsPreviewSection() {
           {announcements.map((announcement, index) => (
             <div
               key={announcement.id}
-              className="group relative rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 overflow-hidden hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-500"
+              onClick={() => navigate("/auth")}
+              className="group relative cursor-pointer rounded-2xl border border-border/40 bg-card/40 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 overflow-hidden hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4 duration-500"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               {/* Content */}
