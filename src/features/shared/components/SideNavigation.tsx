@@ -29,7 +29,6 @@ const studentNavItems = [
   { to: "/chat", icon: MessageCircle, label: "Chatbot" },
   { to: "/faq", icon: HelpCircle, label: "FAQ Center" },
   { to: "/events", icon: Calendar, label: "Events" },
-  { to: "/profile", icon: User, label: "Profile" },
 ];
 
 const adminNavItems = [
@@ -190,5 +189,6 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
     </aside>
   );
 }
+
 
 
