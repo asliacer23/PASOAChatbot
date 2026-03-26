@@ -99,7 +99,7 @@ export function LandingFooter() {
                 </a>
               </li>
               <li>
-                <p>College of Business Administration</p>
+                <p>University of Caloocan City, Philippines College of Business and Accountancy Bachelor of Science in Office Administration  </p>
               </li>
               <li>
                 <p>PASOA, Philippines</p>

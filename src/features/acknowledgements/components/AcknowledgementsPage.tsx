@@ -341,11 +341,15 @@ export function AcknowledgementsPage() {
               The PASOA Student Hub is a comprehensive solution designed to provide intelligent,
               responsive support to students and faculty. This project represents the collaborative
               effort of our talented research team, combining cutting-edge AI technology with a deep
-              understanding of educational needs.
+              understanding of educational needs. 
             </p>
             <p className="text-muted-foreground leading-relaxed">
               We are committed to continuous improvement and innovation, ensuring that our chatbot
-              system delivers the highest quality assistance and support to our users.
+              system delivers the highest quality assistance and support to our users. 
+            </p>
+
+            <p className="text-muted-foreground leading-relaxed">
+              University of Caloocan City, Philippines College of Business and Accountancy Bachelor of Science in Office Administration
             </p>
           </div>
         </div>
