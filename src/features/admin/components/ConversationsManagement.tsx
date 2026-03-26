@@ -6,6 +6,7 @@ import {
   Bot,
   Send,
   Clock,
+  Loader2,
   ArrowLeft,
   MoreHorizontal,
   Lock,
@@ -708,11 +709,6 @@ export function ConversationsManagement() {
                           Reopen Chat
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="cursor-pointer">
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Details
-                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>

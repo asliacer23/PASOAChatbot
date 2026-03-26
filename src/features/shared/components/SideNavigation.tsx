@@ -4,6 +4,7 @@ import {
   MessageCircle,
   HelpCircle,
   Bell,
+  FileText,
   LayoutDashboard,
   Users,
   BarChart3,
@@ -26,6 +27,7 @@ const studentNavItems = [
   { to: "/chat", icon: MessageCircle, label: "Chatbot" },
   { to: "/faq", icon: HelpCircle, label: "FAQ Center" },
   { to: "/events", icon: Calendar, label: "Events" },
+  { to: "/acknowledgements", icon: FileText, label: "Acknowledgements" },
 ];
 
 const adminNavItems = [
@@ -186,7 +188,3 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
     </aside>
   );
 }
-
-
-
-
