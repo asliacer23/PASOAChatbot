@@ -47,14 +47,14 @@ export function HowItWorksSection() {
 
         {/* Header */}
         <div className="text-center space-y-3 mb-12 md:mb-16">
-          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tight leading-tight">
             <span className="block text-foreground">How It Works</span>
             <span className="block bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 bg-clip-text text-transparent">
               Get Started in 4 Easy Steps
             </span>
           </h2>
 
-          <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
+          <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto font-medium">
             Join the PASOA community in minutes and start enjoying all the benefits.
           </p>
         </div>

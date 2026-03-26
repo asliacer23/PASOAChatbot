@@ -67,10 +67,10 @@ export function GoogleAuthModal({ isOpen, onClose }: GoogleAuthModalProps) {
           </div>
           <div className="text-center space-y-2">
             <DialogTitle className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent break-words">
-              Welcome to PASOA!
+              Welcome, PASOAnian!
             </DialogTitle>
             <DialogDescription className="text-xs md:text-sm text-muted-foreground px-2 md:px-0">
-              Sign in with your Gmail to get started with your student hub
+              Sign in with your gmail account to get started with PASOA Student Hub.
             </DialogDescription>
           </div>
         </DialogHeader>

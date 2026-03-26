@@ -33,6 +33,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface FAQCategory {
   id: string;
@@ -55,6 +56,75 @@ interface FAQ {
   created_at: string;
 }
 
+
+const FAQ_COLOR_KEYS = [
+  "blue",
+  "red",
+  "green",
+  "yellow",
+  "purple",
+  "pink",
+  "orange",
+  "cyan",
+  "amber",
+  "violet",
+  "emerald",
+  "slate",
+] as const;
+
+const FAQ_COLOR_CLASSES: Record<
+  (typeof FAQ_COLOR_KEYS)[number],
+  { dot: string; badge: string }
+> = {
+  blue: {
+    dot: "bg-blue-500",
+    badge: "bg-blue-500/20 text-blue-700 border border-blue-500/30",
+  },
+  red: {
+    dot: "bg-red-500",
+    badge: "bg-red-500/20 text-red-700 border border-red-500/30",
+  },
+  green: {
+    dot: "bg-green-500",
+    badge: "bg-green-500/20 text-green-700 border border-green-500/30",
+  },
+  yellow: {
+    dot: "bg-yellow-500",
+    badge: "bg-yellow-500/20 text-yellow-700 border border-yellow-500/30",
+  },
+  purple: {
+    dot: "bg-purple-500",
+    badge: "bg-purple-500/20 text-purple-700 border border-purple-500/30",
+  },
+  pink: {
+    dot: "bg-pink-500",
+    badge: "bg-pink-500/20 text-pink-700 border border-pink-500/30",
+  },
+  orange: {
+    dot: "bg-orange-500",
+    badge: "bg-orange-500/20 text-orange-700 border border-orange-500/30",
+  },
+  cyan: {
+    dot: "bg-cyan-500",
+    badge: "bg-cyan-500/20 text-cyan-700 border border-cyan-500/30",
+  },
+  amber: {
+    dot: "bg-amber-500",
+    badge: "bg-amber-500/20 text-amber-700 border border-amber-500/30",
+  },
+  violet: {
+    dot: "bg-violet-500",
+    badge: "bg-violet-500/20 text-violet-700 border border-violet-500/30",
+  },
+  emerald: {
+    dot: "bg-emerald-500",
+    badge: "bg-emerald-500/20 text-emerald-700 border border-emerald-500/30",
+  },
+  slate: {
+    dot: "bg-slate-500",
+    badge: "bg-slate-500/20 text-slate-700 border border-slate-500/30",
+  },
+};
 export function FAQManagement() {
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [categories, setCategories] = useState<FAQCategory[]>([]);
@@ -117,6 +187,19 @@ export function FAQManagement() {
   const getCategoryName = (categoryId: string) => {
     const category = categories.find((c) => c.id === categoryId);
     return category?.name || "Unknown";
+  };
+
+  const getCategoryById = (categoryId: string) => {
+    return categories.find((c) => c.id === categoryId) || null;
+  };
+
+  const getCategoryColor = (categoryName?: string) => {
+    if (!categoryName) return FAQ_COLOR_CLASSES.blue;
+    const hash = categoryName
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const key = FAQ_COLOR_KEYS[hash % FAQ_COLOR_KEYS.length];
+    return FAQ_COLOR_CLASSES[key];
   };
 
   const handleOpenEdit = (faq?: FAQ) => {
@@ -286,7 +369,15 @@ export function FAQManagement() {
                 <SelectItem value="all">All Categories</SelectItem>
                 {categories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.id}>
-                    {cat.name}
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={cn(
+                          "h-2.5 w-2.5 rounded-full",
+                          getCategoryColor(cat.name).dot
+                        )}
+                      />
+                      <span>{cat.name}</span>
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -323,16 +414,34 @@ export function FAQManagement() {
                     <div className="space-y-3">
                       {/* Header with badges */}
                       <div className="flex items-start justify-between gap-4">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Badge className="bg-primary/20 text-primary text-xs sm:text-xs">
-                            {getCategoryName(faq.category_id)}
-                          </Badge>
-                          {!faq.is_active && (
-                            <Badge variant="outline" className="text-xs text-muted-foreground">
-                              Inactive
-                            </Badge>
-                          )}
-                        </div>
+                        {(() => {
+                          const category = getCategoryById(faq.category_id);
+                          const categoryName = category?.name || "Unknown";
+                          const categoryColor = getCategoryColor(categoryName);
+                          return (
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <Badge
+                                className={cn(
+                                  "text-xs sm:text-xs",
+                                  categoryColor.badge
+                                )}
+                              >
+                                <span
+                                  className={cn(
+                                    "h-2 w-2 rounded-full mr-1.5",
+                                    categoryColor.dot
+                                  )}
+                                />
+                                {categoryName}
+                              </Badge>
+                              {!faq.is_active && (
+                                <Badge variant="outline" className="text-xs text-muted-foreground">
+                                  Inactive
+                                </Badge>
+                              )}
+                            </div>
+                          );
+                        })()}
                         <div className="flex gap-2 shrink-0">
                           <Button
                             variant="ghost"
@@ -428,7 +537,15 @@ export function FAQManagement() {
                 <SelectContent>
                   {categories.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
-                      {cat.name}
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={cn(
+                            "h-2.5 w-2.5 rounded-full",
+                            getCategoryColor(cat.name).dot
+                          )}
+                        />
+                        <span>{cat.name}</span>
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -509,3 +626,7 @@ export function FAQManagement() {
     </div>
   );
 }
+
+
+
+

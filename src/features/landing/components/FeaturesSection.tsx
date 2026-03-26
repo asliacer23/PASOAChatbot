@@ -63,13 +63,13 @@ export function FeaturesSection() {
       <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center space-y-4 mb-12 md:mb-20">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight">
             <span className="block text-foreground mb-2">Powerful Features</span>
             <span className="block bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 bg-clip-text text-transparent">
               Built for Student Success
             </span>
           </h2>
-          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto font-medium">
             Everything you need to stay connected, informed, and supported throughout your college journey.
           </p>
         </div>

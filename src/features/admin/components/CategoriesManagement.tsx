@@ -79,6 +79,77 @@ const COLOR_OPTIONS = [
   "slate",
 ];
 
+
+const ANNOUNCEMENT_COLOR_CLASSES: Record<
+  string,
+  { swatch: string; dot: string; badge: string }
+> = {
+  blue: {
+    swatch: "bg-blue-500",
+    dot: "bg-blue-500",
+    badge: "bg-blue-500/20 text-blue-700 border border-blue-500/30",
+  },
+  red: {
+    swatch: "bg-red-500",
+    dot: "bg-red-500",
+    badge: "bg-red-500/20 text-red-700 border border-red-500/30",
+  },
+  green: {
+    swatch: "bg-green-500",
+    dot: "bg-green-500",
+    badge: "bg-green-500/20 text-green-700 border border-green-500/30",
+  },
+  yellow: {
+    swatch: "bg-yellow-500",
+    dot: "bg-yellow-500",
+    badge: "bg-yellow-500/20 text-yellow-700 border border-yellow-500/30",
+  },
+  purple: {
+    swatch: "bg-purple-500",
+    dot: "bg-purple-500",
+    badge: "bg-purple-500/20 text-purple-700 border border-purple-500/30",
+  },
+  pink: {
+    swatch: "bg-pink-500",
+    dot: "bg-pink-500",
+    badge: "bg-pink-500/20 text-pink-700 border border-pink-500/30",
+  },
+  orange: {
+    swatch: "bg-orange-500",
+    dot: "bg-orange-500",
+    badge: "bg-orange-500/20 text-orange-700 border border-orange-500/30",
+  },
+  cyan: {
+    swatch: "bg-cyan-500",
+    dot: "bg-cyan-500",
+    badge: "bg-cyan-500/20 text-cyan-700 border border-cyan-500/30",
+  },
+  amber: {
+    swatch: "bg-amber-500",
+    dot: "bg-amber-500",
+    badge: "bg-amber-500/20 text-amber-700 border border-amber-500/30",
+  },
+  violet: {
+    swatch: "bg-violet-500",
+    dot: "bg-violet-500",
+    badge: "bg-violet-500/20 text-violet-700 border border-violet-500/30",
+  },
+  emerald: {
+    swatch: "bg-emerald-500",
+    dot: "bg-emerald-500",
+    badge: "bg-emerald-500/20 text-emerald-700 border border-emerald-500/30",
+  },
+  slate: {
+    swatch: "bg-slate-500",
+    dot: "bg-slate-500",
+    badge: "bg-slate-500/20 text-slate-700 border border-slate-500/30",
+  },
+};
+
+const getAnnouncementColorClasses = (color: string | null | undefined) => {
+  const key = color || "blue";
+  return ANNOUNCEMENT_COLOR_CLASSES[key] || ANNOUNCEMENT_COLOR_CLASSES.blue;
+};
 const LUCIDE_ICONS = [
   "Briefcase",
   "BookOpen",
@@ -431,18 +502,18 @@ export function CategoriesManagement() {
 
       {/* Tabs */}
       <Tabs defaultValue="faq" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="faq">FAQ Categories</TabsTrigger>
-          <TabsTrigger value="announcement">Announcement Categories</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 h-auto p-1 gap-1">
+          <TabsTrigger value="faq" className="text-xs sm:text-sm leading-tight px-2 py-2 whitespace-normal">FAQ Categories</TabsTrigger>
+          <TabsTrigger value="announcement" className="text-xs sm:text-sm leading-tight px-2 py-2 whitespace-normal">Announcement Categories</TabsTrigger>
         </TabsList>
 
         {/* FAQ Categories Tab */}
         <TabsContent value="faq" className="space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <h3 className="text-lg font-semibold">FAQ Categories</h3>
             <Button
               onClick={() => handleOpenFaqEdit()}
-              className="bg-gradient-to-r from-primary to-primary/80 hover:shadow-lg transition-all rounded-lg"
+              className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary/80 hover:shadow-lg transition-all rounded-lg"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add FAQ Category
@@ -473,7 +544,7 @@ export function CategoriesManagement() {
                   className="border-border/50 hover:shadow-lg transition-all group"
                 >
                   <CardContent className="p-4 sm:p-6">
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-2">
                           <h4 className="font-semibold text-base">
@@ -499,11 +570,11 @@ export function CategoriesManagement() {
                           </span>
                         </div>
                       </div>
-                      <div className="flex gap-2 shrink-0">
+                      <div className="flex gap-2 shrink-0 self-end sm:self-auto">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 hover:bg-accent"
+                          className="h-9 w-9 hover:bg-accent"
                           onClick={() => handleOpenFaqEdit(category)}
                         >
                           <Edit2 className="h-4 w-4" />
@@ -511,7 +582,7 @@ export function CategoriesManagement() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                          className="h-9 w-9 text-destructive hover:bg-destructive/10"
                           onClick={() => {
                             setEditingFaqCategory(category);
                             setDeleteType("faq");
@@ -531,11 +602,11 @@ export function CategoriesManagement() {
 
         {/* Announcement Categories Tab */}
         <TabsContent value="announcement" className="space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <h3 className="text-lg font-semibold">Announcement Categories</h3>
             <Button
               onClick={() => handleOpenAnnouncementEdit()}
-              className="bg-gradient-to-r from-primary to-primary/80 hover:shadow-lg transition-all rounded-lg"
+              className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary/80 hover:shadow-lg transition-all rounded-lg"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Announcement Category
@@ -566,12 +637,12 @@ export function CategoriesManagement() {
                   className="border-border/50 hover:shadow-lg transition-all group"
                 >
                   <CardContent className="p-4 sm:p-6">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-3 flex-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <div className="flex items-center gap-3 flex-1 w-full">
                         <div
                           className={cn(
                             "w-4 h-4 rounded-full",
-                            `bg-${category.color}-500`
+                            getAnnouncementColorClasses(category.color).dot
                           )}
                         />
                         <h4 className="font-semibold text-base">
@@ -581,11 +652,11 @@ export function CategoriesManagement() {
                           {category.color}
                         </Badge>
                       </div>
-                      <div className="flex gap-2 shrink-0">
+                      <div className="flex gap-2 shrink-0 self-end sm:self-auto">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 hover:bg-accent"
+                          className="h-9 w-9 hover:bg-accent"
                           onClick={() => handleOpenAnnouncementEdit(category)}
                         >
                           <Edit2 className="h-4 w-4" />
@@ -593,7 +664,7 @@ export function CategoriesManagement() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                          className="h-9 w-9 text-destructive hover:bg-destructive/10"
                           onClick={() => {
                             setEditingAnnouncementCategory(category);
                             setDeleteType("announcement");
@@ -614,7 +685,7 @@ export function CategoriesManagement() {
 
       {/* FAQ Category Dialog */}
       <Dialog open={showFaqDialog} onOpenChange={setShowFaqDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>
               {editingFaqCategory
@@ -667,7 +738,7 @@ export function CategoriesManagement() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
               <div className="space-y-2.5">
                 <Label htmlFor="faq-icon">Icon (Optional)</Label>
                 <Select
@@ -729,11 +800,11 @@ export function CategoriesManagement() {
             </div>
           </div>
 
-          <DialogFooter className="gap-3 mt-8 pt-6 border-t border-border/20">
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-3 mt-8 pt-6 border-t border-border/20">
             <Button
               variant="outline"
               onClick={() => setShowFaqDialog(false)}
-              className="rounded-xl h-10"
+              className="w-full sm:w-auto rounded-xl h-10"
             >
               <X className="h-4 w-4 mr-2" />
               Cancel
@@ -741,7 +812,7 @@ export function CategoriesManagement() {
             <Button
               onClick={handleSaveFaqCategory}
               disabled={isSaving}
-              className="bg-gradient-to-r from-primary to-primary/80 rounded-xl h-10"
+              className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary/80 rounded-xl h-10"
             >
               {isSaving ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -759,7 +830,7 @@ export function CategoriesManagement() {
         open={showAnnouncementDialog}
         onOpenChange={setShowAnnouncementDialog}
       >
-        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>
               {editingAnnouncementCategory
@@ -792,7 +863,7 @@ export function CategoriesManagement() {
 
             <div className="space-y-3">
               <Label>Category Color</Label>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                 {COLOR_OPTIONS.map((color) => (
                   <button
                     key={color}
@@ -807,7 +878,7 @@ export function CategoriesManagement() {
                       announcementFormData.color === color
                         ? "border-foreground scale-105"
                         : "border-transparent opacity-50 hover:opacity-100",
-                      `bg-${color}-500`
+                      getAnnouncementColorClasses(color).swatch
                     )}
                     title={color}
                   />
@@ -820,7 +891,7 @@ export function CategoriesManagement() {
                 <p className="text-sm text-muted-foreground mb-2">Preview:</p>
                 <span className={cn(
                   "inline-block px-4 py-2 rounded-lg text-sm font-medium",
-                  `bg-${announcementFormData.color}-500/20 text-${announcementFormData.color}-700 border border-${announcementFormData.color}-500/30`
+                  getAnnouncementColorClasses(announcementFormData.color).badge
                 )}>
                   {announcementFormData.name || "Category"}
                 </span>
@@ -828,11 +899,11 @@ export function CategoriesManagement() {
             )}
           </div>
 
-          <DialogFooter className="gap-3 mt-8 pt-6 border-t border-border/20">
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-3 mt-8 pt-6 border-t border-border/20">
             <Button
               variant="outline"
               onClick={() => setShowAnnouncementDialog(false)}
-              className="rounded-xl h-10"
+              className="w-full sm:w-auto rounded-xl h-10"
             >
               <X className="h-4 w-4 mr-2" />
               Cancel
@@ -840,7 +911,7 @@ export function CategoriesManagement() {
             <Button
               onClick={handleSaveAnnouncementCategory}
               disabled={isSaving}
-              className="bg-gradient-to-r from-primary to-primary/80 rounded-xl h-10"
+              className="w-full sm:w-auto bg-gradient-to-r from-primary to-primary/80 rounded-xl h-10"
             >
               {isSaving ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -880,3 +951,7 @@ export function CategoriesManagement() {
     </div>
   );
 }
+
+
+
+

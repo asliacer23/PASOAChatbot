@@ -68,13 +68,13 @@ export function EventsPreviewSection() {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-8 mb-12 md:mb-16">
           <div className="space-y-4">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight">
               <span className="block text-foreground mb-2">Upcoming Events</span>
               <span className="block bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 bg-clip-text text-transparent">
                 Don't Miss Out
               </span>
             </h2>
-            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl">
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl font-medium">
               Discover and register for exciting campus events. Connect with fellow students and expand your network.
             </p>
           </div>

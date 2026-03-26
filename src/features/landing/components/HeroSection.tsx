@@ -21,54 +21,54 @@ export function HeroSection() {
           {/* Left Content */}
           <div className="space-y-4 sm:space-y-6 md:space-y-8 order-1">
             {/* Headlines */}
-            <div className="space-y-3 sm:space-y-4">
-              <h1 className="text-2xl sm:text-3xl md:text-6xl font-bold leading-tight">
-                <span className="block text-foreground">Your Digital Home for</span>
-                <span className="block bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 bg-clip-text text-transparent">
+            <div className="space-y-3 sm:space-y-5">
+              <h1 className="text-3xl sm:text-4xl md:text-7xl font-black leading-tight tracking-tight">
+                <span className="block text-foreground drop-shadow-lg">Your Digital Home for</span>
+                <span className="block bg-gradient-to-r from-purple-600 via-violet-600 to-indigo-600 bg-clip-text text-transparent drop-shadow-lg font-black">
                   PASOA Students
                 </span>
               </h1>
 
-              <p className="text-xs sm:text-sm md:text-lg text-muted-foreground max-w-md leading-relaxed">
+              <p className="text-sm sm:text-base md:text-xl text-muted-foreground max-w-md leading-relaxed font-medium">
                 Announcements, Events, Chat Support, and Everything You Need — All in One Place. Stay connected with your college community 24/7.
               </p>
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2 sm:pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-3 sm:pt-6">
               <Button
-                size="sm"
+                size="lg"
                 onClick={() => navigate("/auth")}
-                className="rounded-lg md:rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 text-xs sm:text-sm md:text-base font-semibold group"
+                className="rounded-lg md:rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 hover:shadow-2xl hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 text-sm md:text-base font-bold group"
               >
                 Get Started
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button
-                size="sm"
+                size="lg"
                 variant="outline"
                 onClick={() => navigate("/auth")}
-                className="rounded-lg md:rounded-xl border-2 hover:bg-accent text-xs sm:text-sm md:text-base font-semibold"
+                className="rounded-lg md:rounded-xl border-2 hover:bg-accent text-sm md:text-base font-bold"
               >
                 Sign In
               </Button>
             </div>
 
             {/* Trust Badges */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-3 sm:pt-6 border-t border-border/40">
+            <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 pt-4 sm:pt-8 border-t border-border/40">
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
                   Trusted by
                 </p>
-                <p className="text-xs sm:text-sm font-semibold text-foreground mt-1">
+                <p className="text-sm sm:text-base font-bold text-foreground mt-2">
                   PASOA Students
                 </p>
               </div>
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
                   Privacy
                 </p>
-                <p className="text-xs sm:text-sm font-semibold text-foreground mt-1">
+                <p className="text-sm sm:text-base font-bold text-foreground mt-2">
                   RA 10173 Compliant
                 </p>
               </div>

@@ -9,7 +9,7 @@ export function ChatbotDemoSection() {
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-violet-500/5 rounded-full blur-3xl" />
       </div>
 
-      <div className=\"relative z-10 w-full px-4 sm:px-6 lg:px-8\">
+      <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Left Content */}
@@ -68,3 +68,4 @@ export function ChatbotDemoSection() {
     </section>
   );
 }
+

@@ -77,7 +77,7 @@ const teamMembers: TeamMember[] = [
     role: "Research Team",
     description: "",
     category: "member",
-    image: "/images/team/members/ANGELICA C. BELTRAN.png",
+    image: "/images/team/members/ANGELICA C. BELTRAN.jpg",
     arcIndex: 6,
   },
   {
@@ -133,6 +133,24 @@ const teamMembers: TeamMember[] = [
     category: "member",
     image: "/images/team/members/PERCEL DT. MOSENDE.png",
     arcIndex: 12,
+  },
+  {
+    id: "member-11",
+    name: "JEROME YRREJ S. EBAJO",
+    role: "Research Team",
+    description: "",
+    category: "member",
+    image: "/images/team/members/JEROME YRREJ S. EBAJO.png",
+    arcIndex: 13,
+  },
+  {
+    id: "member-12",
+    name: "PRINCESS O. SIAZON",
+    role: "Research Team",
+    description: "",
+    category: "member",
+    image: "/images/team/members/PRINCESS O. SIAZON.png",
+    arcIndex: 14,
   },
 ];
 

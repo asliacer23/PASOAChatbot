@@ -26,7 +26,7 @@ export function CTASection() {
 
           {/* Headline */}
           <div className="space-y-4">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight">
               <span className="block text-foreground mb-2">
                 Join the PASOA Student Hub
               </span>
@@ -34,7 +34,7 @@ export function CTASection() {
                 Community Today
               </span>
             </h2>
-            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">
               Get instant access to announcements, events, real-time chat support, and everything you need to succeed at PASOA. Join hundreds of your classmates already on PASOA Student Hub.
             </p>
           </div>

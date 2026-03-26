@@ -41,19 +41,19 @@ export function LandingNavigation() {
                 <Link
                   key={link.label}
                   to={link.href}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 relative group"
+                  className="text-sm sm:text-base font-bold text-foreground hover:text-primary transition-colors duration-200 relative group uppercase tracking-wide"
                 >
                   {link.label}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-violet-600 group-hover:w-full transition-all duration-300" />
+                  <span className="absolute bottom-0 left-0 w-0 h-1 bg-gradient-to-r from-purple-600 to-violet-600 group-hover:w-full transition-all duration-300" />
                 </Link>
               ) : (
                 <a
                   key={link.label}
                   href={link.href}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 relative group"
+                  className="text-sm sm:text-base font-bold text-foreground hover:text-primary transition-colors duration-200 relative group uppercase tracking-wide"
                 >
                   {link.label}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-violet-600 group-hover:w-full transition-all duration-300" />
+                  <span className="absolute bottom-0 left-0 w-0 h-1 bg-gradient-to-r from-purple-600 to-violet-600 group-hover:w-full transition-all duration-300" />
                 </a>
               )
             )}
@@ -104,7 +104,7 @@ export function LandingNavigation() {
                     key={link.label}
                     to={link.href}
                     onClick={() => setIsOpen(false)}
-                    className="block px-3 py-2 text-sm font-medium rounded-lg hover:bg-accent transition-colors"
+                    className="block px-3 py-2 text-sm font-bold rounded-lg hover:bg-accent hover:text-primary transition-colors uppercase tracking-wide"
                   >
                     {link.label}
                   </Link>
@@ -113,7 +113,7 @@ export function LandingNavigation() {
                     key={link.label}
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className="block px-3 py-2 text-sm font-medium rounded-lg hover:bg-accent transition-colors"
+                    className="block px-3 py-2 text-sm font-bold rounded-lg hover:bg-accent hover:text-primary transition-colors uppercase tracking-wide"
                   >
                     {link.label}
                   </a>
