@@ -62,7 +62,7 @@ export function CTASection() {
           {/* Trust Message */}
           <div className="pt-4 border-t border-border/40">
             <p className="text-sm text-muted-foreground">
-              ✓ Free to join • ✓ Privacy compliant (RA 10173)
+              Free to join • Privacy compliant (RA 10173)
             </p>
           </div>
         </div>

@@ -47,7 +47,7 @@ const teamMembers: TeamMember[] = [
   {
     id: "member-1",
     name: "ABDUL MADID H. POLANGI",
-    role: "Research Team",
+    role: "Member",
     description: "",
     category: "member",
     image: "/images/team/members/ABDUL MADID H. POLANGI.png",
@@ -56,7 +56,7 @@ const teamMembers: TeamMember[] = [
   {
     id: "member-2",
     name: "AIRA L. ALARCON",
-    role: "Research Team",
+    role: "Member",
     description: "",
     category: "member",
     image: "/images/team/members/AIRA L. ALARCON.png",
@@ -65,7 +65,7 @@ const teamMembers: TeamMember[] = [
   {
     id: "member-3",
     name: "ALEA MAE C. CHAVEZ",
-    role: "Research Team",
+    role: "Member",
     description: "",
     category: "member",
     image: "/images/team/members/ALEA MAE C. CHAVEZ.png",
@@ -74,7 +74,7 @@ const teamMembers: TeamMember[] = [
   {
     id: "member-4",
     name: "ANGELICA C. BELTRAN",
-    role: "Research Team",
+    role: "Member",
     description: "",
     category: "member",
     image: "/images/team/members/ANGELICA C. BELTRAN.jpg",
@@ -83,7 +83,7 @@ const teamMembers: TeamMember[] = [
   {
     id: "member-5",
     name: "GARVIN ROSS L. BALANDAY",
-    role: "Research Team",
+    role: "Member",
     description: "",
     category: "member",
     image: "/images/team/members/GARVIN ROSS L. BALANDAY.png",
@@ -92,7 +92,7 @@ const teamMembers: TeamMember[] = [
   {
     id: "member-6",
     name: "GIFT VINIEZ N. GUECO",
-    role: "Research Team",
+    role: "Member",
     description: "",
     category: "member",
     image: "/images/team/members/GIFT VINIEZ N. GUECO.png",
@@ -101,7 +101,7 @@ const teamMembers: TeamMember[] = [
   {
     id: "member-7",
     name: "JHASTINE ALVI N. IMBUIDO",
-    role: "Research Team",
+    role: "Member",
     description: "",
     category: "member",
     image: "/images/team/members/JHASTINE ALVI N. IMBUIDO.png",
@@ -110,7 +110,7 @@ const teamMembers: TeamMember[] = [
   {
     id: "member-8",
     name: "JOHN MARK G. PAIMAN",
-    role: "Research Team",
+    role: "Member",
     description: "",
     category: "member",
     image: "/images/team/members/JOHN MARK G. PAIMAN.png",
@@ -119,7 +119,7 @@ const teamMembers: TeamMember[] = [
   {
     id: "member-9",
     name: "NICOLE C. ARAULLO",
-    role: "Research Team",
+    role: "Member",
     description: "",
     category: "member",
     image: "/images/team/members/NICOLE C. ARAULLO.png",
@@ -128,7 +128,7 @@ const teamMembers: TeamMember[] = [
   {
     id: "member-10",
     name: "PERCEL DT. MOSENDE",
-    role: "Research Team",
+    role: "Member",
     description: "",
     category: "member",
     image: "/images/team/members/PERCEL DT. MOSENDE.png",
@@ -137,7 +137,7 @@ const teamMembers: TeamMember[] = [
   {
     id: "member-11",
     name: "JEROME YRREJ S. EBAJO",
-    role: "Research Team",
+    role: "Member",
     description: "",
     category: "member",
     image: "/images/team/members/JEROME YRREJ S. EBAJO.png",
@@ -146,7 +146,7 @@ const teamMembers: TeamMember[] = [
   {
     id: "member-12",
     name: "PRINCESS O. SIAZON",
-    role: "Research Team",
+    role: "Member",
     description: "",
     category: "member",
     image: "/images/team/members/PRINCESS O. SIAZON.png",
