@@ -4,11 +4,8 @@ import {
   MessageCircle,
   HelpCircle,
   Bell,
-  User,
-  Settings,
   LayoutDashboard,
   Users,
-  FileText,
   BarChart3,
   LogOut,
   Calendar,
@@ -189,6 +186,7 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
     </aside>
   );
 }
+
 
 
 

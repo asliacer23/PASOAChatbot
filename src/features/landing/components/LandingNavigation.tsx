@@ -23,7 +23,14 @@ export function LandingNavigation() {
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 font-bold text-lg group">
+          <Link
+            to="/"
+            onClick={() => {
+              setIsOpen(false);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            className="flex items-center gap-2 font-bold text-lg group"
+          >
             <img
               src={pasoaLogo}
               alt="PASOA Logo"
@@ -147,4 +154,3 @@ export function LandingNavigation() {
     </nav>
   );
 }
-

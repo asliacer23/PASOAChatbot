@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Plus, Edit2, Trash2, Loader2, Save, X, HelpCircle, Eye, MessageCircle, TrendingUp } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, Save, X, HelpCircle, Eye, MessageCircle, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { CardSectionSkeleton, FormSkeleton } from "./AdminSkeletonLoaders";
 
 interface FAQCategory {
   id: string;
@@ -388,9 +389,12 @@ export function FAQManagement() {
 
       {/* FAQ List */}
       {isLoading ? (
-        <div className="flex flex-col items-center justify-center py-16">
-          <Loader2 className="h-8 w-8 md:h-10 md:w-10 animate-spin text-primary mb-3" />
-          <p className="text-sm text-muted-foreground">Loading FAQs...</p>
+        <div className="space-y-3 sm:space-y-4">
+          <CardSectionSkeleton />
+          <CardSectionSkeleton />
+          <CardSectionSkeleton />
+          <CardSectionSkeleton />
+          <CardSectionSkeleton />
         </div>
       ) : (
         <div>

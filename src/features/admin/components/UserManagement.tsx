@@ -61,6 +61,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { DataTableSkeleton, ListSkeleton } from "./AdminSkeletonLoaders";
 
 type UserStatus = "active" | "inactive" | "suspended";
 
@@ -424,9 +425,8 @@ export function UserManagement() {
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-12 md:py-16">
-              <Loader2 className="h-8 w-8 md:h-10 md:w-10 animate-spin text-primary mb-3" />
-              <p className="text-sm text-muted-foreground">Loading users...</p>
+            <div className="p-4">
+              <DataTableSkeleton rows={6} columns={5} />
             </div>
           ) : (
             <>

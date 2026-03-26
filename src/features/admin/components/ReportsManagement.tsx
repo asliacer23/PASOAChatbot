@@ -8,7 +8,6 @@ import {
   Bell,
   Calendar,
   Download,
-  Loader2,
   TrendingDown,
   Activity,
   PieChart,
@@ -30,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { MetricGridSkeleton, ProgressListSkeleton } from "./AdminSkeletonLoaders";
 
 interface Stats {
   totalUsers: number;
@@ -113,9 +113,9 @@ export function ReportsManagement() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-16">
-        <Loader2 className="h-8 w-8 md:h-10 md:w-10 animate-spin text-primary mb-3" />
-        <p className="text-sm text-muted-foreground">Loading reports...</p>
+      <div className="space-y-6 md:space-y-8">
+        <MetricGridSkeleton count={6} />
+        <ProgressListSkeleton items={8} />
       </div>
     );
   }

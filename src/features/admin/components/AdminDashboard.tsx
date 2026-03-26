@@ -6,7 +6,6 @@ import {
   HelpCircle,
   Bell,
   LayoutDashboard,
-  Loader2,
   Activity,
   CalendarDays,
   BarChart,
@@ -31,6 +30,11 @@ import { ContentManagement } from "./ContentManagement";
 import { ReportsManagement } from "./ReportsManagement";
 import { SystemSettings } from "./SystemSettings";
 import { EventsManagement } from "@/features/events/components/EventsManagement";
+import {
+  MetricGridSkeleton,
+  ProgressListSkeleton,
+  CardSectionSkeleton,
+} from "./AdminSkeletonLoaders";
 
 interface DashboardStats {
   totalUsers: number;
@@ -152,8 +156,21 @@ export function AdminDashboard() {
         >
           <TabsContent value="dashboard" className="space-y-6 md:space-y-8">
             {isLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+              <div className="space-y-6 md:space-y-8">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <LayoutDashboard className="h-5 w-5 text-primary" />
+                      <div className="h-8 w-48 bg-muted rounded animate-pulse" />
+                    </div>
+                    <div className="h-4 w-96 bg-muted rounded animate-pulse" />
+                  </div>
+                </div>
+                <CardSectionSkeleton />
+                <CardSectionSkeleton />
+                <div>
+                  <MetricGridSkeleton count={4} />
+                </div>
               </div>
             ) : (
               <>

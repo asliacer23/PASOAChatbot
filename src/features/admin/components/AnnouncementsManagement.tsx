@@ -8,7 +8,6 @@ import {
   EyeOff,
   Pin,
   AlertTriangle,
-  Loader2,
   Calendar,
   Search,
   CheckCircle,
@@ -39,6 +38,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { CardSectionSkeleton } from "./AdminSkeletonLoaders";
 
 interface Announcement {
   id: string;
@@ -273,9 +273,12 @@ export function AnnouncementsManagement() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-16">
-        <Loader2 className="h-8 w-8 md:h-10 md:w-10 animate-spin text-primary mb-3" />
-        <p className="text-sm text-muted-foreground">Loading announcements...</p>
+      <div className="space-y-6 md:space-y-8">
+        <CardSectionSkeleton />
+        <CardSectionSkeleton />
+        <CardSectionSkeleton />
+        <CardSectionSkeleton />
+        <CardSectionSkeleton />
       </div>
     );
   }

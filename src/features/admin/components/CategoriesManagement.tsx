@@ -46,6 +46,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { CardSectionSkeleton } from "./AdminSkeletonLoaders";
 
 interface FAQCategory {
   id: string;
@@ -476,11 +477,10 @@ export function CategoriesManagement() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-16">
-        <Loader2 className="h-8 w-8 md:h-10 md:w-10 animate-spin text-primary mb-3" />
-        <p className="text-sm text-muted-foreground">
-          Loading categories...
-        </p>
+      <div className="space-y-6 md:space-y-8">
+        <CardSectionSkeleton />
+        <CardSectionSkeleton />
+        <CardSectionSkeleton />
       </div>
     );
   }

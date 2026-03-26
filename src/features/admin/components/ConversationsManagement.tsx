@@ -6,7 +6,6 @@ import {
   Bot,
   Send,
   Clock,
-  Loader2,
   ArrowLeft,
   MoreHorizontal,
   Lock,
@@ -47,6 +46,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { ConversationListSkeleton } from "./AdminSkeletonLoaders";
 
 interface Conversation {
   id: string;
@@ -516,8 +516,18 @@ export function ConversationsManagement() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex flex-col h-screen bg-background overflow-hidden -mx-4 -my-6">
+        <div className="px-4 sm:px-6 py-4 border-b border-border/50 bg-gradient-to-r from-background to-secondary/5 shrink-0">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5 text-primary" />
+              <h2 className="text-2xl md:text-3xl font-bold">Conversation Management</h2>
+            </div>
+          </div>
+        </div>
+        <div className="flex-1 p-4 sm:p-6">
+          <ConversationListSkeleton items={8} />
+        </div>
       </div>
     );
   }
