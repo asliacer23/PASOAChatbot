@@ -134,7 +134,7 @@ export function ChatPage() {
         // Create initial greeting message
         if (data) {
           const greetingMessage =
-            "Hello! I'm PASOA Bot, here to help you with any questions about CBA and campus life. What would you like to know today?";
+            "Hello! I’m PASOAbot, your digital assistant for all things related to our organization. Whether you have questions about academic requirements, upcoming events, or general inquiries, I’m here to help. What can I assist you with today?";
 
           await supabase.from("messages").insert({
             conversation_id: data.id,
@@ -417,7 +417,7 @@ export function ChatPage() {
         
         // Send initial greeting message with suggestions
         try {
-          const greetingMessage = "Hello! I'm PASOA Bot, here to help you with any questions about CBA and campus life. What would you like to know today?";
+          const greetingMessage = "Hello! I’m PASOAbot, your digital assistant for all things related to our organization. Whether you have questions about academic requirements, upcoming events, or general inquiries, I’m here to help. What can I assist you with today?";
           
           const { data: botMsg, error: botMsgError } = await supabase
             .from("messages")
@@ -622,7 +622,7 @@ export function ChatPage() {
                         </p>
                         <button
                           onClick={() => setShowSuggestions(false)}
-                          className="text-[10px] sm:text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors underline"
+                          className="text-[10px] sm:text-xs text-muted-foreground/60 hover:text-muted-foreground transition-all duration-200 underline underline-offset-2 decoration-1 hover:decoration-2 hover:decoration-muted-foreground"
                         >
                           Hide
                         </button>
@@ -649,7 +649,7 @@ export function ChatPage() {
                   {suggestedQuestions.length > 0 && !showSuggestions && (
                     <button
                       onClick={() => setShowSuggestions(true)}
-                      className="text-xs sm:text-sm text-primary hover:text-primary/80 transition-colors underline font-medium mt-2"
+                      className="text-xs sm:text-sm text-primary hover:text-primary/80 transition-all duration-200 underline underline-offset-2 decoration-2 font-medium mt-2 hover:decoration-4 hover:decoration-primary/60"
                     >
                       Show Suggestions
                     </button>

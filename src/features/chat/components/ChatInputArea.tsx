@@ -118,9 +118,10 @@ export function ChatInputArea({
       {suggestions.length > 0 && !showSuggestions && (
         <button
           onClick={() => onToggleSuggestions?.(true)}
-          className="text-xs sm:text-sm text-primary hover:text-primary/80 transition-colors underline font-medium px-1"
+          className="text-xs sm:text-sm text-primary hover:text-primary/80 transition-colors font-medium px-1 flex items-center gap-1"
         >
-          💡 Show Suggestions
+          <span className="no-underline">💡</span>
+          <span className="underline underline-offset-2 decoration-1 hover:decoration-2">Show Suggestions</span>
         </button>
       )}
 

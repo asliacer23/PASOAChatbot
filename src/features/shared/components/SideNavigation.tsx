@@ -65,10 +65,15 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
     >
       {/* Header */}
       <div className="flex items-center justify-between h-14 lg:h-16 px-3 lg:px-4 border-b border-sidebar-border">
-        <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="flex items-center gap-2 rounded-md px-1.5 py-1 transition-colors hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+          title="Refresh page"
+        >
           <PasoaMascot size="xs" mood="happy" animate={false} />
           <span className="font-semibold text-sidebar-foreground text-sm lg:text-base">PASOA Student Hub</span>
-        </div>
+        </button>
         {isMobile && (
           <Button
             variant="ghost"
@@ -85,11 +90,16 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
       {/* User Info */}
       {profile && (
         <div className="px-3 lg:px-4 py-2.5 lg:py-3 border-b border-sidebar-border">
-          <div className="flex items-center gap-2 lg:gap-3">
+          <NavLink
+            to="/profile"
+            onClick={onCloseSidebar}
+            className="flex items-center gap-2 lg:gap-3 rounded-xl px-2 py-1.5 transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+            activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+          >
             <div className="h-8 w-8 lg:h-9 lg:w-9 rounded-full bg-gradient-primary flex items-center justify-center shrink-0 overflow-hidden">
               {profile.avatar_url ? (
-                <img 
-                  src={profile.avatar_url} 
+                <img
+                  src={profile.avatar_url}
                   alt={`${profile.first_name} ${profile.last_name}`}
                   className="w-full h-full object-cover"
                 />
@@ -107,7 +117,7 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
                 {isAdmin ? "Administrator" : "Student"}
               </p>
             </div>
-          </div>
+          </NavLink>
         </div>
       )}
 
@@ -180,4 +190,5 @@ export function SideNavigation({ onCloseSidebar }: { onCloseSidebar?: () => void
     </aside>
   );
 }
+
 
