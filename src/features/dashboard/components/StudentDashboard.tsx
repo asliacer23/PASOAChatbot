@@ -105,9 +105,9 @@ export function StudentDashboard() {
           <div className="shrink-0">
             <PasoaMascot size="lg" mood="waving" />
           </div>
-          <div className="space-y-2 text-center sm:text-left flex-1">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent leading-tight">
-              {getGreeting()}, <span className="text-primary">{profile?.first_name || "PASOAnian"}!</span>
+          <div className="space-y-4 text-center sm:text-left flex-1">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-relaxed px-2 py-3">
+              <span className="bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">{getGreeting()},</span> <span className="text-primary">{profile?.first_name || "PASOAnian"}!</span>
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground">
               Your digital assistant is here to help. How can we assist you today?

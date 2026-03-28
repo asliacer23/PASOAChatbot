@@ -622,7 +622,7 @@ export function ChatPage() {
                         </p>
                         <button
                           onClick={() => setShowSuggestions(false)}
-                          className="text-[10px] sm:text-xs text-muted-foreground/60 hover:text-muted-foreground transition-all duration-200 underline underline-offset-2 decoration-1 hover:decoration-2 hover:decoration-muted-foreground"
+                          className="text-[10px] sm:text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors underline"
                         >
                           Hide
                         </button>
@@ -649,7 +649,7 @@ export function ChatPage() {
                   {suggestedQuestions.length > 0 && !showSuggestions && (
                     <button
                       onClick={() => setShowSuggestions(true)}
-                      className="text-xs sm:text-sm text-primary hover:text-primary/80 transition-all duration-200 underline underline-offset-2 decoration-2 font-medium mt-2 hover:decoration-4 hover:decoration-primary/60"
+                      className="text-xs sm:text-sm text-primary hover:text-primary/80 transition-colors underline font-medium mt-2"
                     >
                       Show Suggestions
                     </button>

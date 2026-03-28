@@ -337,19 +337,19 @@ export function AcknowledgementsPage() {
             <h3 className="text-2xl font-bold">About This Project</h3>
           </div>
           <div className="space-y-4">
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
               The PASOA Student Hub is a comprehensive solution designed to provide intelligent,
               responsive support to students and faculty. This project represents the collaborative
               effort of our talented research team, combining cutting-edge AI technology with a deep
               understanding of educational needs. 
             </p>
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
               We are committed to continuous improvement and innovation, ensuring that our chatbot
               system delivers the highest quality assistance and support to our users. 
             </p>
 
-            <p className="text-muted-foreground leading-relaxed">
-              University of Caloocan City, Philippines College of Business and Accountancy Bachelor of Science in Office Administration
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              University of Caloocan City, Bachelor of Science in Office Administration
             </p>
           </div>
         </div>
