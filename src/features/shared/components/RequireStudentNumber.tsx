@@ -9,7 +9,7 @@ export function RequireStudentNumber({ children }: RequireStudentNumberProps) {
   const { profile, isAdmin } = useAuth();
   const location = useLocation();
 
-  const hasStudentNumber = Boolean(profile?.student_id?.trim());
+  const hasStudentNumber = Boolean(profile?.student_id?.trim() && /^20\\d{6}-[A-Z]$/.test(profile.student_id.trim().toUpperCase()));
 
   if (!isAdmin && !hasStudentNumber) {
     return <Navigate to="/profile" state={{ from: location, reason: "student_number_required" }} replace />;
@@ -17,3 +17,4 @@ export function RequireStudentNumber({ children }: RequireStudentNumberProps) {
 
   return <>{children}</>;
 }
+

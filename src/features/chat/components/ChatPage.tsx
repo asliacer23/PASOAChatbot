@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Bot, Loader2, Menu, AlertTriangle, Plus, X, Send } from "lucide-react";
+import { Bot, Loader2, Menu, AlertTriangle, Plus, X, Send, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth";
 import { PasoaMascot } from "@/features/shared/components/PasoaMascot";
 import { toast } from "sonner";
-import { useMessages } from "../hooks/useMessages";
+import { useMessages, type Conversation } from "../hooks/useMessages";
 import { useSmartResponses } from "../hooks/useSmartResponses";
 import { useMessageValidation } from "../hooks/useMessageValidation";
 import { useTypingIndicator } from "../hooks/useTypingIndicator";
@@ -17,6 +17,7 @@ import { ChatInputArea } from "./ChatInputArea";
 import { ConversationSidebar } from "./ConversationSidebar";
 import { ImageViewer } from "./ImageViewer";
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 
 const config = {
   minTypingDelay: 500,
@@ -26,7 +27,7 @@ const config = {
 };
 
 export function ChatPage() {
-  const { user, profile } = useAuth();
+  const { user, profile, isAdmin } = useAuth();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showSidebar, setShowSidebar] = useState(!isMobile);
   const [isTyping, setIsTyping] = useState(false);
@@ -36,6 +37,9 @@ export function ChatPage() {
   const [showSuggestions, setShowSuggestions] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const creatingConversationRef = useRef(false);
+
+  const hasVerifiedStudentNumber = Boolean(profile?.student_id?.trim() && /^20\\d{6}-[A-Z]$/.test(profile.student_id.trim().toUpperCase()));
+  const requiresVerification = !isAdmin && !hasVerifiedStudentNumber;
 
   // Fetch suggested questions from database
   const { suggestions: suggestedQuestions } = useSuggestedQuestions();
@@ -105,7 +109,7 @@ export function ChatPage() {
 
   // Create automatic initial conversation for new users
   useEffect(() => {
-    if (!user?.id || isLoadingConversations || creatingConversationRef.current) return;
+    if (!user?.id || isLoadingConversations || creatingConversationRef.current || requiresVerification) return;
 
     const ensureInitialConversation = async () => {
       // If user already has conversations, don't create one
@@ -155,7 +159,7 @@ export function ChatPage() {
     };
 
     ensureInitialConversation();
-  }, [user?.id, isLoadingConversations, conversations.length, fetchMessages, setConversations, setCurrentConversation]);
+  }, [user?.id, isLoadingConversations, conversations.length, fetchMessages, setConversations, setCurrentConversation, requiresVerification]);
 
   // Handle sending message
   const handleSendMessage = async (content: string, imageFile?: File) => {
@@ -501,7 +505,7 @@ export function ChatPage() {
   };
 
   // Handle select conversation
-  const handleSelectConversation = async (conversation: any) => {
+  const handleSelectConversation = async (conversation: Conversation) => {
     setCurrentConversation(conversation);
     await fetchMessages(conversation.id);
     if (isMobile) {
@@ -597,6 +601,25 @@ export function ChatPage() {
           </Button>
         </div>
 
+        {requiresVerification ? (
+          <div className="flex-1 flex items-center justify-center p-4">
+            <div className="w-full max-w-lg rounded-xl border border-amber-500/30 bg-amber-500/10 p-5 sm:p-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <ShieldAlert className="h-5 w-5 text-amber-600" />
+                <h3 className="text-base sm:text-lg font-semibold text-foreground">Verification Required</h3>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                You need to verify your student number before using the chatbot.
+              </p>
+              <div className="flex gap-2">
+                <Button asChild>
+                  <Link to="/profile">Verify Now</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
         {/* Messages Area */}
         <ScrollArea className="flex-1 overflow-hidden">
           <div className="flex flex-col h-full px-2 sm:px-4 py-2 sm:py-4 space-y-2 sm:space-y-4">
@@ -765,6 +788,8 @@ export function ChatPage() {
             onToggleSuggestions={setShowSuggestions}
           />
         )}
+          </>
+        )}
       </div>
 
       {/* Image Viewer */}
@@ -776,6 +801,11 @@ export function ChatPage() {
     </div>
   );
 }
+
+
+
+
+
 
 
 

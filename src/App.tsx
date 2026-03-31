@@ -62,11 +62,7 @@ const App = () => (
               }>
                 {/* Student Routes */}
                 <Route path="/dashboard" element={<StudentDashboard />} />
-                <Route path="/chat" element={
-                  <RequireStudentNumber>
-                    <ChatInterface />
-                  </RequireStudentNumber>
-                } />
+                <Route path="/chat" element={<ChatInterface />} />
                 <Route path="/faq" element={<FAQCenter />} />
                 <Route path="/events" element={
                   <RequireStudentNumber>
@@ -141,5 +137,6 @@ const App = () => (
 );
 
 export default App;
+
 
 

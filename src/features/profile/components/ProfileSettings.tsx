@@ -17,6 +17,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { PasoaMascot } from "@/features/shared/components/PasoaMascot";
 
+const STUDENT_ID_PATTERN = /^20\d{6}-[A-Z]$/;
+
 const yearLevels = [
   { value: "1", label: "1st Year" },
   { value: "2", label: "2nd Year" },
@@ -186,6 +188,16 @@ export function ProfileSettings() {
         toast({
           title: "Student number required",
           description: "Please enter your student number before saving your profile.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (!STUDENT_ID_PATTERN.test(normalizedStudentId)) {
+        toast({
+          title: "Invalid student number",
+          description: "Use format: 20######-A (example: 20230618-C).",
           variant: "destructive",
         });
         setIsLoading(false);
@@ -362,10 +374,12 @@ export function ProfileSettings() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, student_id: e.target.value.toUpperCase() }))
                   }
-                  placeholder="e.g., 2024-00001"
+                  placeholder="e.g., 20230618-C"
                   required
-                  maxLength={20}
+                  maxLength={10}
                   inputMode="text"
+                  pattern="^20\d{6}-[A-Za-z]$"
+                  title="Use format: 20######-A (example: 20230618-C)"
                   className="rounded-lg sm:rounded-xl text-sm h-9 sm:h-10"
                 />
               </div>
@@ -441,6 +455,7 @@ export function ProfileSettings() {
     </div>
   );
 }
+
 
 
 

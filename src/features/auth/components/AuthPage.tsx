@@ -32,9 +32,7 @@ const signUpSchema = z.object({
   studentId: z
     .string()
     .trim()
-    .min(4, "Student number is required")
-    .max(20, "Student number must be at most 20 characters")
-    .regex(/^[A-Za-z0-9-]+$/, "Student number can only contain letters, numbers, and hyphens"),
+    .regex(/^20\d{6}-[A-Za-z]$/, "Use format: 20######-A (example: 20230618-C)"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -553,8 +551,11 @@ export function AuthPage() {
                         <Label htmlFor="signup-student-id" className="text-xs md:text-sm font-medium">Student Number</Label>
                         <Input
                           id="signup-student-id"
-                          placeholder="e.g., 2024-00001"
+                          placeholder="e.g., 20230618-C"
                           {...signUpForm.register("studentId")}
+                          maxLength={10}
+                          pattern="^20\\d{6}-[A-Za-z]$"
+                          title="Use format: 20######-A (example: 20230618-C)"
                           className="rounded-xl md:rounded-lg bg-secondary/50 border-border/50 h-12 md:h-11 placeholder:text-muted-foreground/60 transition-all duration-300 hover:bg-secondary/70 focus:scale-[1.02] focus:bg-secondary/80 text-base md:text-sm"
                         />
                         {signUpForm.formState.errors.studentId && (
@@ -702,4 +703,5 @@ export function AuthPage() {
     </>
   );
 }
+
 
