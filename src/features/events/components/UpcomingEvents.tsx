@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Calendar, MapPin, Clock, Users, Star, Loader2, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/features/auth";
+import { VerificationRequiredPanel } from "@/features/shared/components/VerificationRequiredPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,6 +24,9 @@ export function UpcomingEvents() {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const hasVerifiedStudentNumber = Boolean(profile?.student_id?.trim() && /^20\d{6}-[A-Z]$/.test(profile.student_id.trim().toUpperCase()));
+  const requiresVerification = !isAdmin && !hasVerifiedStudentNumber;
 
   useEffect(() => {
     fetchEvents();
@@ -59,6 +64,14 @@ export function UpcomingEvents() {
   const handleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
   };
+
+  if (requiresVerification) {
+    return (
+      <div className="w-full min-h-screen bg-background">
+        <VerificationRequiredPanel featureLabel="events" />
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -287,3 +300,6 @@ export function UpcomingEvents() {
     </div>
   );
 }
+
+
+

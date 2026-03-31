@@ -38,7 +38,7 @@ export function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const creatingConversationRef = useRef(false);
 
-  const hasVerifiedStudentNumber = Boolean(profile?.student_id?.trim() && /^20\\d{6}-[A-Z]$/.test(profile.student_id.trim().toUpperCase()));
+  const hasVerifiedStudentNumber = Boolean(profile?.student_id?.trim() && /^20\d{6}-[A-Z]$/.test(profile.student_id.trim().toUpperCase()));
   const requiresVerification = !isAdmin && !hasVerifiedStudentNumber;
 
   // Fetch suggested questions from database
@@ -801,6 +801,7 @@ export function ChatPage() {
     </div>
   );
 }
+
 
 
 

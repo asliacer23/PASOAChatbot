@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth";
+import { VerificationRequiredPanel } from "@/features/shared/components/VerificationRequiredPanel";
 import { PasoaMascot } from "@/features/shared/components/PasoaMascot";
 import { format } from "date-fns";
 
@@ -49,13 +50,17 @@ const quickActions = [
 ];
 
 export function StudentDashboard() {
-  const { profile } = useAuth();
+  const { profile, isAdmin } = useAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const hasVerifiedStudentNumber = Boolean(profile?.student_id?.trim() && /^20\d{6}-[A-Z]$/.test(profile.student_id.trim().toUpperCase()));
+  const requiresVerification = !isAdmin && !hasVerifiedStudentNumber;
+
   useEffect(() => {
+    if (requiresVerification) return;
     fetchAnnouncements();
-  }, []);
+  }, [requiresVerification]);
 
   const fetchAnnouncements = async () => {
     try {
@@ -95,6 +100,14 @@ export function StudentDashboard() {
     if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
     return format(date, "MMM d, yyyy");
   };
+
+  if (requiresVerification) {
+    return (
+      <div className="w-full min-h-screen bg-gradient-to-b from-background via-background to-accent/5">
+        <VerificationRequiredPanel featureLabel="dashboard" />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-background via-background to-accent/5">
@@ -225,3 +238,8 @@ export function StudentDashboard() {
     </div>
   );
 }
+
+
+
+
+

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Bell, Pin, AlertTriangle, Loader2, Search, Filter, Calendar, Eye, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/features/auth";
+import { VerificationRequiredPanel } from "@/features/shared/components/VerificationRequiredPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,13 +28,16 @@ interface Announcement {
 }
 
 export function AnnouncementsList() {
-  const { user } = useAuth();
+  const { user, profile, isAdmin } = useAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const hasVerifiedStudentNumber = Boolean(profile?.student_id?.trim() && /^20\d{6}-[A-Z]$/.test(profile.student_id.trim().toUpperCase()));
+  const requiresVerification = !isAdmin && !hasVerifiedStudentNumber;
 
   useEffect(() => {
     fetchAnnouncements();
@@ -127,6 +131,14 @@ export function AnnouncementsList() {
   });
 
   const unreadCount = announcements.filter((a) => !readIds.has(a.id)).length;
+
+  if (requiresVerification) {
+    return (
+      <div className="w-full min-h-screen bg-gradient-to-b from-background via-background to-accent/5">
+        <VerificationRequiredPanel featureLabel="announcements" />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-background via-background to-accent/5">
@@ -277,3 +289,6 @@ export function AnnouncementsList() {
     </div>
   );
 }
+
+
+

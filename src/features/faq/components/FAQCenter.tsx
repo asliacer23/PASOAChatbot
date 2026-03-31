@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/features/auth";
+import { VerificationRequiredPanel } from "@/features/shared/components/VerificationRequiredPanel";
 
 interface FAQCategory {
   id: string;
@@ -34,10 +36,15 @@ export function FAQCenter() {
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const { profile, isAdmin } = useAuth();
+
+  const hasVerifiedStudentNumber = Boolean(profile?.student_id?.trim() && /^20\d{6}-[A-Z]$/.test(profile.student_id.trim().toUpperCase()));
+  const requiresVerification = !isAdmin && !hasVerifiedStudentNumber;
 
   useEffect(() => {
+    if (requiresVerification) return;
     fetchData();
-  }, []);
+  }, [requiresVerification]);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -87,6 +94,14 @@ export function FAQCenter() {
     const category = categories.find((c) => c.id === categoryId);
     return category?.name || "General";
   };
+
+  if (requiresVerification) {
+    return (
+      <div className="w-full min-h-screen bg-gradient-to-b from-background via-background to-accent/5">
+        <VerificationRequiredPanel featureLabel="FAQ Center" />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-background via-background to-accent/5">
@@ -244,3 +259,8 @@ export function FAQCenter() {
     </div>
   );
 }
+
+
+
+
+
