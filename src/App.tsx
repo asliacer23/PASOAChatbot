@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/features/shared/providers/ThemeProvider";
 import { AuthProvider } from "@/features/auth";
 import { AppLayout } from "@/features/shared/components/AppLayout";
 import { ProtectedRoute } from "@/features/shared/components/ProtectedRoute";
+import { RequireStudentNumber } from "@/features/shared/components/RequireStudentNumber";
 
 // Auth
 import { AuthPage, ForgotPasswordPage, ResetPasswordPage, TermsOfService, PrivacyPolicy } from "@/features/auth";
@@ -61,9 +62,17 @@ const App = () => (
               }>
                 {/* Student Routes */}
                 <Route path="/dashboard" element={<StudentDashboard />} />
-                <Route path="/chat" element={<ChatInterface />} />
+                <Route path="/chat" element={
+                  <RequireStudentNumber>
+                    <ChatInterface />
+                  </RequireStudentNumber>
+                } />
                 <Route path="/faq" element={<FAQCenter />} />
-                <Route path="/events" element={<UpcomingEvents />} />
+                <Route path="/events" element={
+                  <RequireStudentNumber>
+                    <UpcomingEvents />
+                  </RequireStudentNumber>
+                } />
                 <Route path="/announcements" element={<AnnouncementsList />} />
                 <Route path="/profile" element={<ProfileSettings />} />
                 <Route path="/settings" element={<SettingsPage />} />
@@ -132,4 +141,5 @@ const App = () => (
 );
 
 export default App;
+
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { User, Mail, GraduationCap, Loader2, Save, Camera, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/features/auth";
@@ -26,6 +27,7 @@ const yearLevels = [
 export function ProfileSettings() {
   const { profile, refreshProfile, user } = useAuth();
   const { toast } = useToast();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -48,6 +50,16 @@ export function ProfileSettings() {
       setAvatarPreview(profile.avatar_url);
     }
   }, [profile]);
+
+  useEffect(() => {
+    const reason = (location.state as { reason?: string } | null)?.reason;
+    if (reason === "student_number_required") {
+      toast({
+        title: "Student number required",
+        description: "Please complete your student number before accessing this feature.",
+      });
+    }
+  }, [location.state, toast]);
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -169,12 +181,23 @@ export function ProfileSettings() {
 
     setIsLoading(true);
     try {
+      const normalizedStudentId = formData.student_id.trim().toUpperCase();
+      if (!normalizedStudentId) {
+        toast({
+          title: "Student number required",
+          description: "Please enter your student number before saving your profile.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const { error } = await supabase
         .from("profiles")
         .update({
           first_name: formData.first_name,
           last_name: formData.last_name,
-          student_id: formData.student_id || null,
+          student_id: normalizedStudentId,
           year_level: formData.year_level ? parseInt(formData.year_level) : null,
         })
         .eq("id", profile.id);
@@ -187,11 +210,18 @@ export function ProfileSettings() {
         title: "Profile updated",
         description: "Your profile has been successfully updated.",
       });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error updating profile:", error);
+      const duplicateStudentId =
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        (error as { code?: string }).code === "23505";
       toast({
         title: "Error",
-        description: "Failed to update profile. Please try again.",
+        description: duplicateStudentId
+          ? "That student number is already in use. Please check and try again."
+          : "Failed to update profile. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -330,9 +360,12 @@ export function ProfileSettings() {
                   id="student_id"
                   value={formData.student_id}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, student_id: e.target.value }))
+                    setFormData((prev) => ({ ...prev, student_id: e.target.value.toUpperCase() }))
                   }
                   placeholder="e.g., 2024-00001"
+                  required
+                  maxLength={20}
+                  inputMode="text"
                   className="rounded-lg sm:rounded-xl text-sm h-9 sm:h-10"
                 />
               </div>
@@ -408,3 +441,6 @@ export function ProfileSettings() {
     </div>
   );
 }
+
+
+

@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { Calendar, MapPin, Clock, Users, Star, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Clock, Users, Star, Loader2, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface Event {
   id: string;
@@ -19,6 +21,7 @@ interface Event {
 export function UpcomingEvents() {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchEvents();
@@ -52,6 +55,10 @@ export function UpcomingEvents() {
 
   const featuredEvents = events.filter((e) => e.is_featured);
   const regularEvents = events.filter((e) => !e.is_featured);
+
+  const handleExpand = (id: string) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
 
   if (isLoading) {
     return (
@@ -112,12 +119,17 @@ export function UpcomingEvents() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
               {featuredEvents.map((event) => {
                 const { month, day, time } = formatEventDate(event.event_date);
+                const isExpanded = expandedId === event.id;
+
                 return (
                   <div
                     key={event.id}
                     className="group"
                   >
-                    <Card className="h-full border border-primary/20 bg-gradient-to-br from-card to-card/80 hover:border-primary/40 hover:shadow-lg transition-all duration-300 active:scale-95 sm:active:scale-100">
+                    <Card
+                      onClick={() => handleExpand(event.id)}
+                      className="h-full border border-primary/20 bg-gradient-to-br from-card to-card/80 hover:border-primary/40 hover:shadow-lg transition-all duration-300 active:scale-95 sm:active:scale-100 cursor-pointer"
+                    >
                       <CardContent className="p-4 sm:p-6 space-y-4">
                         {/* Featured Badge */}
                         <div className="flex items-center gap-2">
@@ -169,10 +181,20 @@ export function UpcomingEvents() {
 
                         {/* Description */}
                         {event.description && (
-                          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 border-t border-border/40 pt-4">
+                          <p className={cn(
+                            "text-xs sm:text-sm text-muted-foreground border-t border-border/40 pt-4 whitespace-pre-wrap",
+                            !isExpanded && "line-clamp-2"
+                          )}>
                             {event.description}
                           </p>
                         )}
+
+                        <div className="flex justify-end border-t border-border/40 pt-3">
+                          <Button variant="ghost" size="sm" className="text-xs h-8 px-3 text-primary hover:bg-primary/5 font-medium transition-all">
+                            <Eye className="h-3.5 w-3.5 mr-1" />
+                            {isExpanded ? "Less" : "More"}
+                          </Button>
+                        </div>
                       </CardContent>
                     </Card>
                   </div>
@@ -198,10 +220,13 @@ export function UpcomingEvents() {
             ) : (
               regularEvents.map((event) => {
                 const { month, day, time } = formatEventDate(event.event_date);
+                const isExpanded = expandedId === event.id;
+
                 return (
                   <div
                     key={event.id}
-                    className="flex items-start gap-3 sm:gap-4 p-4 sm:p-5 hover:bg-accent/40 transition-colors border-b sm:border sm:border-border/30 sm:rounded-lg last:border-0 active:bg-accent/60 sm:active:bg-accent/40"
+                    onClick={() => handleExpand(event.id)}
+                    className="flex items-start gap-3 sm:gap-4 p-4 sm:p-5 hover:bg-accent/40 transition-colors border-b sm:border sm:border-border/30 sm:rounded-lg last:border-0 active:bg-accent/60 sm:active:bg-accent/40 cursor-pointer"
                   >
                     {/* Date Badge */}
                     <div className="text-center px-2 sm:px-3 py-2 rounded-lg bg-primary/10 border border-primary/20 shrink-0">
@@ -237,6 +262,20 @@ export function UpcomingEvents() {
                           {event.category}
                         </Badge>
                       )}
+                      {event.description && (
+                        <p className={cn(
+                          "text-xs sm:text-sm text-muted-foreground mt-2 whitespace-pre-wrap",
+                          !isExpanded && "line-clamp-2"
+                        )}>
+                          {event.description}
+                        </p>
+                      )}
+                      <div className="flex justify-end mt-2">
+                        <Button variant="ghost" size="sm" className="text-xs h-7 px-2 text-primary hover:bg-primary/5 font-medium transition-all">
+                          <Eye className="h-3.5 w-3.5 mr-1" />
+                          {isExpanded ? "Less" : "More"}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -248,5 +287,3 @@ export function UpcomingEvents() {
     </div>
   );
 }
-
-

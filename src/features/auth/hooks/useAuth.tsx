@@ -25,7 +25,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isSuspended: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, firstName: string, lastName: string, studentId: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -157,7 +157,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error as Error | null };
   };
 
-  const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
+  const signUp = async (email: string, password: string, firstName: string, lastName: string, studentId: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({
@@ -168,6 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         data: {
           first_name: firstName,
           last_name: lastName,
+          student_id: studentId,
         },
       },
     });
@@ -219,3 +220,5 @@ export function useAuth() {
   }
   return context;
 }
+
+

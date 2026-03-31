@@ -29,6 +29,12 @@ const signUpSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
+  studentId: z
+    .string()
+    .trim()
+    .min(4, "Student number is required")
+    .max(20, "Student number must be at most 20 characters")
+    .regex(/^[A-Za-z0-9-]+$/, "Student number can only contain letters, numbers, and hyphens"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -92,7 +98,7 @@ export function AuthPage() {
 
   const signUpForm = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: { firstName: "", lastName: "", email: "", password: "", confirmPassword: "" },
+    defaultValues: { firstName: "", lastName: "", email: "", studentId: "", password: "", confirmPassword: "" },
   });
 
   const handleSignIn = async (data: SignInFormData) => {
@@ -166,7 +172,8 @@ export function AuthPage() {
 
     const data = JSON.parse(pendingData) as SignUpFormData;
     setIsLoading(true);
-    const { error } = await signUp(data.email, data.password, data.firstName, data.lastName);
+    const normalizedStudentId = data.studentId.trim().toUpperCase();
+    const { error } = await signUp(data.email, data.password, data.firstName, data.lastName, normalizedStudentId);
     setIsLoading(false);
     localStorage.removeItem("pendingSignupData");
 
@@ -542,6 +549,18 @@ export function AuthPage() {
                         )}
                       </div>
 
+                      <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: "0.125s" }}>
+                        <Label htmlFor="signup-student-id" className="text-xs md:text-sm font-medium">Student Number</Label>
+                        <Input
+                          id="signup-student-id"
+                          placeholder="e.g., 2024-00001"
+                          {...signUpForm.register("studentId")}
+                          className="rounded-xl md:rounded-lg bg-secondary/50 border-border/50 h-12 md:h-11 placeholder:text-muted-foreground/60 transition-all duration-300 hover:bg-secondary/70 focus:scale-[1.02] focus:bg-secondary/80 text-base md:text-sm"
+                        />
+                        {signUpForm.formState.errors.studentId && (
+                          <p className="text-xs text-destructive animate-shake">{signUpForm.formState.errors.studentId.message}</p>
+                        )}
+                      </div>
                       <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
                         <Label htmlFor="signup-password" className="text-xs md:text-sm font-medium">Password</Label>
                         <div className="relative w-full">
@@ -683,3 +702,4 @@ export function AuthPage() {
     </>
   );
 }
+
