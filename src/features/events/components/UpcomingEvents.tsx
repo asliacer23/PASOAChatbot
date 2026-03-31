@@ -21,6 +21,7 @@ interface Event {
 }
 
 export function UpcomingEvents() {
+  const { profile, isAdmin } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -29,8 +30,9 @@ export function UpcomingEvents() {
   const requiresVerification = !isAdmin && !hasVerifiedStudentNumber;
 
   useEffect(() => {
+    if (requiresVerification) return;
     fetchEvents();
-  }, []);
+  }, [requiresVerification]);
 
   const fetchEvents = async () => {
     try {
