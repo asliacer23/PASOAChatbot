@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Plus, Edit2, Trash2, Save, X, HelpCircle, Eye, MessageCircle, TrendingUp } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, Save, X, HelpCircle, Eye, MessageCircle, TrendingUp, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
