@@ -24,7 +24,7 @@ const features = [
   },
   {
     icon: Calendar,
-    title: "Campus Events & Registration",
+    title: "Campus Events",
     description:
       "Discover and register for campus events. Track attendees, manage capacity, and get automatic notifications.",
     color: "from-orange-500 to-pink-500",
