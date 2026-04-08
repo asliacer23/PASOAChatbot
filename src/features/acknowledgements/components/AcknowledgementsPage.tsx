@@ -18,7 +18,7 @@ interface TeamMember {
 const teamMembers: TeamMember[] = [
   {
     id: "adviser-1",
-    name: "RENZ CATHERINE G. DOMINGO, Phd",
+    name: "RENZ CATHERINE DOMINGO, PhD",
     role: "",
     description: "",
     category: "adviser",
@@ -28,7 +28,7 @@ const teamMembers: TeamMember[] = [
   {
     id: "chairmen-1",
     name: "ALEXIS JOHN M. OBENITA",
-    role: "Research Chairmen",
+    role: "Research Chairman",
     description: "",
     category: "chairperson",
     image: "/images/team/ALEXIS JOHN M. OBENITA (CHAIRMEN).png",

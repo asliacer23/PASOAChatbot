@@ -159,6 +159,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, firstName: string, lastName: string, studentId: string) => {
     const redirectUrl = `${window.location.origin}/`;
+    const normalizedStudentId = studentId.trim().toUpperCase();
+
+    const { data: existingProfile, error: profileLookupError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("student_id", normalizedStudentId)
+      .maybeSingle();
+
+    if (profileLookupError) {
+      // Do not block signup if pre-check cannot run (e.g., policy/env differences).
+      console.warn("Student ID pre-check failed; continuing signup:", profileLookupError.message);
+    }
+
+    if (!profileLookupError && existingProfile) {
+      return { error: new Error("Student ID is already registered. Please use a different Student ID.") };
+    }
     
     const { error } = await supabase.auth.signUp({
       email,
@@ -168,7 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         data: {
           first_name: firstName,
           last_name: lastName,
-          student_id: studentId,
+          student_id: normalizedStudentId,
         },
       },
     });

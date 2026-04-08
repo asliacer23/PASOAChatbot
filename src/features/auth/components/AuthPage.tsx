@@ -43,6 +43,14 @@ const signUpSchema = z.object({
 type SignInFormData = z.infer<typeof signInSchema>;
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
+const STUDENT_ID_REGEX = /^20\d{6}-[A-Z]$/;
+
+const normalizeStudentIdInput = (value: string) =>
+  value
+    .toUpperCase()
+    .replace(/[‐‑‒–—―]/g, "-")
+    .replace(/\s+/g, "");
+
 export function AuthPage() {
   const [showSignInPassword, setShowSignInPassword] = useState(false);
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
@@ -53,6 +61,7 @@ export function AuthPage() {
   const [showEmailVerification, setShowEmailVerification] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState("");
   const [redirectCountdown, setRedirectCountdown] = useState(15);
+  const [studentIdStatus, setStudentIdStatus] = useState<"idle" | "checking" | "available" | "taken" | "error">("idle");
   const { signIn, signUp, user, isAdmin, isLoading: authIsLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -98,6 +107,38 @@ export function AuthPage() {
     resolver: zodResolver(signUpSchema),
     defaultValues: { firstName: "", lastName: "", email: "", studentId: "", password: "", confirmPassword: "" },
   });
+  const watchedStudentId = signUpForm.watch("studentId");
+
+  useEffect(() => {
+    const normalizedStudentId = normalizeStudentIdInput(watchedStudentId || "");
+    if (!normalizedStudentId) {
+      setStudentIdStatus("idle");
+      return;
+    }
+
+    if (!STUDENT_ID_REGEX.test(normalizedStudentId)) {
+      setStudentIdStatus("idle");
+      return;
+    }
+
+    setStudentIdStatus("checking");
+    const timeout = setTimeout(async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("student_id", normalizedStudentId)
+        .maybeSingle();
+
+      if (error) {
+        setStudentIdStatus("error");
+        return;
+      }
+
+      setStudentIdStatus(data ? "taken" : "available");
+    }, 350);
+
+    return () => clearTimeout(timeout);
+  }, [watchedStudentId]);
 
   const handleSignIn = async (data: SignInFormData) => {
     // Check if account is locked due to too many failed attempts
@@ -151,10 +192,24 @@ export function AuthPage() {
   };
 
   const handleSignUp = async (data: SignUpFormData) => {
+    if (studentIdStatus === "taken") {
+      signUpForm.setError("studentId", {
+        type: "manual",
+        message: "Student Number is already registered.",
+      });
+      return;
+    }
+
     // Show terms acceptance first
     setShowTermsAcceptance(true);
     // Store the signup data in localStorage temporarily
-    localStorage.setItem("pendingSignupData", JSON.stringify(data));
+    localStorage.setItem(
+      "pendingSignupData",
+      JSON.stringify({
+        ...data,
+        studentId: normalizeStudentIdInput(data.studentId),
+      })
+    );
   };
 
   const handleSignUpAfterTerms = async () => {
@@ -179,6 +234,19 @@ export function AuthPage() {
       let message = error.message;
       if (error.message.includes("already registered")) {
         message = "An account with this email already exists. Please sign in instead.";
+      } else if (
+        error.message.toLowerCase().includes("student id is already registered") ||
+        (error.message.toLowerCase().includes("student_id") &&
+          (error.message.toLowerCase().includes("unique constraint") ||
+            error.message.toLowerCase().includes("profiles_student_id_key")))
+      ) {
+        message = "That Student Number is already in use. Please use a different Student Number.";
+      } else if (
+        error.message.toLowerCase().includes("profiles_student_id_format_check") ||
+        (error.message.toLowerCase().includes("student_id") &&
+          error.message.toLowerCase().includes("check constraint"))
+      ) {
+        message = "Invalid Student Number format. Please use 20######-A (example: 20230618-C).";
       }
       toast({
         title: "Sign up failed",
@@ -505,7 +573,7 @@ export function AuthPage() {
 
                   {/* Sign Up Tab */}
                   <TabsContent value="signup" className="space-y-3 md:space-y-4 mt-4">
-                    <form onSubmit={signUpForm.handleSubmit(handleSignUp)} className="space-y-3 md:space-y-4">
+                    <form onSubmit={signUpForm.handleSubmit(handleSignUp)} className="space-y-3 md:space-y-4" noValidate>
                       <div className="grid grid-cols-2 gap-2 md:gap-4">
                         <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: "0s" }}>
                           <Label htmlFor="signup-firstname" className="text-xs md:text-sm font-medium">Name</Label>
@@ -552,14 +620,29 @@ export function AuthPage() {
                         <Input
                           id="signup-student-id"
                           placeholder="e.g., 20230618-C"
-                          {...signUpForm.register("studentId")}
+                          {...signUpForm.register("studentId", {
+                            onChange: (e) => {
+                              const normalized = normalizeStudentIdInput(e.target.value).slice(0, 10);
+                              e.target.value = normalized;
+                            },
+                          })}
                           maxLength={10}
-                          pattern="^20\\d{6}-[A-Za-z]$"
-                          title="Use format: 20######-A (example: 20230618-C)"
                           className="rounded-xl md:rounded-lg bg-secondary/50 border-border/50 h-12 md:h-11 placeholder:text-muted-foreground/60 transition-all duration-300 hover:bg-secondary/70 focus:scale-[1.02] focus:bg-secondary/80 text-base md:text-sm"
                         />
                         {signUpForm.formState.errors.studentId && (
                           <p className="text-xs text-destructive animate-shake">{signUpForm.formState.errors.studentId.message}</p>
+                        )}
+                        {!signUpForm.formState.errors.studentId && studentIdStatus === "checking" && (
+                          <p className="text-xs text-muted-foreground">Checking Student Number...</p>
+                        )}
+                        {!signUpForm.formState.errors.studentId && studentIdStatus === "available" && (
+                          <p className="text-xs text-green-600">Student Number is available.</p>
+                        )}
+                        {!signUpForm.formState.errors.studentId && studentIdStatus === "taken" && (
+                          <p className="text-xs text-destructive">Student Number is already registered.</p>
+                        )}
+                        {!signUpForm.formState.errors.studentId && studentIdStatus === "error" && (
+                          <p className="text-xs text-muted-foreground">Unable to verify availability right now. You can still try signing up.</p>
                         )}
                       </div>
                       <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
