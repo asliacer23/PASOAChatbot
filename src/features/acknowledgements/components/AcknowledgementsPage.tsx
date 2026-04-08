@@ -154,6 +154,24 @@ const teamMembers: TeamMember[] = [
   },
 ];
 
+const panelMembers = [
+  {
+    id: "panel-1",
+    name: "ERWIN A. MARIANO, PhD",
+    role: "Panel Member",
+  },
+  {
+    id: "panel-2",
+    name: "RODORA B. DE LUNA, PhD",
+    role: "Panel Chairman",
+  },
+  {
+    id: "panel-3",
+    name: "RYLAND A. RUIZ, PhD",
+    role: "Panel Member",
+  },
+];
+
 export function AcknowledgementsPage() {
   const navigate = useNavigate();
 
@@ -172,12 +190,14 @@ export function AcknowledgementsPage() {
   const adviserRef = useRef<HTMLDivElement>(null);
   const chairpersonsRef = useRef<HTMLDivElement>(null);
   const membersRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
 
   const [visibleSections, setVisibleSections] = useState({
     adviser: false,
     chairpersons: false,
     members: false,
+    panel: false,
     about: false,
   });
 
@@ -199,7 +219,7 @@ export function AcknowledgementsPage() {
       { threshold: 0.1 }
     );
 
-    const refs = [adviserRef, chairpersonsRef, membersRef, aboutRef];
+    const refs = [adviserRef, chairpersonsRef, membersRef, panelRef, aboutRef];
     refs.forEach((ref) => {
       if (ref.current) observer.observe(ref.current);
     });
@@ -307,6 +327,39 @@ export function AcknowledgementsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 place-items-center">
               {members.map((member) => (
                 <TeamMemberCard key={member.id} member={member} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Panel Section */}
+        {panelMembers.length > 0 && (
+          <section
+            ref={panelRef}
+            data-section="panel"
+            className={`space-y-6 transition-all duration-700 ${
+              visibleSections.panel ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
+          >
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl sm:text-3xl font-bold">Panel Committee</h2>
+              <p className="text-muted-foreground">
+                Our panel members who evaluated and guided this research.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              {panelMembers.map((panelist) => (
+                <Card
+                  key={panelist.id}
+                  className="relative overflow-hidden w-80 max-w-full mx-auto border border-border/40 bg-card/90 rounded-2xl shadow-sm"
+                >
+                  <div className="absolute left-0 top-0 h-1 w-full bg-primary" />
+                  <CardContent className="p-7 text-center space-y-4">
+                    <h3 className="text-lg sm:text-xl font-bold leading-tight">{panelist.name}</h3>
+                    <p className="text-sm sm:text-base font-semibold text-primary">{panelist.role}</p>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </section>
