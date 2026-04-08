@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
 import { useAuth } from "@/features/auth";
+import { PasoaLoadingScreen } from "@/features/shared/components/PasoaLoadingScreen";
 import { LandingNavigation } from "./components/LandingNavigation";
 import { HeroSection } from "./components/HeroSection";
 import { FeaturesSection } from "./components/FeaturesSection";
@@ -54,11 +54,7 @@ export function LandingPage() {
   }, [user, isLoading]);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <PasoaLoadingScreen message="Preparing PASOA Student Hub..." />;
   }
 
   // If authenticated, navigate to the appropriate dashboard

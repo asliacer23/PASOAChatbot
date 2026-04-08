@@ -358,6 +358,52 @@
   .animation-delay-4000 {
     animation-delay: 4s;
   }
+
+  /* Continuous orbit for acknowledgement profile rings */
+  .animate-arc-orbit {
+    transform-origin: center;
+    transform-box: fill-box;
+    animation: arc-orbit 7s linear infinite;
+    will-change: transform;
+  }
+
+  @keyframes arc-orbit {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-arc-orbit {
+      animation: none;
+    }
+  }
+
+  /* Circulating ring animation for PASOA loading screens */
+  .animate-logo-circulate {
+    transform-origin: center;
+    transform-box: fill-box;
+    animation: logo-circulate 2.4s linear infinite;
+    will-change: transform;
+  }
+
+  @keyframes logo-circulate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-logo-circulate {
+      animation: none;
+    }
+  }
 }
 
 @layer utilities {

@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Moon, Sun, Palette, Bell, Loader2, Settings } from "lucide-react";
+import { Moon, Sun, Palette, Bell, Settings } from "lucide-react";
 import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/features/auth";
+import { PasoaLoadingScreen } from "@/features/shared/components/PasoaLoadingScreen";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -107,11 +108,7 @@ export function SettingsPage() {
   };
 
   if (!mounted || isLoading) {
-    return (
-      <div className="w-full min-h-screen bg-gradient-to-b from-background via-background to-accent/5 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <PasoaLoadingScreen message="Loading settings..." />;
   }
 
   return (

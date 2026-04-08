@@ -29,7 +29,7 @@ export function TeamMemberCard({ member }: TeamMemberCardProps) {
     <div className="flex flex-col items-center gap-4 animate-fade-up">
       <div className="relative h-56 w-56">
         <svg
-          className="absolute inset-0 h-full w-full"
+          className="absolute inset-0 h-full w-full animate-arc-orbit"
           viewBox="0 0 200 200"
           aria-hidden="true"
         >
